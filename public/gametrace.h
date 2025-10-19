@@ -17,7 +17,6 @@
 #include "tier1/generichash.h"
 #include "tier1/utlvector.h"
 #include "tier1/utlstring.h"
-#include "ispatialpartition.h"
 
 class IPhysicsBody;
 class IPhysicsShape;

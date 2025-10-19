@@ -18,7 +18,6 @@
 #include "edict.h"
 #include "iserverentity.h"
 #include "engine/ivmodelinfo.h"
-#include "soundflags.h"
 #include "bitvec.h"
 #include "tier1/bitbuf.h"
 #include "tier1/utlmap.h"
