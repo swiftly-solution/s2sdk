@@ -27,7 +27,6 @@
 #include <steam/steamclientpublic.h>
 #include "playerslot.h"
 #include <iloopmode.h>
-#include "network_connection.pb.h"
 
 //-----------------------------------------------------------------------------
 // forward declarations
