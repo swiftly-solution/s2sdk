@@ -13,10 +13,11 @@
 
 
 #include "entity2/entityinstance.h"
+#include "entity2/entityidentity.h"
 #include "basetypes.h"
 #include "bitvec.h"
 #include "const.h"
-
+#include "playerslot.h"
 
 
 // Entities can span this many clusters before we revert to a slower area checking algorithm
@@ -33,13 +34,25 @@ class CSerialEntity;
 class CBaseNetworkable;
 
 
+struct vis_info_t
+{
+	uint32 m_uVisBitsBufSize;
+	SpawnGroupHandle_t m_SpawnGroupHandle;
+	CBitVec<4096> m_VisBits;
+};
+
 class CCheckTransmitInfo
 {
 public:
-	CBitVec<MAX_EDICTS>	*m_pTransmitEntity;	// entity n is already marked for transmission
-	CBitVec<MAX_EDICTS>	*m_pTransmitAlways; // entity n is always send even if not in PVS (HLTV and Replay only)
-
-	// TODO: This is incomplete and may require further reversing in the future.
+	CBitVec<MAX_EDICTS>* m_pTransmitEntity;
+	CBitVec<MAX_EDICTS>* m_pTransmitNonPlayers;
+	CBitVec<MAX_EDICTS>* m_pUnkBitVec2;
+	CBitVec<MAX_EDICTS>* m_pUnkBitVec3;
+	CBitVec<MAX_EDICTS>* m_pTransmitAlways;
+	CUtlLeanVector<CPlayerSlot> m_vecTargetSlots;
+	vis_info_t m_VisInfo;
+	CPlayerSlot m_nPlayerSlot;
+	bool m_bFullUpdate = false;
 };
 
 //-----------------------------------------------------------------------------
@@ -48,13 +61,13 @@ public:
 struct PVSInfo_t
 {
 	// headnode for the entity's bounding box
-	short		m_nHeadNode;			
+	short		m_nHeadNode;
 
 	// number of clusters or -1 if too many
-	short		m_nClusterCount;		
+	short		m_nClusterCount;
 
 	// cluster indices
-	unsigned short *m_pClusters;	
+	unsigned short* m_pClusters;
 
 	// For dynamic "area portals"
 	short		m_nAreaNum;
@@ -73,25 +86,25 @@ private:
 // IServerNetworkable is the interface the engine uses for all networkable data.
 class IServerNetworkable
 {
-// These functions are handled automatically by the server_class macros and CBaseNetworkable.
+	// These functions are handled automatically by the server_class macros and CBaseNetworkable.
 public:
 	// Gets at the entity handle associated with the collideable
-	virtual CEntityInstance	*GetEntityHandle() = 0;
+	virtual CEntityInstance* GetEntityHandle() = 0;
 
 	// Tell the engine which class this object is.
-	virtual ServerClass*	GetServerClass() = 0;
+	virtual ServerClass* GetServerClass() = 0;
 
-	virtual edict_t			*GetEdict() const = 0;
+	virtual edict_t* GetEdict() const = 0;
 
-	virtual const char*		GetClassName() const = 0;
+	virtual const char* GetClassName() const = 0;
 	virtual void			Release() = 0;
 
 	virtual int				AreaNum() const = 0;
 
 	// In place of a generic QueryInterface.
 	virtual CBaseNetworkable* GetBaseNetworkable() = 0;
-	virtual CBaseEntity*	GetBaseEntity() = 0; // Only used by game code.
-	virtual PVSInfo_t*		GetPVSInfo() = 0; // get current visibilty data
+	virtual CBaseEntity* GetBaseEntity() = 0; // Only used by game code.
+	virtual PVSInfo_t* GetPVSInfo() = 0; // get current visibilty data
 
 protected:
 	// Should never call delete on this! 
