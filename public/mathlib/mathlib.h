@@ -16,6 +16,15 @@
 
 void AngleVectors(const QAngle & angles, Vector * forward, Vector * right, Vector * up);
 
+template <class T>
+void V_swap(T& x, T& y)
+{
+	T temp = x;
+	x = y;
+	y = temp;
+}
+
+
 enum MatrixAxisType_t
 {
 	FORWARD_AXIS = 0,
