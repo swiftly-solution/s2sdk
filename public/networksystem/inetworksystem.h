@@ -131,7 +131,7 @@ public:
 	virtual void unk301() = 0;
 	virtual void unk302() = 0;
 
-	virtual void RejectConnection( uint32 steam_handle, ENetworkDisconnectionReason reason, void * = nullptr ) = 0;
+	virtual void RejectConnection( uint32 steam_handle, int reason, void * = nullptr ) = 0;
 
 	virtual void unk401() = 0;
 	virtual void unk402() = 0;

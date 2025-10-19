@@ -16,7 +16,6 @@
 #include "basetypes.h"
 #include "bitvec.h"
 #include "const.h"
-#include "bspfile.h"
 
 
 

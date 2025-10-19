@@ -144,7 +144,7 @@ public:
 	Vector4D		GetVector4D( const EntityKeyId_t &id, const Vector4D &defaultValue = Vector4D( 0.0f, 0.0f, 0.0f, 0.0f ) ) const;
 	Quaternion		GetQuaternion( const EntityKeyId_t &id, const Quaternion &defaultValue = Quaternion( 0.0f, 0.0f, 0.0f, 0.0f ) ) const;
 	QAngle			GetQAngle( const EntityKeyId_t &id, const QAngle &defaultValue = QAngle( 0.0f, 0.0f, 0.0f ) ) const;
-	matrix3x4_t		GetMatrix3x4( const EntityKeyId_t &id, const matrix3x4_t &defaultValue = matrix3x4_t( Vector( 0.0f, 0.0f, 0.0f ), Vector( 0.0f, 0.0f, 0.0f ), Vector( 0.0f, 0.0f, 0.0f ), Vector( 0.0f, 0.0f, 0.0f ) ) ) const;
+	matrix3x4_t		GetMatrix3x4( const EntityKeyId_t &id, const matrix3x4_t &defaultValue = matrix3x4_t( 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f ) ) const;
 
 	void SetBool( const EntityKeyId_t &id, bool value, bool bAsAttribute = false );
 	void SetInt( const EntityKeyId_t &id, int value, bool bAsAttribute = false );

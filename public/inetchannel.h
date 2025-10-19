@@ -75,7 +75,7 @@ public:
 
 	virtual void	Reset( void ) = 0;
 	virtual void	Clear( void ) = 0;
-	virtual void	Shutdown( ENetworkDisconnectionReason reason ) = 0;
+	virtual void	Shutdown( int reason ) = 0;
 	
 	virtual HSteamNetConnection GetSteamNetConnection( void ) const = 0;
 	
@@ -110,7 +110,7 @@ public:
 	virtual void	unk111() = 0;
 	virtual void	unk112() = 0;
 	
-	virtual bool	IsRemoteDisconnected( ENetworkDisconnectionReason &reason ) const = 0;
+	virtual bool	IsRemoteDisconnected( int &reason ) const = 0;
 
 	virtual void	SetNetMessageDispatcher( INetMessageDispatcher *pDispatcher ) = 0;
 	virtual INetMessageDispatcher *GetNetMessageDispatcher( void ) const = 0;
@@ -135,8 +135,8 @@ public:
 	virtual void	InsertReplayMessage( InstantReplayMessage_t &msg ) = 0;
 	virtual bool	HasQueuedNetMessages( int nMessageId ) const = 0;
 
-	virtual void	SetPendingDisconnect( ENetworkDisconnectionReason reason ) = 0;
-	virtual ENetworkDisconnectionReason GetPendingDisconnect( void ) const = 0;
+	virtual void	SetPendingDisconnect( int reason ) = 0;
+	virtual int GetPendingDisconnect(void) const = 0;
 
 	virtual void	SuppressTransmit( bool suppress ) = 0;
 	virtual bool	IsSuppressingTransmit( void ) const = 0;

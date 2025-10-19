@@ -16,7 +16,6 @@
 #include "tier1/convar.h"
 #include "icvar.h"
 #include "edict.h"
-#include "mathlib/vplane.h"
 #include "iserverentity.h"
 #include "engine/ivmodelinfo.h"
 #include "soundflags.h"

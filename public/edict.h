@@ -12,7 +12,6 @@
 #endif
 
 #include "mathlib/vector.h"
-#include "cmodel.h"
 #include "const.h"
 #include "iserverentity.h"
 #include "globalvars_base.h"

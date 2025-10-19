@@ -11,7 +11,6 @@
 #endif
 
 
-#include "cmodel.h"
 #include "Color.h"
 #include "entity2/entityinstance.h"
 #include "mathlib/transform.h"
@@ -25,6 +24,15 @@ class IPhysicsShape;
 
 typedef IPhysicsBody* HPhysicsBody;
 typedef IPhysicsShape* HPhysicsShape;
+
+enum RayType_t : uint8
+{
+	RAY_TYPE_LINE = 0,
+	RAY_TYPE_SPHERE,
+	RAY_TYPE_HULL,
+	RAY_TYPE_CAPSULE,
+	RAY_TYPE_MESH,
+};
 
 enum CollisionFunctionMask_t
 {

@@ -559,10 +559,10 @@ void ConVarRefAbstract::InvalidateConVarData( EConVarType type )
 {
 	InvalidateRef();
 
-	if(type == EConVarType_Invalid)
-		m_ConVarData = GetInvalidConVarData( EConVarType_Invalid );
-	else
-		m_ConVarData = GetCvarTypeTraits( type )->m_InvalidCvarData;
+	// if(type == EConVarType_Invalid)
+	// 	m_ConVarData = GetInvalidConVarData( EConVarType_Invalid );
+	// else
+	// 	m_ConVarData = GetCvarTypeTraits( type )->m_InvalidCvarData;
 }
 
 void ConVarRefAbstract::CallChangeCallbacks( CSplitScreenSlot slot, CVValue_t *new_value, CVValue_t *prev_value, const char *new_str, const char *prev_str )
