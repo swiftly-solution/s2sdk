@@ -106,46 +106,46 @@
 enum Flags_t : uint32
 {
 	// PLAYER SPECIFIC FLAGS
-	FL_ONGROUND 				= (1u << 0), // At rest / on the ground
-	FL_DUCKING 					= (1u << 1), // Player flag -- Player is fully crouched
-	FL_WATERJUMP 				= (1u << 2), // player jumping out of water
+	FL_ONGROUND = (1u << 0), // At rest / on the ground
+	FL_DUCKING = (1u << 1), // Player flag -- Player is fully crouched
+	FL_WATERJUMP = (1u << 2), // player jumping out of water
 	// FL_EMPTY					= (1u << 3),
-	FL_BOT 						= (1u << 4), // Fake client controlled pawn entity, mostly referenced in movement related code
-	FL_FROZEN 					= (1u << 5), // Player is frozen for 3rd person camera
-	FL_ATCONTROLS 				= (1u << 6), // Player can't move, but keeps key inputs for controlling another entity
-	FL_CLIENT 					= (1u << 7), // Is a player
-	FL_FAKECLIENT 				= (1u << 8), // Fake client, simulated server side. Mainly set on controllers
+	FL_BOT = (1u << 4), // Fake client controlled pawn entity, mostly referenced in movement related code
+	FL_FROZEN = (1u << 5), // Player is frozen for 3rd person camera
+	FL_ATCONTROLS = (1u << 6), // Player can't move, but keeps key inputs for controlling another entity
+	FL_CLIENT = (1u << 7), // Is a player
+	FL_FAKECLIENT = (1u << 8), // Fake client, simulated server side. Mainly set on controllers
 	// FL_EMPTY 				= (1u << 9),
 
 	// NON-PLAYER SPECIFIC (i.e., not used by GameMovement or the client .dll ) -- Can still be applied to players, though
-	FL_FLY 						= (1u << 10), // Changes the SV_Movestep() behavior to not need to be on ground
-	FL_SUPPRESS_SAVE 			= (1u << 11),
-	FL_IN_VEHICLE 				= (1u << 12),
-	FL_IN_VEHICLE_TRANSPORT 	= (1u << 13),
-	FL_GODMODE 					= (1u << 14),
-	FL_NOTARGET 				= (1u << 15),
-	FL_AIMTARGET 				= (1u << 16), // set if the crosshair needs to aim onto the entity
+	FL_FLY = (1u << 10), // Changes the SV_Movestep() behavior to not need to be on ground
+	FL_SUPPRESS_SAVE = (1u << 11),
+	FL_IN_VEHICLE = (1u << 12),
+	FL_IN_VEHICLE_TRANSPORT = (1u << 13),
+	FL_GODMODE = (1u << 14),
+	FL_NOTARGET = (1u << 15),
+	FL_AIMTARGET = (1u << 16), // set if the crosshair needs to aim onto the entity
 	// FL_EMPTY 				= (1u << 17),
-	FL_STATICPROP 				= (1u << 18), // Eetsa static prop!
+	FL_STATICPROP = (1u << 18), // Eetsa static prop!
 	// FL_EMPTY 				= (1u << 19),
-	FL_GRENADE 					= (1u << 20),
+	FL_GRENADE = (1u << 20),
 	// FL_EMPTY					= (1u << 21),
-	FL_DONTTOUCH 				= (1u << 22), // Doesn't generate touch functions, generates Untouch() for anything it was touching when this flag was set
-	FL_BASEVELOCITY 			= (1u << 23),
-	FL_CONVEYOR 				= (1u << 24),
-	FL_OBJECT 					= (1u << 25), // Terrible name. This is an object that NPCs should see. Missiles, for example.
+	FL_DONTTOUCH = (1u << 22), // Doesn't generate touch functions, generates Untouch() for anything it was touching when this flag was set
+	FL_BASEVELOCITY = (1u << 23),
+	FL_CONVEYOR = (1u << 24),
+	FL_OBJECT = (1u << 25), // Terrible name. This is an object that NPCs should see. Missiles, for example.
 	// FL_EMPTY 				= (1u << 26),
-	FL_ONFIRE 					= (1u << 27), // You know...
-	FL_DISSOLVING 				= (1u << 28), // We're dissolving!
-	FL_TRANSRAGDOLL 			= (1u << 29), // In the process of turning into a client side ragdoll.
-	FL_UNBLOCKABLE_BY_PLAYER 	= (1u << 30)  // pusher that can't be blocked by the player
+	FL_ONFIRE = (1u << 27), // You know...
+	FL_DISSOLVING = (1u << 28), // We're dissolving!
+	FL_TRANSRAGDOLL = (1u << 29), // In the process of turning into a client side ragdoll.
+	FL_UNBLOCKABLE_BY_PLAYER = (1u << 30)  // pusher that can't be blocked by the player
 	// FL_EMPTY 				= (1u << 31),
 };
 
 // edict->movetype values
 enum MoveType_t : uint8
 {
-	MOVETYPE_NONE		= 0,	// never moves
+	MOVETYPE_NONE = 0,	// never moves
 	MOVETYPE_OBSOLETE,			// Previously isometric movetype
 	MOVETYPE_WALK,				// Player only - moving on the ground
 	MOVETYPE_FLY,				// No gravity, but still collides with stuff
@@ -159,9 +159,9 @@ enum MoveType_t : uint8
 
 	// should always be defined as the last item in the list
 	MOVETYPE_LAST,
-	MOVETYPE_INVALID	= MOVETYPE_LAST,
+	MOVETYPE_INVALID = MOVETYPE_LAST,
 
-	MOVETYPE_MAX_BITS	= 5
+	MOVETYPE_MAX_BITS = 5
 };
 
 // edict->movecollide values
@@ -189,41 +189,41 @@ enum MoveCollide_t : uint8
 // NOTE: These numerical values are used in the FGD by the prop code (see prop_dynamic)
 enum SolidType_t : uint8
 {
-	SOLID_NONE			= 0,	// no solid model
-	SOLID_BSP			= 1,	// a BSP tree
-	SOLID_BBOX			= 2,	// an AABB
-	SOLID_OBB			= 3,	// an OBB (not implemented yet)
-	SOLID_SPHERE		= 4,
-	SOLID_POINT			= 5,
-	SOLID_VPHYSICS		= 6,	// solid vphysics object, get vcollide from the model and collide with that
-	SOLID_CAPSULE		= 7,
+	SOLID_NONE = 0,	// no solid model
+	SOLID_BSP = 1,	// a BSP tree
+	SOLID_BBOX = 2,	// an AABB
+	SOLID_OBB = 3,	// an OBB (not implemented yet)
+	SOLID_SPHERE = 4,
+	SOLID_POINT = 5,
+	SOLID_VPHYSICS = 6,	// solid vphysics object, get vcollide from the model and collide with that
+	SOLID_CAPSULE = 7,
 	SOLID_LAST,
 };
 
 // GAMMACASE: Potentially obsolete
 enum SolidFlags_t
 {
-	FSOLID_CUSTOMRAYTEST		= 0x0001,	// Ignore solid type + always call into the entity for ray tests
-	FSOLID_CUSTOMBOXTEST		= 0x0002,	// Ignore solid type + always call into the entity for swept box tests
-	FSOLID_NOT_SOLID			= 0x0004,	// Are we currently not solid?
-	FSOLID_TRIGGER				= 0x0008,	// This is something may be collideable but fires touch functions
-											// even when it's not collideable (when the FSOLID_NOT_SOLID flag is set)
-	FSOLID_NOT_STANDABLE		= 0x0010,	// You can't stand on this
-	FSOLID_VOLUME_CONTENTS		= 0x0020,	// Contains volumetric contents (like water)
-	FSOLID_FORCE_WORLD_ALIGNED	= 0x0040,	// Forces the collision rep to be world-aligned even if it's SOLID_BSP or SOLID_VPHYSICS
-	FSOLID_USE_TRIGGER_BOUNDS	= 0x0080,	// Uses a special trigger bounds separate from the normal OBB
-	FSOLID_ROOT_PARENT_ALIGNED	= 0x0100,	// Collisions are defined in root parent's local coordinate space
-	FSOLID_TRIGGER_TOUCH_DEBRIS	= 0x0200,	// This trigger will touch debris objects
-	FSOLID_TRIGGER_TOUCH_PLAYER	= 0x0400,	// This trigger will touch only players
-	FSOLID_NOT_MOVEABLE			= 0x0800,	// Assume this object will not move
+	FSOLID_CUSTOMRAYTEST = 0x0001,	// Ignore solid type + always call into the entity for ray tests
+	FSOLID_CUSTOMBOXTEST = 0x0002,	// Ignore solid type + always call into the entity for swept box tests
+	FSOLID_NOT_SOLID = 0x0004,	// Are we currently not solid?
+	FSOLID_TRIGGER = 0x0008,	// This is something may be collideable but fires touch functions
+	// even when it's not collideable (when the FSOLID_NOT_SOLID flag is set)
+	FSOLID_NOT_STANDABLE = 0x0010,	// You can't stand on this
+	FSOLID_VOLUME_CONTENTS = 0x0020,	// Contains volumetric contents (like water)
+	FSOLID_FORCE_WORLD_ALIGNED = 0x0040,	// Forces the collision rep to be world-aligned even if it's SOLID_BSP or SOLID_VPHYSICS
+	FSOLID_USE_TRIGGER_BOUNDS = 0x0080,	// Uses a special trigger bounds separate from the normal OBB
+	FSOLID_ROOT_PARENT_ALIGNED = 0x0100,	// Collisions are defined in root parent's local coordinate space
+	FSOLID_TRIGGER_TOUCH_DEBRIS = 0x0200,	// This trigger will touch debris objects
+	FSOLID_TRIGGER_TOUCH_PLAYER = 0x0400,	// This trigger will touch only players
+	FSOLID_NOT_MOVEABLE = 0x0800,	// Assume this object will not move
 
-	FSOLID_MAX_BITS	= 12
+	FSOLID_MAX_BITS = 12
 };
 
 //-----------------------------------------------------------------------------
 // A couple of inline helper methods
 //-----------------------------------------------------------------------------
-inline bool IsSolid( SolidType_t solidType, int nSolidFlags )
+inline bool IsSolid(SolidType_t solidType, int nSolidFlags)
 {
 	return (solidType != SOLID_NONE) && ((nSolidFlags & FSOLID_NOT_SOLID) == 0);
 }
@@ -231,11 +231,12 @@ inline bool IsSolid( SolidType_t solidType, int nSolidFlags )
 // m_lifeState values
 enum LifeState_t
 {
-	LIFE_ALIVE			= 0x0,	// alive
-	LIFE_DYING			= 0x1,	// playing death animation or still falling off of a ledge waiting to hit ground
-	LIFE_DEAD			= 0x2,	// dead. lying still.
-	LIFE_RESPAWNABLE	= 0x3,
-	LIFE_RESPAWNING		= 0x4
+	LIFE_ALIVE = 0x0,	// alive
+	LIFE_DYING = 0x1,	// playing death animation or still falling off of a ledge waiting to hit ground
+	LIFE_DEAD = 0x2,	// dead. lying still.
+	LIFE_RESPAWNABLE = 0x3,
+	LIFE_RESPAWNING = 0x4,
+	LIFE_MAX
 };
 
 // entity effects
@@ -244,14 +245,14 @@ enum EntityEffects_t : uint16
 	// EF_EMPTY				= (1 << 0),
 	// EF_EMPTY				= (1 << 1),
 	// EF_EMPTY				= (1 << 2),
-	DEPRICATED_EF_NOINTERP	= (1 << 3),	// don't interpolate the next frame
-	EF_NOSHADOW				= (1 << 4),	// Don't cast no shadow
-	EF_NODRAW				= (1 << 5),	// don't draw entity
-	EF_NORECEIVESHADOW		= (1 << 6),	// Don't receive no shadow
+	DEPRICATED_EF_NOINTERP = (1 << 3),	// don't interpolate the next frame
+	EF_NOSHADOW = (1 << 4),	// Don't cast no shadow
+	EF_NODRAW = (1 << 5),	// don't draw entity
+	EF_NORECEIVESHADOW = (1 << 6),	// Don't receive no shadow
 	// EF_EMPTY				= (1 << 7),
 	// EF_EMPTY				= (1 << 8),
-	EF_PARENT_ANIMATES		= (1 << 9),
-	EF_NODRAW_BUT_TRANSMIT	= (1 << 10),
+	EF_PARENT_ANIMATES = (1 << 9),
+	EF_NODRAW_BUT_TRANSMIT = (1 << 10),
 	EF_MAX_BITS = 10
 };
 
@@ -306,7 +307,7 @@ enum EntityEffects_t : uint16
 // Rendering constants
 // if this is changed, update common/MaterialSystem/Sprite.cpp
 enum RenderMode_t : unsigned char
-{	
+{
 	kRenderNormal = 0,		// src
 	kRenderTransColor,		// c*a+dest*(1-a)
 	kRenderTransTexture,	// src*a+dest*(1-a)
@@ -324,22 +325,22 @@ enum RenderMode_t : unsigned char
 };
 
 enum RenderFx_t : unsigned char
-{	
-	kRenderFxNone = 0, 
-	kRenderFxPulseSlow, 
-	kRenderFxPulseFast, 
-	kRenderFxPulseSlowWide, 
-	kRenderFxPulseFastWide, 
+{
+	kRenderFxNone = 0,
+	kRenderFxPulseSlow,
+	kRenderFxPulseFast,
+	kRenderFxPulseSlowWide,
+	kRenderFxPulseFastWide,
 
-	kRenderFxFadeSlow, 
-	kRenderFxFadeFast, 
-	kRenderFxSolidSlow, 
-	kRenderFxSolidFast, 	   
-	kRenderFxStrobeSlow, 
+	kRenderFxFadeSlow,
+	kRenderFxFadeFast,
+	kRenderFxSolidSlow,
+	kRenderFxSolidFast,
+	kRenderFxStrobeSlow,
 
-	kRenderFxStrobeFast, 
-	kRenderFxStrobeFaster, 
-	kRenderFxFlickerSlow, 
+	kRenderFxStrobeFast,
+	kRenderFxStrobeFaster,
+	kRenderFxFlickerSlow,
 	kRenderFxFlickerFast,
 	kRenderFxNoDissipation,
 
@@ -433,7 +434,7 @@ enum StandardCollisionGroups_t
 	COLLISION_GROUP_BREAKABLE_GLASS,
 	COLLISION_GROUP_VEHICLE,
 	COLLISION_GROUP_PLAYER_MOVEMENT,  // For HL2, same as Collision_Group_Player, for
-										// TF2, this filters out other players and CBaseObjects
+	// TF2, this filters out other players and CBaseObjects
 	COLLISION_GROUP_NPC,			// Generic NPC group
 	COLLISION_GROUP_IN_VEHICLE,		// for any entity inside a vehicle
 	COLLISION_GROUP_WEAPON,			// for any weapons that need collision detection
