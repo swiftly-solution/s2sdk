@@ -14,6 +14,7 @@
 #include "const.h"
 #include "eiface.h"
 #include "inetchannel.h"
+#include "playerslot.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: Generic interface for routing messages to users
@@ -27,7 +28,7 @@ public:
 	virtual bool	IsInitMessage(void) const = 0;
 
 	virtual const CPlayerBitVec& GetRecipients(void) const = 0;
-	virtual int GetPredictedPlayerSlot(void) const = 0;
+	virtual CPlayerSlot GetPredictedPlayerSlot(void) const = 0;
 };
 
 #endif // IRECIPIENTFILTER_H
