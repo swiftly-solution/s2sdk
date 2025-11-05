@@ -23,10 +23,11 @@ class IRecipientFilter
 public:
 	virtual			~IRecipientFilter() {}
 
-	virtual NetChannelBufType_t	GetNetworkBufType( void ) const = 0;
-	virtual bool	IsInitMessage( void ) const = 0;
+	virtual NetChannelBufType_t	GetNetworkBufType(void) const = 0;
+	virtual bool	IsInitMessage(void) const = 0;
 
-	virtual const CPlayerBitVec &GetRecipients( void ) const = 0;
+	virtual const CPlayerBitVec& GetRecipients(void) const = 0;
+	virtual int GetPredictedPlayerSlot(void) const = 0;
 };
 
 #endif // IRECIPIENTFILTER_H
