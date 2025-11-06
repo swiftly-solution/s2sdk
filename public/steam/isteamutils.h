@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
+//====== Copyright � 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: interface to utility functions in Steam
 //
@@ -215,6 +215,9 @@ public:
 
 	// Dismisses the floating keyboard.
 	virtual bool DismissFloatingGamepadTextInput() = 0;
+
+	// Dismisses the full-screen text input dialog.
+	virtual bool DismissGamepadTextInput() = 0;
 };
 
 #define STEAMUTILS_INTERFACE_VERSION "SteamUtils010"

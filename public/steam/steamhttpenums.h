@@ -1,4 +1,4 @@
-//====== Copyright Â© 1996-2010, Valve Corporation, All rights reserved. =======
+//====== Copyright © 1996-2010, Valve Corporation, All rights reserved. =======
 //
 // Purpose: HTTP related enums, stuff that is shared by both clients and servers, and our
 // UI projects goes here.
@@ -96,5 +96,10 @@ enum EHTTPStatusCode
 	k_EHTTPStatusCode505HTTPVersionNotSupported = 505,
 	k_EHTTPStatusCode5xxUnknown =				599,
 };
+
+inline bool BIsHTTPStatusSuccess( EHTTPStatusCode eStatus )
+{
+	return eStatus >= 200 && eStatus <= 299;
+}
 
 #endif // STEAMHTTPENUMS_H

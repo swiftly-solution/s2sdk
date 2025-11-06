@@ -1,4 +1,4 @@
-//====== Copyright © 1996-2008, Valve Corporation, All rights reserved. =======
+//====== Copyright � 1996-2008, Valve Corporation, All rights reserved. =======
 //
 // Purpose: public interface to user remote file storage in Steam
 //
@@ -102,9 +102,10 @@ enum EWorkshopFileType
 	k_EWorkshopFileTypeSteamworksAccessInvite = 13,		// internal
 	k_EWorkshopFileTypeSteamVideo			  = 14,		// Steam video
 	k_EWorkshopFileTypeGameManagedItem		  = 15,		// managed completely by the game, not the user, and not shown on the web
+	k_EWorkshopFileTypeClip					  = 16,		// internal
 
 	// Update k_EWorkshopFileTypeMax if you add values.
-	k_EWorkshopFileTypeMax = 16
+	k_EWorkshopFileTypeMax = 17
 	
 };
 

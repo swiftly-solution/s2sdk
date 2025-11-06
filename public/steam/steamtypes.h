@@ -17,15 +17,11 @@ typedef unsigned char uint8;
 	#endif
 #endif
 
-#if (defined(__LP64__) || defined(__x86_64__) || defined(_WIN64) || defined(__aarch64__) || defined(__s390x__)) && !defined(X64BITS)
+#if defined(__LP64__) || defined(__x86_64__) || defined(_WIN64) || defined(__aarch64__) || defined(__s390x__)
 #define X64BITS
 #endif
 
 #if !defined(VALVE_BIG_ENDIAN)
-#if defined(_PS3)
-// Make sure VALVE_BIG_ENDIAN gets set on PS3, may already be set previously in Valve internal code.
-#define VALVE_BIG_ENDIAN 1
-#endif
 #if defined( __GNUC__ ) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
 #define VALVE_BIG_ENDIAN 1
 #endif
@@ -98,6 +94,7 @@ typedef uint64 SteamAPICall_t;
 const SteamAPICall_t k_uAPICallInvalid = 0x0;
 
 typedef uint32 AccountID_t;
+const AccountID_t k_uAccountIdInvalid = 0;
 
 // Party Beacon ID
 typedef uint64 PartyBeaconID_t;
