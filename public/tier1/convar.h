@@ -979,7 +979,6 @@ public:
 	bool IsEqual( CSplitScreenSlot slot, CVValue_t *other ) const { return TypeTraits()->Equal( ValueOrDefault( slot ), other ); }
 	void Clamp( CSplitScreenSlot slot ) const { if(IsSlotInRange( slot )) TypeTraits()->Clamp( Value( slot ), m_minValue, m_maxValue ); }
 
-private:
 	bool IsSlotInRange( CSplitScreenSlot slot ) const { return slot.Get() == -1 || (slot.Get() >= 0 && slot.Get() < GetMaxSplitScreenSlots()); }
 
 	const char* m_pszName;
