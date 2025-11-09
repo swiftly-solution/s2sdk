@@ -1059,7 +1059,7 @@ public:
 	ConVarRef( uint16 convar_idx ) : m_ConVarAccessIndex( convar_idx ), m_ConVarRegisteredIndex( 0 ) {}
 	ConVarRef( uint16 convar_idx, int registered_idx ) : m_ConVarAccessIndex( convar_idx ), m_ConVarRegisteredIndex( registered_idx ) {}
 
-	ConVarRef( const char *name, bool allow_defensive = false );
+	ConVarRef( const char *name, bool allow_defensive = true );
 
 	void InvalidateRef() { m_ConVarAccessIndex = kInvalidAccessIndex; m_ConVarRegisteredIndex = 0; }
 	bool IsValidRef() const { return m_ConVarAccessIndex != kInvalidAccessIndex; }
@@ -1078,7 +1078,7 @@ class ConVarRefAbstract : public ConVarRef
 public:
 	typedef ConVarRef BaseClass;
 
-	ConVarRefAbstract( const char *name, bool allow_defensive = false )
+	ConVarRefAbstract( const char *name, bool allow_defensive = true )
 		: BaseClass( name, allow_defensive ), m_ConVarData( nullptr )
 	{
 		Init( *this );
