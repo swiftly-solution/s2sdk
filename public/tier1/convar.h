@@ -1191,10 +1191,12 @@ protected:
 
 	void CallChangeCallbacks( CSplitScreenSlot slot, CVValue_t *new_value, CVValue_t *prev_value, const char *new_str, const char *prev_str );
 
+public:
 	void SetOrQueueValueInternal( CSplitScreenSlot slot, CVValue_t *value );
 	void QueueSetValueInternal( CSplitScreenSlot slot, CVValue_t *value );
 	void SetValueInternal( CSplitScreenSlot slot, CVValue_t *value );
 
+protected:
 	// Does type conversion from CvarType to type T, only valid for primitive types
 	template <typename T>
 	T ConvertFromPrimitiveTo( CSplitScreenSlot slot ) const;
