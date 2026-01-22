@@ -51,7 +51,8 @@ public:
 	datamap_t* m_pPredDescMap;
 };
 
-// Size: 0x118
+// https://github.com/Wend4r/sourcesdk/commit/cb805ab5d462f79c7d64c06e21b9bc7a7db0bf24
+// Size: 0x160
 class CEntityClass
 {
 	struct ComponentOffsets_t
@@ -89,40 +90,48 @@ public:
 	}
 	
 public:
-	void* m_pScriptDesc; // 0x0
-	EntInput_t* m_pInputs; // 0x8
-	EntOutput_t* m_pOutputs; // 0x10
-	int m_nInputCount; // 0x18
-	int m_nOutputCount; // 0x1c
-	CEntitySharedPulseSignature* m_pSharedPulseSignature; // 0x20
-	EntClassComponentOverride_t* m_pComponentOverrides; // 0x28
-	CEntityClassInfo* m_pClassInfo; // 0x30
-	CEntityClassInfo* m_pBaseClassInfo; // 0x38
-	CUtlSymbolLarge m_designerName; // 0x40
+	void* m_pScriptDesc;
+
+	void* m_Unk0;
+
+	EntInput_t* m_pInputs;
+	EntOutput_t* m_pOutputs;
+	int m_nInputCount;
+	int m_nOutputCount;
+
+#ifdef _WIN32
+	char pad[80];
+#else
+	char pad[48];
+#endif
+
+	CEntityClassInfo* m_pClassInfo;
+	CEntityClassInfo* m_pBaseClassInfo;
+	CUtlSymbolLarge m_designerName;
 
 	// Uses FENTCLASS_* flags
-	uint m_flags; // 0x48
+	uint m_flags;
 
 	// Special class group?
-	int m_Unk1; // 0x4c
+	int m_Unk1;
 	
-	uint m_nAllHelpersFlags; // 0x50
+	uint m_nAllHelpersFlags;
 
-	CUtlVector<ComponentOffsets_t> m_ComponentOffsets; // 0x58
-	CUtlVector<ComponentHelper_t> m_AllHelpers; // 0x70
+	CUtlVector<ComponentOffsets_t> m_ComponentOffsets;
+	CUtlVector<ComponentHelper_t> m_AllHelpers;
 	
-	ComponentUnserializerClassInfo_t m_componentUnserializerClassInfo; // 0x88
+	ComponentUnserializerClassInfo_t m_componentUnserializerClassInfo;
 	
-	FlattenedSerializerDesc_t m_flattenedSerializer; // 0xb8
+	FlattenedSerializerDesc_t m_flattenedSerializer;
 
-	CUtlVector<ClassInputInfo_t> m_classInputInfos; // 0xc8
-	CUtlVector<ClassOutputInfo_t> m_classOutputInfos; // 0xe0
+	CUtlVector<ClassInputInfo_t> m_classInputInfos;
+	CUtlVector<ClassOutputInfo_t> m_classOutputInfos;
 	
-	CEntityHandle m_requiredEHandle; // 0xf8
+	CEntityHandle m_requiredEHandle;
 
-	CEntityClass* m_pNext; // 0x100
-	CEntityIdentity* m_pFirstEntity; // 0x108
-	ServerClass* m_pServerClass; // 0x110
+	CEntityClass* m_pNext;
+	CEntityIdentity* m_pFirstEntity;
+	ServerClass* m_pServerClass;
 };
 
 #endif // ENTITYCLASS_H
