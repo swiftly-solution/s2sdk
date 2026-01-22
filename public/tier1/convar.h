@@ -644,7 +644,7 @@ struct ConVarValueInfo_t
 		m_fnFilterCallBack( nullptr ),
 		m_eVarType( type ),
 		m_CompletionCallBack(),
-        m_Unk1(0)
+        m_fnCustomData( nullptr )
 	{}
 
 	template <typename T>
