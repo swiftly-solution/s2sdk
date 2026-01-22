@@ -626,6 +626,8 @@ using FnTypedFilterCallbackProvider_t = bool(*)(CConVar<T> *cvar, CSplitScreenSl
 using FnGenericFilterCallback_t = bool(*)(ConVarRefAbstract *ref, CSplitScreenSlot nSlot, const CVValue_t *pNewValue, const CVValue_t *pOldValue);
 using FnGenericFilterCallbackProvider_t = bool(*)(ConVarRefAbstract *ref, CSplitScreenSlot nSlot, const CVValue_t *pNewValue, const CVValue_t *pOldValue, void *__unk01, FnGenericFilterCallback_t cb);
 
+using FnCustomData_t = void* (*)();
+
 struct ConVarValueInfo_t
 {
 	ConVarValueInfo_t( EConVarType type = EConVarType_Invalid ) :
@@ -716,7 +718,7 @@ public:
 	FnGenericFilterCallbackProvider_t m_fnProviderFilterCallBack;
 	FnGenericFilterCallback_t m_fnFilterCallBack;
 
-    uint64_t m_Unk1;
+    FnCustomData_t m_fnCustomData;
 
 	EConVarType m_eVarType;
 
@@ -899,7 +901,10 @@ public:
 		m_nFlags = FCVAR_REFERENCE;
 		m_iCallbackIndex = 0;
 		m_iFilterCBIndex = 0;
-		m_GameInfoFlags = 0;
+        m_iCompletionCBIndex = 0;
+        m_GameInfoFlags = 0;
+        m_UserInfoByteIndex = 0;
+        m_fnCustomData = nullptr;
 	}
 
 	const char *GetName( void ) const { return m_pszName; }
@@ -929,7 +934,9 @@ public:
 	{
 		Assert( m_eVarType != EConVarType_Invalid );
 		return GetCvarTypeTraits( m_eVarType );
-	}
+    }
+
+    FnCustomData_t GetCustomDataFn() const { return m_fnCustomData; }
 
 	int GetDataByteSize() const { return TypeTraits()->m_ByteSize; }
 	bool IsPrimitiveType() const { return TypeTraits()->m_IsPrimitive; }
@@ -1014,7 +1021,7 @@ public:
 	int m_GameInfoFlags;
 	int m_UserInfoByteIndex;
 
-    uint64 m_Unk1;
+    FnCustomData_t m_fnCustomData;
 
 	// At convar registration this is trimmed to better match convar type being used
 	// or if it was initialized as EConVarType_Invalid it would be of this size
