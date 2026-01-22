@@ -641,7 +641,8 @@ struct ConVarValueInfo_t
 		m_fnProviderFilterCallBack( nullptr ),
 		m_fnFilterCallBack( nullptr ),
 		m_eVarType( type ),
-		m_CompletionCallBack()
+		m_CompletionCallBack(),
+        m_Unk1(0)
 	{}
 
 	template <typename T>
@@ -1012,6 +1013,8 @@ public:
 
 	int m_GameInfoFlags;
 	int m_UserInfoByteIndex;
+
+    uint64 m_Unk1;
 
 	// At convar registration this is trimmed to better match convar type being used
 	// or if it was initialized as EConVarType_Invalid it would be of this size
