@@ -715,6 +715,8 @@ public:
 	FnGenericFilterCallbackProvider_t m_fnProviderFilterCallBack;
 	FnGenericFilterCallback_t m_fnFilterCallBack;
 
+    uint64_t m_Unk1;
+
 	EConVarType m_eVarType;
 
 	CompletionCallbackInfo_t m_CompletionCallBack;
