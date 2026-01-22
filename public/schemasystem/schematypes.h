@@ -168,7 +168,7 @@ class CSchemaPtrMap
 {
 public:
 	CUtlOrderedMap<K, V, unsigned short> m_Map;
-	CThreadFastMutex m_Mutex;
+	CAtomicMutex m_Mutex;
 };
 
 class CSchemaType
