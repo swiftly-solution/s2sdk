@@ -814,6 +814,7 @@ public:
 private:
     volatile ThreadId_t m_ownerID;
     int					m_depth;
+    int64_t             m_helloPadding;
 };
 
 class ALIGN128 CAlignedThreadFastMutex : public CThreadSpinMutex
