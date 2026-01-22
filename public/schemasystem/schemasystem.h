@@ -184,6 +184,11 @@ public:
 	int m_nNumConnections;
 	CThreadFastMutex m_Mutex;
 
+private:
+    // AMNOTE: isn't used anywhere at construction/destruction, most likely padding
+    int m_unk001;
+
+public:
 	CConCommandMemberAccessor<CSchemaSystem> m_SchemaListBindings;
 	CConCommandMemberAccessor<CSchemaSystem> m_SchemaAllListBindings;
 	CConCommandMemberAccessor<CSchemaSystem> m_SchemaDumpBinding;
