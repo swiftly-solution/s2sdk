@@ -1041,9 +1041,12 @@ public:
     // Copied directly as is from ConVarValueInfo_t
     FnCustomData_t m_fnCustomData;
 
+    // SWIFTLYS2NOTE: for some reason putting 'alignas(CVValue_t)' before m_Values breaks the offset on linux, though hl2sdk is doing it
+    // will need to revise it, but not now
+
     // At convar registration this is trimmed to better match convar type being used
     // or if it was initialized as EConVarType_Invalid it would be of this size
-    alignas(CVValue_t) uint8 m_Values[sizeof(CVValue_t) * MAX_SPLITSCREEN_CLIENTS];
+    uint8 m_Values[sizeof(CVValue_t) * MAX_SPLITSCREEN_CLIENTS];
 };
 
 static ConVarData* GetInvalidConVarData(EConVarType type)
