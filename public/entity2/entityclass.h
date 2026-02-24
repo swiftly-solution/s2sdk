@@ -34,104 +34,112 @@ struct datamap_t;
 
 struct EntClassComponentOverride_t
 {
-	const char* pszBaseComponent;
-	const char* pszOverrideComponent;
+    const char* pszBaseComponent;
+    const char* pszOverrideComponent;
 };
 
 class CEntityClassInfo
 {
 public:
-	const char* m_pszClassname;
-	const char* m_pszCPPClassname;
-	const char* m_pszDescription;
-	CEntityClass *m_pClass;
-	CEntityClassInfo *m_pBaseClassInfo;
-	CSchemaClassInfo* m_pSchemaBinding;
-	datamap_t* m_pDataDescMap;
-	datamap_t* m_pPredDescMap;
+    const char* m_pszClassname;
+    const char* m_pszCPPClassname;
+    const char* m_pszDescription;
+    CEntityClass* m_pClass;
+    CEntityClassInfo* m_pBaseClassInfo;
+    CSchemaClassInfo* m_pSchemaBinding;
+    datamap_t* m_pDataDescMap;
+    datamap_t* m_pPredDescMap;
 };
 
 // https://github.com/Wend4r/sourcesdk/commit/cb805ab5d462f79c7d64c06e21b9bc7a7db0bf24
 // Size: 0x160
 class CEntityClass
 {
-	struct ComponentOffsets_t
-	{
-		uint16 m_nOffset;
-	};
+    struct ComponentOffsets_t
+    {
+        uint16 m_nOffset;
+    };
 
-	struct ComponentHelper_t
-	{
-		size_t m_nOffset;
-		CEntityComponentHelper* m_pComponentHelper;
-	};
-	
-	struct ClassInputInfo_t
-	{
-		CUtlSymbolLarge m_sName;
-		EntInput_t* m_pInput;
-	};
-	
-	struct ClassOutputInfo_t
-	{
-		CUtlSymbolLarge m_sName;
-		EntOutput_t* m_pOutput;
-	};
-	
+    struct ComponentHelper_t
+    {
+        size_t m_nOffset;
+        CEntityComponentHelper* m_pComponentHelper;
+    };
+
+    struct ClassInputInfo_t
+    {
+        CUtlSymbolLarge m_sName;
+        EntInput_t* m_pInput;
+    };
+
+    struct ClassOutputInfo_t
+    {
+        CUtlSymbolLarge m_sName;
+        EntOutput_t* m_pOutput;
+    };
+
 public:
-	inline CSchemaClassInfo *GetSchemaBinding() const
-	{
-		return m_pClassInfo->m_pSchemaBinding;
-	}
+    inline CSchemaClassInfo* GetSchemaBinding() const
+    {
+        return m_pClassInfo->m_pSchemaBinding;
+    }
 
-	inline datamap_t *GetDataDescMap() const
-	{
-		return m_pClassInfo->m_pDataDescMap;
-	}
-	
+    inline datamap_t* GetDataDescMap() const
+    {
+        return m_pClassInfo->m_pDataDescMap;
+    }
+
 public:
-	void* m_pScriptDesc;
+    void* m_pScriptDesc;
 
-	void* m_Unk0;
+    void* m_Unk0;
 
-	EntInput_t* m_pInputs;
-	EntOutput_t* m_pOutputs;
-	int m_nInputCount;
-	int m_nOutputCount;
+    EntInput_t* m_pInputs;
+    EntOutput_t* m_pOutputs;
+    int m_nInputCount;
+    int m_nOutputCount;
 
+private:
 #ifdef _WIN32
-	char pad[80];
+    char m_unk101[56];
 #else
-	char pad[48];
+    char m_unk101[24];
 #endif
 
-	CEntityClassInfo* m_pClassInfo;
-	CEntityClassInfo* m_pBaseClassInfo;
-	CUtlSymbolLarge m_designerName;
+public:
 
-	// Uses FENTCLASS_* flags
-	uint m_flags;
+    CEntitySharedPulseSignature* m_pSharedPulseSignature;
+    CEntitySharedPulseSignature* m_unk201;
 
-	// Special class group?
-	int m_Unk1;
-	
-	uint m_nAllHelpersFlags;
+    EntClassComponentOverride_t* m_pComponentOverrides;
 
-	CUtlVector<ComponentOffsets_t> m_ComponentOffsets;
-	CUtlVector<ComponentHelper_t> m_AllHelpers;
-	
-	ComponentUnserializerClassInfo_t m_componentUnserializerClassInfo;
-	
-	FlattenedSerializerDesc_t m_flattenedSerializer;
+    CEntityClassInfo* m_pClassInfo;
+    CEntityClassInfo* m_pBaseClassInfo;
+    CUtlSymbolLarge m_designerName;
 
-	CUtlVector<ClassInputInfo_t> m_classInputInfos;
-	CUtlVector<ClassOutputInfo_t> m_classOutputInfos;
-	
-	CEntityHandle m_requiredEHandle;
+    // Uses FENTCLASS_* flags
+    uint m_flags;
 
-	CEntityClass* m_pNext;
-	CEntityIdentity* m_pFirstEntity;
-	ServerClass* m_pServerClass;
+    // Special class group?
+    int m_Unk1;
+
+    uint m_nAllHelpersFlags;
+
+    CUtlVector<ComponentOffsets_t> m_ComponentOffsets;
+    CUtlVector<ComponentHelper_t> m_AllHelpers;
+
+    ComponentUnserializerClassInfo_t m_componentUnserializerClassInfo;
+
+    FlattenedSerializerDesc_t m_flattenedSerializer;
+
+    CUtlVector<ClassInputInfo_t> m_classInputInfos;
+    CUtlVector<ClassOutputInfo_t> m_classOutputInfos;
+
+    CEntityHandle m_requiredEHandle;
+
+    CEntityClass* m_pNext;
+    CEntityIdentity* m_pFirstEntity;
+    ServerClass* m_pServerClass;
 };
 
 #endif // ENTITYCLASS_H
