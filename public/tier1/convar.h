@@ -1111,6 +1111,8 @@ class ConVarRefAbstract : public ConVarRef
 public:
     typedef ConVarRef BaseClass;
 
+    ConVarRefAbstract() : BaseClass(), m_ConVarData(nullptr) {}
+
     ConVarRefAbstract(const char* name, bool allow_defensive = false)
         : BaseClass(name, allow_defensive), m_ConVarData(nullptr)
     {
@@ -1213,7 +1215,6 @@ public:
     bool IsConVarDataAvailable() const { return !m_ConVarData->IsFlagSet(FCVAR_REFERENCE) && IsConVarDataValid(); }
 
 protected:
-    ConVarRefAbstract() : BaseClass(), m_ConVarData(nullptr) {}
 
     void CopyRef(const ConVarRefAbstract& ref)
     {
