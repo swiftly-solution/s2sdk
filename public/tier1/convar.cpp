@@ -565,13 +565,15 @@ void ConVarRefAbstract::InvalidateConVarData( EConVarType type )
 	// 	m_ConVarData = GetCvarTypeTraits( type )->m_InvalidCvarData;
 }
 
+bool bypassConvarCallbacks = false;
+
 void ConVarRefAbstract::CallChangeCallbacks( CSplitScreenSlot slot, CVValue_t *new_value, CVValue_t *prev_value, const char *new_str, const char *prev_str )
 {
 	if(slot.Get() == -1)
 		slot = CSplitScreenSlot( 0 );
 
 	g_pCVar->CallChangeCallback( *this, slot, new_value, prev_value );
-	g_pCVar->CallGlobalChangeCallbacks( this, slot, new_str, prev_str );
+	if(!bypassConvarCallbacks) g_pCVar->CallGlobalChangeCallbacks( this, slot, new_str, prev_str );
 }
 
 void ConVarRefAbstract::SetOrQueueValueInternal( CSplitScreenSlot slot, CVValue_t *value )
