@@ -109,8 +109,17 @@ protected:
 
 	T** m_pMemory;
 	int m_nBlocks;
-	int m_nIndexMask : 27;
-	int m_nIndexShift : 5;
+	
+	union
+	{
+		struct
+		{
+			int m_nIndexMask : 27;
+			int m_nIndexShift : 5;
+		};
+
+		int m_nIndexBits;
+	};
 };
 
 //-----------------------------------------------------------------------------
@@ -139,8 +148,7 @@ void CUtlBlockMemory<T,I>::Swap( CUtlBlockMemory< T, I > &mem )
 {
 	V_swap( m_pMemory, mem.m_pMemory );
 	V_swap( m_nBlocks, mem.m_nBlocks );
-	V_swap( m_nIndexMask, mem.m_nIndexMask );
-	V_swap( m_nIndexShift, mem.m_nIndexShift );
+	V_swap( m_nIndexBits, mem.m_nIndexBits );
 }
 
 
