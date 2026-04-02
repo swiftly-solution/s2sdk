@@ -99,21 +99,25 @@ public:
     int m_nInputCount;
     int m_nOutputCount;
 
-private:
-#ifdef _WIN32
-    char m_unk101[56];
-#else
-    char m_unk101[24];
-#endif
+// 2026.04.02 fucked up
+// private:
+// #ifdef _WIN32
+//     char m_unk101[56];
+// #else
+//     char m_unk101[24];
+// #endif
 
 public:
 
     CEntitySharedPulseSignature* m_pSharedPulseSignature;
-    CEntitySharedPulseSignature* m_unk201;
 
-    EntClassComponentOverride_t* m_pComponentOverrides;
+    //EntClassComponentOverride_t* m_pComponentOverrides;
+    void* m_unk1;
+    void* m_unk2;
+    void* m_unk3;
+    void* m_unk4;
 
-    CEntityClassInfo* m_pClassInfo;
+    CEntityClassInfo* m_pClassInfo; // 0x50
     CEntityClassInfo* m_pBaseClassInfo;
     CUtlSymbolLarge m_designerName;
 

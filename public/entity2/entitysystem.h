@@ -136,7 +136,7 @@ class CEventQueue
 public:
     CAtomicMutex m_Mutex;
     EventQueuePrioritizedEvent_t m_Events;
-    int m_iListCount;
+    // int m_iListCount; // probably this shit is removed, or in m_Events
 };
 
 // Entity notifications //
@@ -314,9 +314,9 @@ public:
     CUtlMap<const char*, CEntityComponentHelper*, uint16, CDefFastCaselessStringLess> m_entityComponentHelpers;
     CUtlMap<CUtlSymbolLarge, CUtlVector<CEntityHandle>*, uint16, CDefLess<CUtlSymbolLarge>> m_entityNames;
 
-    CEventQueue m_EventQueue;
-    CUtlVectorFixedGrowable<IEntityIONotify*, 2> m_entityIONotifiers;
-    int m_nSuppressDormancyChangeCount;
+    CEventQueue m_EventQueue; // 2832
+    CUtlVectorFixedGrowable<IEntityIONotify*, 2> m_entityIONotifiers; // 2968
+    int m_nSuppressDormancyChangeCount; // 3008
     NetworkSerializationMode_t m_eNetworkSerializationMode;
     int m_nExecuteQueuedCreationDepth;
     int m_nExecuteQueuedDeletionDepth;
@@ -347,10 +347,10 @@ public:
     CUtlHashtable<fieldtype_t, KeyUnserializerDelegate, MurmurHash2HashFunctor> m_DataDescKeyUnserializers;
     CUtlScratchMemoryPool m_ComponentUnserializerInfoAllocator;
     CKeyValues3Context m_EntityKeyValuesAllocator;
-    CUtlSymbolTableLargeMT_CI m_Symbols;
+    CUtlSymbolTableLargeMT_CI m_Symbols; // 7888
     SpawnGroupHandle_t m_hActiveSpawnGroup;
     matrix3x4a_t m_vSpawnOriginOffset;
-    IEntityDataInstantiator* m_Accessors[MAX_ACCESSORS];
+    IEntityDataInstantiator* m_Accessors[MAX_ACCESSORS]; // 8048
     CUtlHashtable<CUtlString, void*> m_EntityMaterialAttributes;
 };
 
