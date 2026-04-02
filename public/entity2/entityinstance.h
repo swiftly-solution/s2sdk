@@ -67,6 +67,7 @@ struct NetworkStateChangedData
 class CEntityInstance
 {
 public:
+    virtual void* GetUnknownSchemaBinding() = 0; // seems like runtime schema binding
     virtual void unk001() = 0;
     virtual void unk002() = 0;
 	virtual void* GetScriptDesc() = 0;
