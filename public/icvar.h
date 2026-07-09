@@ -141,7 +141,7 @@ public:
 	// Expects ref to have registered index to be set (is set on command creation)
 	virtual void				UnregisterConCommandCallbacks( ConCommandRef cmd ) = 0;
 	// Returns command info or empty <unknown> command struct if not found, never nullptr
-	virtual ConCommandData*		GetConCommandData( ConCommandRef cmd ) = 0;
+	virtual ConCommandData*		GetConCommandData( uint16 nCommandIndex ) = 0;
 
 	// Queues up value (creates a copy of it) to be set when convar is ready to be edited
 	virtual void				QueueThreadSetValue( ConVarRefAbstract* ref, CSplitScreenSlot nSlot, void* __unk01, CVValue_t* value ) = 0;

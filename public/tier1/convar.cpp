@@ -453,7 +453,7 @@ ConCommandRef::ConCommandRef( const char *name, bool allow_developer )
 
 ConCommandData *ConCommandRef::GetRawData()
 {
-	return g_pCVar->GetConCommandData( *this );
+	return g_pCVar->GetConCommandData( this->GetAccessIndex() );
 }
 
 void ConCommandRef::Dispatch( const CCommandContext &context, const CCommand &command )

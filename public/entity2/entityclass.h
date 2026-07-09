@@ -183,6 +183,7 @@ public:
     void* m_unk2;
     void* m_unk3;
     void* m_unk4;
+    void* m_unk5;
 
     CEntityClassInfo* m_pClassInfo; // 0x50
     CEntityClassInfo* m_pBaseClassInfo;
