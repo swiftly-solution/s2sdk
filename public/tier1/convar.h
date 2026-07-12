@@ -549,8 +549,9 @@ private:
 
 public:
 
-    ConCommandRef() : m_CommandAccessIndex(kInvalidAccessIndex) {}
-    ConCommandRef(uint16 access_idx) : m_CommandAccessIndex(access_idx) {}
+    ConCommandRef() : m_CommandAccessIndex(kInvalidAccessIndex), m_CommandRegisteredIndex(0) {}
+    ConCommandRef(uint16 command_idx) : m_CommandAccessIndex(command_idx), m_CommandRegisteredIndex(0) {}
+    ConCommandRef(uint16 access_idx, int reg_idx) : m_CommandAccessIndex(access_idx), m_CommandRegisteredIndex(reg_idx) {}
 
     ConCommandRef(const char* name, bool allow_defensive = false);
 
@@ -579,13 +580,16 @@ public:
         return GetRawData()->GetAutoCompleteSuggestions(command, completions);
     }
 
-    void InvalidateRef() { m_CommandAccessIndex = kInvalidAccessIndex; }
+    void InvalidateRef() { m_CommandAccessIndex = kInvalidAccessIndex; m_CommandRegisteredIndex = 0; }
     bool IsValidRef() const { return m_CommandAccessIndex != kInvalidAccessIndex; }
     uint16 GetAccessIndex() const { return m_CommandAccessIndex; }
+    int GetRegisteredIndex() const { return m_CommandRegisteredIndex; }
 
 private:
     // Index into internal linked list of concommands
     uint16 m_CommandAccessIndex;
+    // Commands registered positional index
+    int m_CommandRegisteredIndex;
 };
 
 //-----------------------------------------------------------------------------
