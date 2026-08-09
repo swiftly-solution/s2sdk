@@ -27,10 +27,13 @@ class CSchemaClassInfo;
 class CEntityClass;
 class CEntityIdentity;
 class CEntitySharedPulseSignature;
+class CPulseAPIExtensionRegistrationContext;
 class ServerClass;
 struct EntInput_t;
 struct EntOutput_t;
 struct datamap_t;
+
+typedef void(*THINKFUNC)(CEntityInstance* pEntity);
 
 // credits to @Nuko
 struct CNetworkSerializerFieldInfo
@@ -158,6 +161,11 @@ public:
     }
 
 public:
+    using FuncToNameCb = const char *(*)(THINKFUNC think_fn);
+	using NameToFuncCb = THINKFUNC (*)(const char *fn_name);
+	using RegisterPulseBindingsCb = void (*)(CPulseAPIExtensionRegistrationContext *pContext);
+	using EnumerateComponentsCb = void (*)(void *pOut);
+
     void* m_pScriptDesc;
 	CNetworkSerializerClassInfo* m_pNetworkSerializerInfo;
 
@@ -166,24 +174,18 @@ public:
     int m_nInputCount;
     int m_nOutputCount;
 
-// 2026.04.02 fucked up
-// private:
-// #ifdef _WIN32
-//     char m_unk101[56];
-// #else
-//     char m_unk101[24];
-// #endif
-
 public:
 
     CEntitySharedPulseSignature* m_pSharedPulseSignature;
 
-    //EntClassComponentOverride_t* m_pComponentOverrides;
-    void* m_unk1;
-    void* m_unk2;
-    void* m_unk3;
-    void* m_unk4;
-    void* m_unk5;
+    RegisterPulseBindingsCb m_pfnRegisterPulseBindings;
+
+    NameToFuncCb m_NameToThinkFunc;
+	FuncToNameCb m_ThinkFuncToName;
+
+	EnumerateComponentsCb m_pfnEnumerateComponents;
+
+	EntClassComponentOverride_t* m_pComponentOverrides;
 
     CEntityClassInfo* m_pClassInfo; // 0x50
     CEntityClassInfo* m_pBaseClassInfo;
@@ -191,9 +193,7 @@ public:
 
     // Uses FENTCLASS_* flags
     uint m_flags;
-
-    // Special class group?
-    int m_Unk1;
+    int m_nSpawnOrder;
 
     uint m_nAllHelpersFlags;
 
