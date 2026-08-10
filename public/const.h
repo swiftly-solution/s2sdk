@@ -63,6 +63,8 @@
 #define	MAX_EDICT_BITS				14			// # of bits needed to represent max edicts
 // Max # of edicts in a level
 #define	MAX_EDICTS					(1<<MAX_EDICT_BITS)
+#define MAX_EDICTS_DWORDS           (MAX_EDICTS / 32)
+#define MAX_EDICTS_QWORDS           (MAX_EDICTS / 64)
 
 // How many bits to use to encode an server class index
 #define MAX_SERVER_CLASS_BITS		9

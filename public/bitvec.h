@@ -215,7 +215,7 @@ inline int CalcNumIntsForBits( int numBits )	{ return (numBits + (BITS_PER_INT-1
 // template CBitVecT
 //
 // Defines the operations relevant to any bit array. Simply requires a base
-// class that implements GetNumBits(), Base(), GetNumDWords() & ValidateOperand()
+// class that implements GetNumBits(), Base(), GetNumDWords()
 //
 // CVarBitVec and CBitVec<int> are the actual classes generally used
 // by clients
@@ -300,8 +300,6 @@ protected:
 	CVarBitVecBase &operator=( const CVarBitVecBase &from );
 	~CVarBitVecBase(void);
 	
-	void 		ValidateOperand( const CVarBitVecBase &operand ) const	{ Assert(GetNumBits() == operand.GetNumBits()); }
-
 	unsigned	GetEndMask() const		{ return ::GetEndMask( GetNumBits() ); }
 
 private:
@@ -376,8 +374,6 @@ protected:
 	CFixedBitVecBase()				{}
 	CFixedBitVecBase(int numBits)	{ Assert( numBits == NUM_BITS ); } // doesn't make sense, really. Supported to simplify templates & allow easy replacement of variable 
 	
-	void 		ValidateOperand( const CFixedBitVecBase<NUM_BITS> &operand ) const	{ } // no need, compiler does so statically
-
 public: // for test code
 	unsigned	GetEndMask() const		{ return static_cast<unsigned>( BitCountToEndMask_t<NUM_BITS % BITS_PER_INT>::MASK ); }
 
@@ -683,9 +679,6 @@ inline uint32 CBitVecT<BASE_OPS>::Get( uint32 offset, uint32 mask )
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::And(const CBitVecT &addStr, CBitVecT *out) const
 {
-	ValidateOperand( addStr );
-	ValidateOperand( *out );
-	
 	uint32 *	   pDest		= out->Base();
 	const uint32 *pOperand1	= this->Base();
 	const uint32 *pOperand2	= addStr.Base();
@@ -704,9 +697,6 @@ inline void CBitVecT<BASE_OPS>::And(const CBitVecT &addStr, CBitVecT *out) const
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::Or(const CBitVecT &orStr, CBitVecT *out) const
 {
-	ValidateOperand( orStr );
-	ValidateOperand( *out );
-
 	uint32 *	   pDest		= out->Base();
 	const uint32 *pOperand1	= this->Base();
 	const uint32 *pOperand2	= orStr.Base();
@@ -743,8 +733,6 @@ inline void CBitVecT<BASE_OPS>::Xor(const CBitVecT &xorStr, CBitVecT *out) const
 template <class BASE_OPS>
 inline void CBitVecT<BASE_OPS>::Not(CBitVecT *out) const
 {
-	ValidateOperand( *out );
-
 	uint32 *	   pDest	= out->Base();
 	const uint32 *pOperand	= this->Base();
 
@@ -764,7 +752,6 @@ inline void CBitVecT<BASE_OPS>::CopyTo(CBitVecT *out) const
 {
 	out->Resize( this->GetNumBits() );
 
-	ValidateOperand( *out );
 	Assert( out != this );
 	
 	memcpy( out->Base(), this->Base(), this->GetNumDWords() * sizeof( int ) );
@@ -851,7 +838,6 @@ inline void CBitVecT<BASE_OPS>::Copy( const CBitVecT<BASE_OPS> &other, int nBits
 
 	this->Resize( nBits );
 
-	ValidateOperand( other );
 	Assert( &other != this );
 
 	memcpy( this->Base(), other.Base(), this->GetNumDWords() * sizeof( uint32 ) );
