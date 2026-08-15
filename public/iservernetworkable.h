@@ -46,10 +46,9 @@ class CCheckTransmitInfo
 public:
 	CBitVec<MAX_EDICTS>* m_pTransmitEntity;
 	CBitVec<MAX_EDICTS>* m_pTransmitNonPlayers;
-	CBitVec<MAX_EDICTS>* m_pUnkBitVec2;
-	CBitVec<MAX_EDICTS>* m_pUnkBitVec3;
+	CBitVec<MAX_EDICTS>* m_pTransmitOutOfPVS;
 	CBitVec<MAX_EDICTS>* m_pTransmitAlways;
-	CUtlLeanVector<CPlayerSlot> m_vecTargetSlots;
+	CUtlVector<CPlayerSlot> m_vecTargetSlots;
 	vis_info_t m_VisInfo;
 	CPlayerSlot m_nPlayerSlot;
 	bool m_bFullUpdate = false;
