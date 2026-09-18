@@ -874,7 +874,8 @@ static CVarTypeTraits* GetCvarTypeTraits(EConVarType type)
         *CVarTypeTraits().InitAs<Vector2D>("vector2", "0 0"),
         *CVarTypeTraits().InitAs<Vector>("vector3", "0 0 0"),
         *CVarTypeTraits().InitAs<Vector4D>("vector4", "0 0 0 0"),
-        *CVarTypeTraits().InitAs<QAngle>("qangle", "0 0 0")
+        *CVarTypeTraits().InitAs<QAngle>("qangle", "0 0 0"),
+        *CVarTypeTraits().InitAs<Vector>("vectorws", "0 0 0")
     };
 
     return &s_TypeTraits[type];
