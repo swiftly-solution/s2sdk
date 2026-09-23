@@ -206,10 +206,10 @@ struct ScriptFuncDescriptor_t
 	const char *m_pszScriptName;
 	const char *m_pszFunction;
 	const char *m_pszDescription;
-	ScriptDataType_t m_ReturnType;
+	fieldtype_t m_ReturnType;
 	uint8 m_iVariantCount;
 	uint8 m_iParamCount;
-	ScriptDataType_t m_Parameters[12];
+	fieldtype_t m_Parameters[12];
 
 	// Any/all parameter names. Read as a buffer of null-termed strings.
 	// If first is NULL / 0-len, no parameter names are present.
@@ -236,10 +236,12 @@ enum ScriptFuncBindingFlags_t
 };
 
 typedef bool (*ScriptBindingFunc_t)( void *pFunction, void *pContext, ScriptVariant_t *pArguments, int nArguments, ScriptVariant_t *pReturn );
+struct ScriptClassDesc_t;
 
 struct ScriptFunctionBinding_t
 {
 	ScriptFuncDescriptor_t	m_desc;
+	ScriptClassDesc_t      *m_pClassDesc;
 	ScriptBindingFunc_t		m_pfnBinding;
 	void *					m_pFunction;
 	unsigned				m_flags;
