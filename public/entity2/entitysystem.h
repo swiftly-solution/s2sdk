@@ -123,7 +123,7 @@ struct EventQueuePrioritizedEvent_t
 
     variant_t m_VariantValue; // variable-type parameter
 
-    void* m_unk101;
+    char m_unk101[144];
     KeyValues3 m_KV3;
     KeyValues3::Data_t m_KV3Data;
 
