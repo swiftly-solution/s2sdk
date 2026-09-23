@@ -10,6 +10,7 @@
 #include "entity2/entitycomponent.h"
 #include "entityhandle.h"
 #include "networksystem/iflattenedserializers.h"
+#include "public/vscript/ivscript.h"
 
 #define FENTCLASS_NON_NETWORKABLE		(1 << 0) // If the EntityClass is non-networkable
 #define FENTCLASS_ALIAS					(1 << 1) // If the EntityClass is an alias
@@ -166,7 +167,7 @@ public:
 	using RegisterPulseBindingsCb = void (*)(CPulseAPIExtensionRegistrationContext *pContext);
 	using EnumerateComponentsCb = void (*)(void *pOut);
 
-    void* m_pScriptDesc;
+    ScriptClassDesc_t* m_pScriptDesc;
 	CNetworkSerializerClassInfo* m_pNetworkSerializerInfo;
 
     EntInput_t* m_pInputs;
