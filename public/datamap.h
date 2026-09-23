@@ -330,11 +330,6 @@ struct typedescription_t
 	int					flags;
 	// the name of the variable in the map/fgd data, or the name of the action
 	const char			*externalName;	
-	// pointer to the function set for save/restoring of custom data types
-	ISaveRestoreOps		*pSaveRestoreOps; 
-	// for associating function with string names
-	inputfunc_t			inputFunc; 
-
 	// For embedding additional datatables inside this one
 	union
 	{
@@ -344,17 +339,14 @@ struct typedescription_t
 
 	// Stores the actual member variable size in bytes
 	int					fieldSizeInBytes;
-  
-	// Tolerance for field errors for float fields
-	float				fieldTolerance;
-
-	// For raw fields (including children of embedded stuff) this is the flattened offset
-	int					flatOffset[ TD_OFFSET_COUNT ];
-	unsigned short		flatGroup;
-
-	IPredictionCopyOps*	pPredictionCopyOps;
-	datamap_t*			m_pPredictionCopyDataMap;
 };
+
+#if defined( _WIN64 )
+static_assert( sizeof( typedescription_t ) == 0x38, "typedescription_t size does not match server.dll" );
+static_assert( offsetof( typedescription_t, fieldType ) == 0x00, "typedescription_t::fieldType offset mismatch" );
+static_assert( offsetof( typedescription_t, td ) == 0x28, "typedescription_t::td offset mismatch" );
+static_assert( offsetof( typedescription_t, fieldSizeInBytes ) == 0x30, "typedescription_t::fieldSizeInBytes offset mismatch" );
+#endif
 
 // See predictioncopy.h for implementation and notes
 struct optimized_datamap_t;
