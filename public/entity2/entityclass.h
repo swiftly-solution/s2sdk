@@ -217,7 +217,7 @@ public:
 	ExcludeIncludeFilter_t m_NetworkFilterByUserGroup;
 	ExcludeIncludeFilter_t m_NetworkFilterByName;
 
-	CUtlHash<SerializerFieldLookup_t> m_FieldLookupTable;
+	CUtlHash<SerializerFieldLookup_t, DefaultEqualFunctor<SerializerFieldLookup_t>, DefaultHashFunctor<SerializerFieldLookup_t>> m_FieldLookupTable;
 	int m_nTotalFieldEntries;
 
 	CUtlVector<CNetworkSerializerClassInfo *> m_ParentClassInfo;
