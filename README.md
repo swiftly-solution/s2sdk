@@ -2,4 +2,4 @@
 
 This repository is started from a stripped copy of HL2SDK from Alliedmodders.
 
-https://github.com/alliedmodders/hl2sdk/tree/cs2
+https://github.com/alliedmodders/s2sdk/tree/cs2
