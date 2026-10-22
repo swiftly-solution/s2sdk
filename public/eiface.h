@@ -170,7 +170,7 @@ public:
 abstract_class IVEngineServer2 : public ISource2Engine
 {
 public:
-	virtual EUniverse	GetSteamUniverse() const = 0;
+	virtual EUniverse	GetSteamUniverse() const = 0; // 18
 
 	virtual void		unk001() = 0;
 	virtual void		unk002() = 0;
@@ -212,7 +212,7 @@ public:
 	// Returns the server assigned userid for this player.  Useful for logging frags, etc.
 	//  returns -1 if the edict couldn't be found in the list of players.
 	virtual CPlayerUserId GetPlayerUserId( CPlayerSlot nSlot ) = 0;
-	virtual const char	*GetPlayerNetworkIDString( CPlayerSlot nSlot ) = 0;
+	virtual const char	*GetPlayerNetworkIDString( CPlayerSlot nSlot ) = 0; // 40
 	// Get stats info interface for a client netchannel
 	virtual INetChannelInfo* GetPlayerNetInfo( CPlayerSlot nSlot ) = 0;
 
@@ -253,7 +253,7 @@ public:
 	virtual edict_t *GetSplitScreenPlayerForEdict( CPlayerSlot nSlot, int nSplitScreenSlot ) = 0;
 
 	// Ret types might be all wrong for these. Haven't researched yet.
-	virtual void	UnloadSpawnGroup( SpawnGroupHandle_t spawnGroup, /*ESpawnGroupUnloadOption*/ int) = 0;
+	virtual void	UnloadSpawnGroup( SpawnGroupHandle_t spawnGroup, /*ESpawnGroupUnloadOption*/ int) = 0; // 60
 	virtual void	SetSpawnGroupDescription( SpawnGroupHandle_t spawnGroup, const char *pszDescription ) = 0;
 	virtual bool	IsSpawnGroupLoaded( SpawnGroupHandle_t spawnGroup ) const = 0;
 	virtual bool	IsSpawnGroupLoading( SpawnGroupHandle_t spawnGroup ) const = 0;
@@ -269,12 +269,13 @@ public:
 	virtual const CSteamID	*GetClientSteamID( CPlayerSlot nSlot ) = 0;
 
 	// Methods to set/get a gamestats data container so client & server running in same process can send combined data
-	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0;
-	virtual CGamestatsData *GetGamestatsData() = 0;
+	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0; // 70
+	virtual CGamestatsData *GetGamestatsData() = 0; // 71
+    virtual void unk006235() = 0;
 
 	// Send a client command keyvalues
 	// keyvalues are deleted inside the function
-	virtual void ClientCommandKeyValues( CPlayerSlot nSlot, KeyValues *pCommand ) = 0;
+	virtual void ClientCommandKeyValues( CPlayerSlot nSlot, KeyValues *pCommand ) = 0; // 72
 
 	// This makes the host run 1 tick per frame instead of checking the system timer to see how many ticks to run in a certain frame.
 	// i.e. it does the same thing timedemo does.
