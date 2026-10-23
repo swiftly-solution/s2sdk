@@ -264,6 +264,7 @@ public:
 	virtual void SetTimescale( float flTimescale ) = 0;
 
 	virtual uint32		GetAppID() = 0;
+    virtual void unk006235() = 0;
 
 	// Returns the SteamID of the specified player. It'll be NULL if the player hasn't authenticated yet.
 	virtual const CSteamID	*GetClientSteamID( CPlayerSlot nSlot ) = 0;
@@ -271,7 +272,6 @@ public:
 	// Methods to set/get a gamestats data container so client & server running in same process can send combined data
 	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0; // 70
 	virtual CGamestatsData *GetGamestatsData() = 0; // 71
-    virtual void unk006235() = 0;
 
 	// Send a client command keyvalues
 	// keyvalues are deleted inside the function
