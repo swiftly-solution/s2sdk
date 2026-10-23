@@ -258,24 +258,24 @@ public:
 	virtual bool	IsSpawnGroupLoaded( SpawnGroupHandle_t spawnGroup ) const = 0;
 	virtual bool	IsSpawnGroupLoading( SpawnGroupHandle_t spawnGroup ) const = 0;
 	virtual void	MakeSpawnGroupActive( SpawnGroupHandle_t spawnGroup ) = 0;
-	virtual void	SynchronouslySpawnGroup( SpawnGroupHandle_t spawnGroup ) = 0;
-	virtual void	SynchronizeAndBlockUntilLoaded( SpawnGroupHandle_t spawnGroup ) = 0;
+    virtual bool    unk(CPlayerSlot slot, SpawnGroupHandle_t sg) = 0; // 65
+	virtual void	SynchronouslySpawnGroup( SpawnGroupHandle_t spawnGroup ) = 0; // 66
+	virtual void	SynchronizeAndBlockUntilLoaded( SpawnGroupHandle_t spawnGroup ) = 0; // 67
 
-	virtual void SetTimescale( float flTimescale ) = 0;
+	virtual void SetTimescale( float flTimescale ) = 0; // 68
 
-	virtual uint32		GetAppID() = 0;
-    virtual void unk006235() = 0;
+	virtual uint32		GetAppID() = 0; // 69
 
 	// Returns the SteamID of the specified player. It'll be NULL if the player hasn't authenticated yet.
-	virtual const CSteamID	*GetClientSteamID( CPlayerSlot nSlot ) = 0;
+	virtual const CSteamID	*GetClientSteamID( CPlayerSlot nSlot ) = 0; // 70
 
 	// Methods to set/get a gamestats data container so client & server running in same process can send combined data
-	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0; // 70
-	virtual CGamestatsData *GetGamestatsData() = 0; // 71
+	virtual void SetGamestatsData( CGamestatsData *pGamestatsData ) = 0; // 71
+	virtual CGamestatsData *GetGamestatsData() = 0; // 72
 
 	// Send a client command keyvalues
 	// keyvalues are deleted inside the function
-	virtual void ClientCommandKeyValues( CPlayerSlot nSlot, KeyValues *pCommand ) = 0; // 72
+	virtual void ClientCommandKeyValues( CPlayerSlot nSlot, KeyValues *pCommand ) = 0; // 73
 
 	// This makes the host run 1 tick per frame instead of checking the system timer to see how many ticks to run in a certain frame.
 	// i.e. it does the same thing timedemo does.
