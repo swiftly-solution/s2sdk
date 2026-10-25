@@ -57,8 +57,6 @@ jobs:
         shell: pwsh
     env:
       APP_ID: "730"
-      SDD_DIR: ${{ runner.temp }}/sdd
-      INSTALL_DIR: ${{ runner.temp }}/install
     steps:
       - name: Checkout s2sdk
         uses: actions/checkout@v5
@@ -71,24 +69,24 @@ jobs:
           $url = $release.assets | Where-Object name -eq "SteamDepotDownload-win-x64.zip" | Select-Object -ExpandProperty browser_download_url
           if (-not $url) { throw "Could not resolve SteamDepotDownload release asset" }
           Invoke-WebRequest -Uri $url -OutFile "$env:RUNNER_TEMP/sdd.zip"
-          Expand-Archive -Path "$env:RUNNER_TEMP/sdd.zip" -DestinationPath $env:SDD_DIR -Force
+          Expand-Archive -Path "$env:RUNNER_TEMP/sdd.zip" -DestinationPath "$env:RUNNER_TEMP/sdd" -Force
 
       - name: Download tracked files
         run: |
-          & "$env:SDD_DIR/SteamDepotDownload.App.exe" -app $env:APP_ID -filelist tracked_files.json `
-            -dir $env:INSTALL_DIR -max-downloads 12
+          & "$env:RUNNER_TEMP/sdd/SteamDepotDownload.App.exe" -app $env:APP_ID -filelist tracked_files.json `
+            -dir "$env:RUNNER_TEMP/install" -max-downloads 12
           if ($LASTEXITCODE -ne 0) { throw "SteamDepotDownload failed ($LASTEXITCODE)" }
 
       - name: Update linuxsteamrt64
         run: |
-          $so = "$env:INSTALL_DIR/game/bin/linuxsteamrt64/libtier0.so"
+          $so = "$env:RUNNER_TEMP/install/game/bin/linuxsteamrt64/libtier0.so"
           if (-not (Test-Path $so)) { throw "libtier0.so was not downloaded" }
           New-Item -ItemType Directory -Force libs/linuxsteamrt64 | Out-Null
           Copy-Item $so libs/linuxsteamrt64/libtier0.so -Force
 
       - name: Update win64
         run: |
-          $dll = "$env:INSTALL_DIR/game/bin/win64/tier0.dll"
+          $dll = "$env:RUNNER_TEMP/install/game/bin/win64/tier0.dll"
           if (-not (Test-Path $dll)) { throw "tier0.dll was not downloaded" }
 
           $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
