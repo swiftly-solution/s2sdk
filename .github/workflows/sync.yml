@@ -48,3 +48,89 @@ jobs:
           git add protobufs/protos
           git commit -m "update(protobufs): sync from CS2-Dumps"
           git push
+
+  libs-sync:
+    needs: game-sync
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      APP_ID: "730"
+      SDD_DIR: ${{ runner.temp }}/sdd
+      INSTALL_DIR: ${{ runner.temp }}/install
+    steps:
+      - name: Checkout s2sdk
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.SWIFTLYCHAN_PAT }}
+
+      - name: Download SteamDepotDownload
+        run: |
+          $release = Invoke-RestMethod -Uri "https://api.github.com/repos/Swiftly-Tracker/SteamDepotDownload/releases/latest"
+          $url = $release.assets | Where-Object name -eq "SteamDepotDownload-win-x64.zip" | Select-Object -ExpandProperty browser_download_url
+          if (-not $url) { throw "Could not resolve SteamDepotDownload release asset" }
+          Invoke-WebRequest -Uri $url -OutFile "$env:RUNNER_TEMP/sdd.zip"
+          Expand-Archive -Path "$env:RUNNER_TEMP/sdd.zip" -DestinationPath $env:SDD_DIR -Force
+
+      - name: Download tracked files
+        run: |
+          & "$env:SDD_DIR/SteamDepotDownload.App.exe" -app $env:APP_ID -filelist tracked_files.json `
+            -dir $env:INSTALL_DIR -max-downloads 12
+          if ($LASTEXITCODE -ne 0) { throw "SteamDepotDownload failed ($LASTEXITCODE)" }
+
+      - name: Update linuxsteamrt64
+        run: |
+          $so = "$env:INSTALL_DIR/game/bin/linuxsteamrt64/libtier0.so"
+          if (-not (Test-Path $so)) { throw "libtier0.so was not downloaded" }
+          New-Item -ItemType Directory -Force libs/linuxsteamrt64 | Out-Null
+          Copy-Item $so libs/linuxsteamrt64/libtier0.so -Force
+
+      - name: Update win64
+        run: |
+          $dll = "$env:INSTALL_DIR/game/bin/win64/tier0.dll"
+          if (-not (Test-Path $dll)) { throw "tier0.dll was not downloaded" }
+
+          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set" | ForEach-Object {
+            if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] }
+          }
+
+          $names = @()
+          $inTable = $false
+          foreach ($line in (dumpbin /nologo /exports $dll)) {
+            if ($line -match '^\s+ordinal\s+hint\s+RVA\s+name') { $inTable = $true; continue }
+            if ($line -match '^\s+Summary') { break }
+            if (-not $inTable) { continue }
+            if ($line -match '^\s+(\d+)\s+[0-9A-Fa-f]+\s+(?:[0-9A-Fa-f]{8}\s+)?(\S+)') {
+              if ($Matches[2] -eq '[NONAME]') { $names += "@$($Matches[1]) NONAME" } else { $names += $Matches[2] }
+            }
+          }
+          if ($names.Count -eq 0) { throw "No exports found in tier0.dll" }
+
+          $def = (@("LIBRARY tier0.dll", "EXPORTS") + ($names | Sort-Object -Unique)) -join "`n"
+          $current = if (Test-Path libs/win64/tier0.def) { (Get-Content libs/win64/tier0.def -Raw).Replace("`r", "").TrimEnd() } else { "" }
+          if ($current -ceq $def -and (Test-Path libs/win64/tier0.lib)) {
+            Write-Host "tier0 exports unchanged"
+            exit 0
+          }
+
+          New-Item -ItemType Directory -Force libs/win64 | Out-Null
+          [IO.File]::WriteAllText("$PWD/libs/win64/tier0.def", "$def`n")
+          lib /nologo /machine:x64 /def:libs/win64/tier0.def /out:libs/win64/tier0.lib
+          if ($LASTEXITCODE -ne 0) { throw "lib.exe failed ($LASTEXITCODE)" }
+          Remove-Item libs/win64/tier0.exp -ErrorAction SilentlyContinue
+
+      - name: Commit and push
+        shell: bash
+        run: |
+          if [ -z "$(git status --porcelain libs)" ]; then
+            echo "libs up to date"
+            exit 0
+          fi
+          git config user.name "swiftlychan"
+          git config user.email "swiftlychan@swiftlys2.net"
+          git add libs
+          git commit -m "update(libs): sync tier0 from Steam depots"
+          git pull --rebase
+          git push
