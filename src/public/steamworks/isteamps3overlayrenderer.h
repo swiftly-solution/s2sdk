@@ -11,7 +11,9 @@
 #pragma once
 #endif
 
-#include "cell/pad.h"
+#include "steam_api_common.h"
+
+class CellPadData;
 
 //-----------------------------------------------------------------------------
 // Purpose: Enum for supported gradient directions
@@ -47,7 +49,7 @@ public:
 	// Interface for game engine to implement which Steam requires to render.
 
 	// Draw a textured rect.  This may use only part of the texture and will pass texture coords, it will also possibly request a gradient and will specify colors for vertexes.
-	virtual void DrawTexturedRect( int x0, int y0, int x1, int y1, float u0, float v0, float u1, float v1, int32 iTextureID, DWORD colorStart, DWORD colorEnd, EOverlayGradientDirection eDirection ) = 0;
+	virtual void DrawTexturedRect( int x0, int y0, int x1, int y1, float u0, float v0, float u1, float v1, int32 iTextureID, int colorStart, int colorEnd, EOverlayGradientDirection eDirection ) = 0;
 
 	// Load a RGBA texture for Steam, or update a previously loaded one.  Updates may be partial.  You must not evict or remove this texture once Steam has uploaded it.
 	virtual void LoadOrUpdateTexture( int32 iTextureID, bool bIsFullTexture, int x0, int y0, uint32 uWidth, uint32 uHeight, int32 iBytes, char *pData ) = 0;

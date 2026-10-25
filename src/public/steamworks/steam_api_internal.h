@@ -11,7 +11,11 @@
 #error "This file should only be included from steam_api_common.h"
 #endif
 
+#ifndef _STEAM_API_INTERNAL_H
+#define _STEAM_API_INTERNAL_H
+
 #include <string.h>
+#include "steam_api_common.h"
 
 // Internal functions used to locate/create interfaces
 S_API HSteamPipe S_CALLTYPE SteamAPI_GetHSteamPipe();
@@ -303,3 +307,4 @@ enum { k_iSteamTimelineCallbacks = 6000 };
 #define STEAM_CALL_RESULT(RESULT_TYPE) STEAM_CLANG_ATTR("callresult:" #RESULT_TYPE ";")
 #define STEAM_CALL_BACK(RESULT_TYPE) STEAM_CLANG_ATTR("callback:" #RESULT_TYPE ";")
 #define STEAM_FLAT_NAME(NAME) STEAM_CLANG_ATTR("flat_name:" #NAME ";")
+#endif 

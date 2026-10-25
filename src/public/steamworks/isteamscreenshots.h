@@ -11,6 +11,7 @@
 #endif
 
 #include "steam_api_common.h"
+#include "isteamremotestorage.h"
 
 const uint32 k_nScreenshotMaxTaggedUsers = 32;
 const uint32 k_nScreenshotMaxTaggedPublishedFiles = 32;

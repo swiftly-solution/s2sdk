@@ -8,6 +8,8 @@
 #ifndef _SCE_PAD_TRIGGER_EFFECT_H
 #define _SCE_PAD_TRIGGER_EFFECT_H
 
+#include "steam_api_common.h"
+#include <cstdint>
 
 #define SCE_PAD_TRIGGER_EFFECT_TRIGGER_MASK_L2			0x01
 #define SCE_PAD_TRIGGER_EFFECT_TRIGGER_MASK_R2			0x02

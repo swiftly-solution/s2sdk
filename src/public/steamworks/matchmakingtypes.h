@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include "steam_api_common.h"
 //
 // Max size (in bytes of UTF-8 data, not in characters) of server fields, including null terminator.
 // WARNING: These cannot be changed easily, without breaking clients using old interfaces.

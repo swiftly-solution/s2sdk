@@ -10,6 +10,8 @@
 #define ISTEAMAPPTICKET_H
 #pragma once
 
+#include "steam_api_common.h"
+
 //-----------------------------------------------------------------------------
 // Purpose: hand out a reasonable "future proof" view of an app ownership ticket
 // the raw (signed) buffer, and indices into that buffer where the appid and 
