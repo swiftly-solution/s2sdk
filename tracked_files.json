@@ -1,4 +1,4 @@
 {
-    "2347771": ["game/bin/win64/tier0.dll"],
-    "2347773": ["game/bin/linuxsteamrt64/libtier0.so"]
+    "2347771": ["game/bin/win64/tier0.dll", "game/bin/win64/steam_api64.dll"],
+    "2347773": ["game/bin/linuxsteamrt64/libtier0.so", "game/bin/linuxsteamrt64/libsteam_api.so"]
 }

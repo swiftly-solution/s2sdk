@@ -79,54 +79,59 @@ jobs:
 
       - name: Update linuxsteamrt64
         run: |
-          $so = "$env:RUNNER_TEMP/install/game/bin/linuxsteamrt64/libtier0.so"
-          if (-not (Test-Path $so)) { throw "libtier0.so was not downloaded" }
           New-Item -ItemType Directory -Force libs/linuxsteamrt64 | Out-Null
-          Copy-Item $so libs/linuxsteamrt64/libtier0.so -Force
+          foreach ($name in "libtier0.so", "libsteam_api.so") {
+            $so = "$env:RUNNER_TEMP/install/game/bin/linuxsteamrt64/$name"
+            if (-not (Test-Path $so)) { throw "$name was not downloaded" }
+            Copy-Item $so "libs/linuxsteamrt64/$name" -Force
+          }
 
       - name: Update win64
         run: |
-          $dll = "$env:RUNNER_TEMP/install/game/bin/win64/tier0.dll"
-          if (-not (Test-Path $dll)) { throw "tier0.dll was not downloaded" }
-
-          $vs = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
+          $vs =& "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath
           cmd /c "`"$vs\VC\Auxiliary\Build\vcvars64.bat`" >nul && set" | ForEach-Object {
             if ($_ -match '^([^=]+)=(.*)$') { Set-Item "env:$($Matches[1])" $Matches[2] }
           }
-
-          $names = @()
-          $inTable = $false
-          foreach ($line in (dumpbin /nologo /exports $dll)) {
-            if ($line -match '^\s+ordinal\s+hint\s+RVA\s+name') { $inTable = $true; continue }
-            if ($line -match '^\s+Summary') { break }
-            if (-not $inTable) { continue }
-            if ($line -match '^\s+(\d+)\s+[0-9A-Fa-f]+\s+(?:[0-9A-Fa-f]{8}\s+)?(\S+)') {
-              if ($Matches[2] -eq '[NONAME]') { $names += "@$($Matches[1]) NONAME" } else { $names += $Matches[2] }
-            }
-          }
-          if ($names.Count -eq 0) { throw "No exports found in tier0.dll" }
-
-          $tmp = Join-Path $env:RUNNER_TEMP "tier0-lib"
-          New-Item -ItemType Directory -Force $tmp | Out-Null
-          $def = (@("LIBRARY tier0.dll", "EXPORTS") + ($names | Sort-Object -Unique)) -join "`n"
-          [IO.File]::WriteAllText("$tmp/tier0.def", "$def`n")
-          lib /nologo /machine:x64 /def:"$tmp/tier0.def" /out:"$tmp/tier0.lib"
-          if ($LASTEXITCODE -ne 0) { throw "lib.exe failed ($LASTEXITCODE)" }
 
           function Get-Symbols($lib) {
             dumpbin /nologo /linkermember:1 $lib | ForEach-Object {
               if ($_ -match '^\s+[0-9A-Fa-f]+\s+(\S+)\s*$') { $Matches[1] }
             } | Sort-Object
           }
-          $new = (Get-Symbols "$tmp/tier0.lib") -join "`n"
-          $old = if (Test-Path libs/win64/tier0.lib) { (Get-Symbols libs/win64/tier0.lib) -join "`n" } else { "" }
-          if ($old -ceq $new) {
-            Write-Host "tier0 exports unchanged"
-            exit 0
-          }
 
           New-Item -ItemType Directory -Force libs/win64 | Out-Null
-          Copy-Item "$tmp/tier0.lib" libs/win64/tier0.lib -Force
+          foreach ($name in "tier0", "steam_api64") {
+            $dll = "$env:RUNNER_TEMP/install/game/bin/win64/$name.dll"
+            if (-not (Test-Path $dll)) { throw "$name.dll was not downloaded" }
+
+            $names = @()
+            $inTable = $false
+            foreach ($line in (dumpbin /nologo /exports $dll)) {
+              if ($line -match '^\s+ordinal\s+hint\s+RVA\s+name') { $inTable = $true; continue }
+              if ($line -match '^\s+Summary') { break }
+              if (-not $inTable) { continue }
+              if ($line -match '^\s+(\d+)\s+[0-9A-Fa-f]+\s+(?:[0-9A-Fa-f]{8}\s+)?(\S+)') {
+                if ($Matches[2] -eq '[NONAME]') { $names += "@$($Matches[1]) NONAME" } else { $names += $Matches[2] }
+              }
+            }
+            if ($names.Count -eq 0) { throw "No exports found in $name.dll" }
+
+            # .def and new .lib live in temp; lib.exe timestamps its output, so compare public symbols instead of bytes
+            $tmp = Join-Path $env:RUNNER_TEMP "$name-lib"
+            New-Item -ItemType Directory -Force $tmp | Out-Null
+            $def = (@("LIBRARY $name.dll", "EXPORTS") + ($names | Sort-Object -Unique)) -join "`n"
+            [IO.File]::WriteAllText("$tmp/$name.def", "$def`n")
+            lib /nologo /machine:x64 /def:"$tmp/$name.def" /out:"$tmp/$name.lib"
+            if ($LASTEXITCODE -ne 0) { throw "lib.exe failed for $name ($LASTEXITCODE)" }
+
+            $new = (Get-Symbols "$tmp/$name.lib") -join "`n"
+            $old = if (Test-Path "libs/win64/$name.lib") { (Get-Symbols "libs/win64/$name.lib") -join "`n" } else { "" }
+            if ($old -ceq $new) {
+              Write-Host "$name exports unchanged"
+              continue
+            }
+            Copy-Item "$tmp/$name.lib" "libs/win64/$name.lib" -Force
+          }
 
       - name: Commit and push
         shell: bash
@@ -138,6 +143,6 @@ jobs:
           git config user.name "swiftlychan"
           git config user.email "swiftlychan@swiftlys2.net"
           git add libs
-          git commit -m "update(libs): sync tier0 from Steam depots"
+          git commit -m "update(libs): sync tier0 and steam_api from Steam depots"
           git pull --rebase
           git push
