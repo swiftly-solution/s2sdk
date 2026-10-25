@@ -106,18 +106,27 @@ jobs:
           }
           if ($names.Count -eq 0) { throw "No exports found in tier0.dll" }
 
+          $tmp = Join-Path $env:RUNNER_TEMP "tier0-lib"
+          New-Item -ItemType Directory -Force $tmp | Out-Null
           $def = (@("LIBRARY tier0.dll", "EXPORTS") + ($names | Sort-Object -Unique)) -join "`n"
-          $current = if (Test-Path libs/win64/tier0.def) { (Get-Content libs/win64/tier0.def -Raw).Replace("`r", "").TrimEnd() } else { "" }
-          if ($current -ceq $def -and (Test-Path libs/win64/tier0.lib)) {
+          [IO.File]::WriteAllText("$tmp/tier0.def", "$def`n")
+          lib /nologo /machine:x64 /def:"$tmp/tier0.def" /out:"$tmp/tier0.lib"
+          if ($LASTEXITCODE -ne 0) { throw "lib.exe failed ($LASTEXITCODE)" }
+
+          function Get-Symbols($lib) {
+            dumpbin /nologo /linkermember:1 $lib | ForEach-Object {
+              if ($_ -match '^\s+[0-9A-Fa-f]+\s+(\S+)\s*$') { $Matches[1] }
+            } | Sort-Object
+          }
+          $new = (Get-Symbols "$tmp/tier0.lib") -join "`n"
+          $old = if (Test-Path libs/win64/tier0.lib) { (Get-Symbols libs/win64/tier0.lib) -join "`n" } else { "" }
+          if ($old -ceq $new) {
             Write-Host "tier0 exports unchanged"
             exit 0
           }
 
           New-Item -ItemType Directory -Force libs/win64 | Out-Null
-          [IO.File]::WriteAllText("$PWD/libs/win64/tier0.def", "$def`n")
-          lib /nologo /machine:x64 /def:libs/win64/tier0.def /out:libs/win64/tier0.lib
-          if ($LASTEXITCODE -ne 0) { throw "lib.exe failed ($LASTEXITCODE)" }
-          Remove-Item libs/win64/tier0.exp -ErrorAction SilentlyContinue
+          Copy-Item "$tmp/tier0.lib" libs/win64/tier0.lib -Force
 
       - name: Commit and push
         shell: bash
