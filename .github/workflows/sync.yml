@@ -1,0 +1,50 @@
+name: Game Sync
+
+on:
+  repository_dispatch:
+    types:
+      - cs2-dump-updated
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  game-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout s2sdk
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.SWIFTLYCHAN_PAT }}
+
+      - name: Checkout CS2-Dumps
+        uses: actions/checkout@v5
+        with:
+          repository: Swiftly-Tracker/CS2-Dumps
+          ref: main
+          path: CS2-Dumps
+
+      - name: Update protobufs
+        run: |
+          # only refresh protos we already track; new upstream files are ignored
+          for f in protobufs/protos/*.proto; do
+            src="CS2-Dumps/protobufs/all/$(basename "$f")"
+            if [ -f "$src" ]; then
+              cp "$src" "$f"
+            else
+              echo "::warning::$f missing upstream"
+            fi
+          done
+
+      - name: Commit and push
+        run: |
+          if [ -z "$(git status --porcelain protobufs/protos)" ]; then
+            echo "protobufs up to date"
+            exit 0
+          fi
+          git config user.name "swiftlychan"
+          git config user.email "swiftlychan@swiftlys2.net"
+          git add protobufs/protos
+          git commit -m "update(protobufs): sync from CS2-Dumps"
+          git push
