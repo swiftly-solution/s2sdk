@@ -71,7 +71,6 @@
 #define ALIGN128_POST DECL_ALIGN(128)
 #define ALIGN_N_POST( _align_ ) DECL_ALIGN( _align_ )
 #else
-// MSVC has the align at the start of the struct
 #define ALIGN4 DECL_ALIGN(4)
 #define ALIGN8 DECL_ALIGN(8)
 #define ALIGN16 DECL_ALIGN(16)
@@ -88,7 +87,8 @@
 #endif
 
 #define INT_TO_POINTER( i ) (void *)( ( i ) + (char *)NULL )
-#define POINTER_TO_INT( p ) ( (int)(uintp)( p ) )
+#define POINTER_TO_INT( p ) ( (int)(uintptr_t)( p ) )
+#define MAX_PATH  260
 
 struct empty_t {};
 

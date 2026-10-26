@@ -7,6 +7,7 @@
 
 #include "public/schemalib/schematype.h"
 
+#include "public/tier0/convar.h"
 #include "public/tier0/threadtools.h"
 #include "public/tier0/utlmap.h"
 #include "public/tier0/utlvector.h"

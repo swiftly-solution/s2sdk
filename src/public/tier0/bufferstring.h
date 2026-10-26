@@ -131,6 +131,7 @@ public:
 public:
 	DLL_CLASS_IMPORT const char *AppendConcat(int, const char * const *, const int *, bool bIgnoreAlignment = false);
 
+    DLL_CLASS_IMPORT int AppendFormat(const char *pFormat, ...);
 	DLL_CLASS_IMPORT int AppendFormatV(const char *pFormat, va_list pData);
 
 	DLL_CLASS_IMPORT const char *AppendRepeat(char cChar, int nChars, bool bIgnoreAlignment = false);
@@ -178,6 +179,7 @@ public:
 	// Fixes up a file name, removing dot slashes, fixing slashes, converting to lowercase, etc.
 	DLL_CLASS_IMPORT const char *FixupPathName(char cSeparator);
 
+    DLL_CLASS_IMPORT int Format(const char *pFormat, ...);
 	DLL_CLASS_IMPORT void FormatTo(IFormatOutputStream* pOutputStream, CFormatStringElement pElement) const;
 
 protected:

@@ -8,6 +8,8 @@
 #include "platform_base.h"
 #include "messages.h"
 
+#include <utility>
+
 PLATFORM_INTERFACE const char *		Plat_GetGameDirectory( int unknown=0 );
 
 #if defined _MSC_VER		// MSVC (What about MinGW and Clang for Windows)
@@ -63,6 +65,48 @@ PLATFORM_INTERFACE uint64_t			Plat_GetClockStart();	// Snapshot of the clock whe
 PLATFORM_INTERFACE time_t			Plat_GetTime();			// Same as time().
 
 template <class T>
+inline T* Construct( T* pMemory )
+{
+	return reinterpret_cast<T*>(::new( pMemory ) T);
+}
+
+template <class T, typename... ARGS>
+inline T* Construct( T* pMemory, ARGS&&... args )
+{
+	return reinterpret_cast<T*>(::new( pMemory ) T( std::forward<ARGS>( args )... ));
+}
+
+template <class T, class P>
+inline void ConstructOneArg( T* pMemory, P const& arg)
+{
+	::new( pMemory ) T(arg);
+}
+
+template <class T, class P1, class P2 >
+inline void ConstructTwoArg( T* pMemory, P1 const& arg1, P2 const& arg2)
+{
+	::new( pMemory ) T(arg1, arg2);
+}
+
+template <class T, class P1, class P2, class P3 >
+inline void ConstructThreeArg( T* pMemory, P1 const& arg1, P2 const& arg2, P3 const& arg3)
+{
+	::new( pMemory ) T(arg1, arg2, arg3);
+}
+
+template <class T>
+inline T* CopyConstruct( T* pMemory, T const& src )
+{
+	return reinterpret_cast<T*>(::new( pMemory ) T(src));
+}
+
+template <class T>
+inline T* MoveConstruct( T* pMemory, T&& src )
+{
+	return reinterpret_cast<T*>(::new( pMemory ) T(std::move(src)));
+}
+
+template <class T>
 inline void Destruct( T* pMemory, size_t nAllocatedSize )
 {
 	pMemory->~T();
@@ -73,5 +117,17 @@ inline void Destruct( T* pMemory )
 {
 	Destruct( pMemory, sizeof(T) );
 }
+
+#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) )
+
+PLATFORM_INTERFACE void			V_tier0_memset( void *dest, int fill, size_t count );
+PLATFORM_INTERFACE void			V_tier0_memcpy( void *dest, const void *src, size_t count );
+PLATFORM_INTERFACE void			V_tier0_memmove( void *dest, const void *src, size_t count );
+PLATFORM_INTERFACE int			V_tier0_memcmp( const void *m1, const void *m2, size_t count );
+
+#define V_memset(dest, fill, count)		V_tier0_memset		((dest), (fill), (count))
+#define V_memcpy(dest, src, count)		V_tier0_memcpy		((dest), (src), (count))
+#define V_memmove(dest, src, count)		V_tier0_memmove		((dest), (src), (count))
+#define V_memcmp(m1, m2, count)			V_tier0_memcmp		((m1), (m2), (count))
 
 #endif
