@@ -229,10 +229,10 @@ class ILoggingListener
 {
 public:
 	virtual void Log( const LoggingContext_t *pContext, const char *pMessage ) = 0;
-	virtual void OnFlush() { };
-	virtual void OnChannelRegistered( LoggingChannelID_t channelID ) { };
-	virtual void OnChannelVerbosityChanged( LoggingChannelID_t channelID ) { };
-	virtual void OnChannelFlagsChanged( LoggingChannelID_t channelID ) { };
+	virtual void OnFlush();
+	virtual void OnChannelRegistered( LoggingChannelID_t channelID );
+	virtual void OnChannelVerbosityChanged( LoggingChannelID_t channelID );
+	virtual void OnChannelFlagsChanged( LoggingChannelID_t channelID );
 };
 
 //-----------------------------------------------------------------------------

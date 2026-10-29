@@ -35,13 +35,13 @@ public:
 	DLL_CLASS_IMPORT void		Free( void *pMem );
 	
 	// Frees everything
-	void Clear() { ClearDestruct( NULL ); }
+	void Clear();
 	
 	// returns number of allocated blocks
-	int Count() const		{ return m_BlocksAllocated; }
-	int PeakCount() const	{ return m_PeakAlloc; }
-	int BlockSize() const	{ return m_BlockSize; }
-	int Size() const		{ return m_TotalSize; }
+	int Count() const;
+	int PeakCount() const;
+	int BlockSize() const;
+	int Size() const;
 
 	DLL_CLASS_IMPORT bool		IsAllocationWithinPool( void *pMem ) const;
 

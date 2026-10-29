@@ -5,13 +5,17 @@
 #pragma once
 #endif
 
+#include <algorithm>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <type_traits>
 #include "color.h"
 #include "platform.h"
 #include "playerslot.h"
-#include "public/mathlib/vector2.h"
-#include "public/mathlib/vector3.h"
-#include "public/mathlib/vector4.h"
-#include "public/mathlib/qangle.h"
+#include "public/mathlib/vector2d.h"
+#include "public/mathlib/vector.h"
+#include "public/mathlib/vector4d.h"
 #include "public/mathlib/vectorws.h"
 #include "public/schemasystem/typescope.h"
 #include "splitscreenslot.h"
@@ -99,6 +103,9 @@ union CVValue_t
 	CVValue_t( const VectorWS &value ) : m_vecwsValue( value ) {}
 	~CVValue_t() {}
 
+	CVValue_t( const CVValue_t &other ) { memcpy( (void *)this, (const void *)&other, sizeof( *this ) ); }
+	CVValue_t &operator=( const CVValue_t &other ) { memcpy( (void *)this, (const void *)&other, sizeof( *this ) ); return *this; }
+
 	operator bool() const				{ return m_bValue; }
 	operator int16_t() const				{ return m_i16Value; }
 	operator uint16_t() const				{ return m_u16Value; }
@@ -137,11 +144,7 @@ union CVValue_t
 
 struct CVarCreationBase_t
 {
-	CVarCreationBase_t() :
-		m_pszName( nullptr ),
-		m_pszHelpString( nullptr ),
-		m_nFlags( 0 )
-	{}
+	CVarCreationBase_t();
 
 	const char*				m_pszName;
 	const char*				m_pszHelpString;
@@ -216,19 +219,11 @@ enum CommandTarget_t
 class CCommandContext
 {
 public:
-	CCommandContext( CommandTarget_t nTarget, CPlayerSlot nSlot ) :
-		m_nTarget( nTarget ), m_nPlayerSlot( nSlot )
-	{}
+	CCommandContext( CommandTarget_t nTarget, CPlayerSlot nSlot );
 
-	CommandTarget_t GetTarget() const
-	{
-		return m_nTarget;
-	}
+	CommandTarget_t GetTarget() const;
 
-	CPlayerSlot GetPlayerSlot() const
-	{
-		return m_nPlayerSlot;
-	}
+	CPlayerSlot GetPlayerSlot() const;
 
 private:
 	CommandTarget_t m_nTarget;
@@ -285,57 +280,19 @@ private:
 
 struct ConCommandCallbackInfo_t
 {
-	ConCommandCallbackInfo_t() :
-		m_fnCommandCallback( nullptr ),
-		m_bIsInterface( false ),
-		m_bIsVoidCallback( false ),
-		m_bIsContextLess( false )
-	{}
+	ConCommandCallbackInfo_t();
 
-	ConCommandCallbackInfo_t( FnCommandCallback_t cb ) :
-		m_fnCommandCallback( cb ),
-		m_bIsInterface( false ),
-		m_bIsVoidCallback( false ),
-		m_bIsContextLess( false )
-	{}
+	ConCommandCallbackInfo_t( FnCommandCallback_t cb );
 
-	ConCommandCallbackInfo_t( FnCommandCallbackVoid_t cb ) :
-		m_fnVoidCommandCallback( cb ),
-		m_bIsInterface( false ),
-		m_bIsVoidCallback( cb ? true : false ),
-		m_bIsContextLess( false )
-	{}
+	ConCommandCallbackInfo_t( FnCommandCallbackVoid_t cb );
 
-	ConCommandCallbackInfo_t( FnCommandCallbackNoContext_t cb ) :
-		m_fnContextlessCommandCallback( cb ),
-		m_bIsInterface( false ),
-		m_bIsVoidCallback( false ),
-		m_bIsContextLess( cb ? true : false )
-	{}
+	ConCommandCallbackInfo_t( FnCommandCallbackNoContext_t cb );
 
-	ConCommandCallbackInfo_t( ICommandCallback *cb ) :
-		m_pCommandCallback( cb ),
-		m_bIsInterface( cb ? true : false ),
-		m_bIsVoidCallback( false ),
-		m_bIsContextLess( false )
-	{}
+	ConCommandCallbackInfo_t( ICommandCallback *cb );
 
-	bool IsValid() const { return m_fnCommandCallback != nullptr; }
+	bool IsValid() const;
 
-	void Dispatch( const CCommandContext &context, const CCommand &command ) const
-	{
-		if(!IsValid())
-			return;
-
-		if(m_bIsInterface)
-			m_pCommandCallback->CommandCallback( context, command );
-		else if(m_bIsVoidCallback)
-			m_fnVoidCommandCallback();
-		else if(m_bIsContextLess)
-			m_fnContextlessCommandCallback( command );
-		else
-			m_fnCommandCallback( context, command );
-	}
+	void Dispatch( const CCommandContext &context, const CCommand &command ) const;
 
 	union
 	{
@@ -352,34 +309,15 @@ struct ConCommandCallbackInfo_t
 
 struct CompletionCallbackInfo_t
 {
-	CompletionCallbackInfo_t() :
-		m_fnCompletionCallback( nullptr ),
-		m_bIsInterface( false )
-	{}
+	CompletionCallbackInfo_t();
 
-	CompletionCallbackInfo_t( FnCommandCompletionCallback cb ) :
-		m_fnCompletionCallback( cb ),
-		m_bIsInterface( false )
-	{}
+	CompletionCallbackInfo_t( FnCommandCompletionCallback cb );
 
-	CompletionCallbackInfo_t( ICommandCompletionCallback *cb ) :
-		m_pCommandCompletionCallback( cb ),
-		m_bIsInterface( cb ? true : false )
-	{}
+	CompletionCallbackInfo_t( ICommandCompletionCallback *cb );
 
-	bool IsValid() const { return m_fnCompletionCallback != nullptr; }
+	bool IsValid() const;
 
-	int Dispatch( const CCommand &command, CUtlVector< CUtlString > &completions ) const
-	{
-		if(!IsValid())
-			return 0;
-
-		if(m_bIsInterface)
-			return m_pCommandCompletionCallback->CommandCompletionCallback( command, completions );
-		
-		m_fnCompletionCallback( command, completions );
-		return completions.Count();
-	}
+	int Dispatch( const CCommand &command, CUtlVector< CUtlString > &completions ) const;
 
 	union
 	{
@@ -399,22 +337,19 @@ struct ConCommandCreation_t : CVarCreationBase_t
 class ConCommandData
 {
 public:
-	const char *GetName() const { return m_pszName; }
-	const char *GetHelpText() const { return m_pszHelpString; }
-	bool HasHelpText() const { return m_pszHelpString && m_pszHelpString[0]; }
+	const char *GetName() const;
+	const char *GetHelpText() const;
+	bool HasHelpText() const;
 
-	bool IsFlagSet( uint64_t flag ) const { return (m_nFlags & flag) != 0; }
-	void AddFlags( uint64_t flags ) { m_nFlags |= flags; }
-	void RemoveFlags( uint64_t flags ) { m_nFlags &= ~flags; }
-	uint64_t GetFlags( void ) const { return m_nFlags; }
+	bool IsFlagSet( uint64_t flag ) const;
+	void AddFlags( uint64_t flags );
+	void RemoveFlags( uint64_t flags );
+	uint64_t GetFlags( void ) const;
 
-	int GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const
-	{
-		return m_CompletionCB.Dispatch( command, completions );
-	}
+	int GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const;
 
-	bool HasCompletionCallback() const { return m_CompletionCB.IsValid(); }
-	bool HasCallback() const { return m_CallbackInfoIndex > 0; }
+	bool HasCompletionCallback() const;
+	bool HasCallback() const;
 
 	const char*				m_pszName;
 	const char*				m_pszHelpString;
@@ -442,32 +377,29 @@ public:
 	ConCommandData *GetRawData();
 	const ConCommandData *GetRawData() const { return const_cast<ConCommandRef *>(this)->GetRawData(); }
 
-	const char *GetName() const { return GetRawData()->GetName(); }
-	const char *GetHelpText() const { return GetRawData()->GetHelpText(); }
-	bool HasHelpText() const { return GetRawData()->HasHelpText(); }
+	const char *GetName() const;
+	const char *GetHelpText() const;
+	bool HasHelpText() const;
 
-	bool IsFlagSet( uint64_t flag ) const { return GetRawData()->IsFlagSet( flag ); }
-	void AddFlags( uint64_t flags ) { GetRawData()->AddFlags( flags ); }
-	void RemoveFlags( uint64_t flags ) { GetRawData()->RemoveFlags( flags ); }
-	uint64_t GetFlags() const { return GetRawData()->GetFlags(); }
+	bool IsFlagSet( uint64_t flag ) const;
+	void AddFlags( uint64_t flags );
+	void RemoveFlags( uint64_t flags );
+	uint64_t GetFlags() const;
 
-	bool HasCompletionCallback() const { return GetRawData()->HasCompletionCallback(); }
-	bool HasCallback() const { return GetRawData()->HasCallback(); }
+	bool HasCompletionCallback() const;
+	bool HasCallback() const;
 
 	void Dispatch( const CCommandContext &context, const CCommand &command );
 
-	int GetCompletionCommandIndex() const { return GetRawData()->m_CompletionCBCmdIndex; }
-	uint16_t GetCallbackIndex() const { return GetRawData()->m_CallbackInfoIndex; }
+	int GetCompletionCommandIndex() const;
+	uint16_t GetCallbackIndex() const;
 
-	int GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const
-	{
-		return GetRawData()->GetAutoCompleteSuggestions( command, completions );
-	}
+	int GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const;
 
-	void InvalidateRef() { m_CommandAccessIndex = kInvalidAccessIndex; m_CommandRegisteredIndex = 0; }
-	bool IsValidRef() const { return m_CommandAccessIndex != kInvalidAccessIndex; }
-	uint16_t GetAccessIndex() const { return m_CommandAccessIndex; }
-	int GetRegisteredIndex() const { return m_CommandRegisteredIndex; }
+	void InvalidateRef();
+	bool IsValidRef() const;
+	uint16_t GetAccessIndex() const;
+	int GetRegisteredIndex() const;
 
 private:
 	uint16_t m_CommandAccessIndex;
@@ -481,16 +413,9 @@ public:
 
 	ConCommand( const char *pName, ConCommandCallbackInfo_t callback,
 		const char *pHelpString, uint64_t flags = 0,
-		CompletionCallbackInfo_t completionFunc = CompletionCallbackInfo_t() )
-		: BaseClass()
-	{
-		Create( pName, callback, pHelpString, flags, completionFunc );
-	}
+		CompletionCallbackInfo_t completionFunc = CompletionCallbackInfo_t() );
 
-	~ConCommand()
-	{
-		Destroy();
-	}
+	~ConCommand();
 
 protected:
 	void Create( const char *pName, const ConCommandCallbackInfo_t &cb, const char *pHelpString, uint64_t flags, const CompletionCallbackInfo_t &completion_cb );
@@ -525,22 +450,7 @@ using FnGetEnumInfoHandle_t = SchemaMetaInfoHandle_t<CSchemaEnumInfo> (*)();
 #pragma pack(push,1)
 struct ConVarValueInfo_t
 {
-	ConVarValueInfo_t( EConVarType type = EConVarType_Invalid ) :
-		m_Version( 0 ),
-		m_bHasDefault( false ),
-		m_bHasMin( false ),
-		m_bHasMax( false ),
-		m_defaultValue {},
-		m_minValue {},
-		m_maxValue {},
-		m_fnProviderCallBack( nullptr ),
-		m_fnCallBack( nullptr ),
-		m_fnProviderFilterCallBack( nullptr ),
-		m_fnFilterCallBack( nullptr ),
-		m_fnGetEnumInfoHandle( nullptr ),
-		m_eVarType( type ),
-		m_CompletionCallBack()
-	{}
+	ConVarValueInfo_t( EConVarType type = EConVarType_Invalid );
 
 	template <typename T>
 	void SetDefaultValue( const T &value )
@@ -589,10 +499,7 @@ struct ConVarValueInfo_t
 		}
 	}
 
-	void SetCompletionCallback( const CompletionCallbackInfo_t &cb )
-	{
-		m_CompletionCallBack = cb;
-	}
+	void SetCompletionCallback( const CompletionCallbackInfo_t &cb );
 
 	int32_t m_Version;
 
@@ -630,14 +537,14 @@ template <typename T> static void CvarTypeTrait_CopyFn( CVValue_t *obj, const CV
 template <typename T> static void CvarTypeTrait_DestructFn( CVValue_t *obj ) { Destruct( (T *)obj ); }
 template <typename T> static bool CvarTypeTrait_StringToValueFn( const char *string, CVValue_t *obj ) { return V_StringToValue<T>( string, *(T *)obj ); }
 template <typename T> static void CvarTypeTrait_ValueToStringFn( const CVValue_t *obj, CBufferString &buf );
-template <typename T> static bool CvarTypeTrait_EqualFn( const CVValue_t *obj, const CVValue_t *other ) { return *(T *)obj == *(T *)other; }
+template <typename T> static bool CvarTypeTrait_EqualFn( const CVValue_t *obj, const CVValue_t *other ) { if constexpr ( std::is_arithmetic_v<T> || std::is_same_v<T, CUtlString> || std::is_same_v<T, Color> ) return *(T *)obj == *(T *)other; else return memcmp( obj, other, sizeof( T ) ) == 0; }
 template <typename T> static void CvarTypeTrait_ClampFn( CVValue_t *obj, const CVValue_t *min, const CVValue_t *max )
 {
 	if(min)
-		*(T *)obj = Max( *(T *)obj, *(T *)min );
+		*(T *)obj = (std::max)( *(T *)obj, *(T *)min );
 
 	if(max)
-		*(T *)obj = Min( *(T *)obj, *(T *)max );
+		*(T *)obj = (std::min)( *(T *)obj, *(T *)max );
 }
 
 template<> bool CvarTypeTrait_StringToValueFn<CUtlString>( const char *string, CVValue_t *obj ) { obj->m_StringValue = string; return true; }
@@ -760,118 +667,93 @@ public:
 		CVARGI_HAS_VERSION = (1 << 4)
 	};
 
-	ConVarData( EConVarType type = EConVarType_Invalid ): m_Value {}
-	{
-		Invalidate( type, true );
-	}
+	ConVarData( EConVarType type = EConVarType_Invalid );
 
 	// Helper method to invalidate convar data to its default, pre-register state
-	void Invalidate( EConVarType type = EConVarType_Invalid, bool as_undefined = false )
-	{
-		if(as_undefined)
-			m_pszName = "<undefined>";
-		m_defaultValue = CVValue_t::InvalidValue();
-		m_minValue = nullptr;
-		m_maxValue = nullptr;
-		m_pszHelpString = as_undefined ? "This convar is being accessed prior to ConVar_Register being called" : nullptr;
-		m_eVarType = type;
-		m_Version = 0;
-		m_iTimesChanged = 0;
-		m_nFlags = CVarFlags::REFERENCE;
-		m_iCallbackIndex = 0;
-		m_iFilterCBIndex = 0;
-		m_iCompletionCBIndex = 0;
-		m_GameInfoFlags = 0;
-		m_UserInfoByteIndex = 0;
-		m_fnGetEnumInfoHandle = nullptr;
-	}
+	void Invalidate( EConVarType type = EConVarType_Invalid, bool as_undefined = false );
 
-	const char *GetName( void ) const { return m_pszName; }
-	const char *GetHelpText( void ) const { return m_pszHelpString; }
-	bool HasHelpText() const { return m_pszHelpString && m_pszHelpString[0]; }
+	const char *GetName( void ) const;
+	const char *GetHelpText( void ) const;
+	bool HasHelpText() const;
 
-	EConVarType	GetType() const { return m_eVarType; }
+	EConVarType	GetType() const;
 
-	short GetVersion() const { return m_Version; }
+	short GetVersion() const;
 
-	int	GetTimesChanged() const { return m_iTimesChanged; }
-	void SetTimesChanged( int val ) { m_iTimesChanged = val; }
-	void IncrementTimesChanged() { m_iTimesChanged++; }
+	int	GetTimesChanged() const;
+	void SetTimesChanged( int val );
+	void IncrementTimesChanged();
 
-	bool IsFlagSet( uint64_t flag ) const { return (m_nFlags & flag) != 0; }
-	void AddFlags( uint64_t flags ) { m_nFlags |= flags; }
-	void RemoveFlags( uint64_t flags ) { m_nFlags &= ~flags; }
-	uint64_t GetFlags() const { return m_nFlags; }
+	bool IsFlagSet( uint64_t flag ) const;
+	void AddFlags( uint64_t flags );
+	void RemoveFlags( uint64_t flags );
+	uint64_t GetFlags() const;
 
-	int GetGameInfoFlags() const { return m_GameInfoFlags; }
-	int GetCallbackIndex() const { return m_iCallbackIndex; }
-	int GetUserInfoByteIndex() const { return m_UserInfoByteIndex; }
+	int GetGameInfoFlags() const;
+	int GetCallbackIndex() const;
+	int GetUserInfoByteIndex() const;
 
 	int GetMaxSplitScreenSlots() const;
 
-	CVarTypeTraits *TypeTraits() const
-	{
-		Assert( m_eVarType != EConVarType_Invalid );
-		return GetCvarTypeTraits( m_eVarType );
-	}
+	CVarTypeTraits *TypeTraits() const;
 
-	bool HasEnumInfo() const { return m_fnGetEnumInfoHandle != nullptr; }
-	SchemaMetaInfoHandle_t<CSchemaEnumInfo> GetEnumInfo() const { return HasEnumInfo() ? m_fnGetEnumInfoHandle() : SchemaMetaInfoHandle_t<CSchemaEnumInfo> {}; }
+	bool HasEnumInfo() const;
+	SchemaMetaInfoHandle_t<CSchemaEnumInfo> GetEnumInfo() const;
 
-	int GetDataByteSize() const { return TypeTraits()->m_ByteSize; }
-	bool IsPrimitiveType() const { return TypeTraits()->m_IsPrimitive; }
-	const char *GetDataTypeName() const { return TypeTraits()->m_TypeName; }
+	int GetDataByteSize() const;
+	bool IsPrimitiveType() const;
+	const char *GetDataTypeName() const;
 
-	bool HasDefaultValue() const { return m_defaultValue && m_defaultValue != CVValue_t::InvalidValue(); }
-	bool HasMinValue() const { return m_minValue != nullptr; }
-	bool HasMaxValue() const { return m_maxValue != nullptr; }
+	bool HasDefaultValue() const;
+	bool HasMinValue() const;
+	bool HasMaxValue() const;
 
-	CVValue_t *DefaultValue() const { return m_defaultValue; }
-	CVValue_t *MinValue() const { return m_minValue; }
-	CVValue_t *MaxValue() const { return m_maxValue; }
+	CVValue_t *DefaultValue() const;
+	CVValue_t *MinValue() const;
+	CVValue_t *MaxValue() const;
 
 	// Since cvars can't be without default value, this just resets it to a global default value if it had one set
-	void RemoveDefaultValue() { if(HasDefaultValue()) TypeTraits()->StringToValue( TypeTraits()->m_DefaultValue, m_defaultValue ); }
+	void RemoveDefaultValue();
 
 	// AMNOTE: Min/Max values are allocated by default by a CCvar allocator which doesn't cleanup memory,
 	// thus be careful when removing min/max values allocated by other sources and do cleanup yourself
-	void RemoveMinValue() { m_minValue = nullptr; }
-	void RemoveMaxValue() { m_maxValue = nullptr; }
+	void RemoveMinValue();
+	void RemoveMaxValue();
 
 	// Updates default/min/max values to other value if present
-	bool UpdateDefaultValueString( const char *value ) { return HasDefaultValue() && TypeTraits()->StringToValue( value, m_defaultValue ); }
-	bool UpdateMinValueString( const char *value ) { return HasMinValue() && TypeTraits()->StringToValue( value, m_minValue ); }
-	bool UpdateMaxValueString( const char *value ) { return HasMaxValue() && TypeTraits()->StringToValue( value, m_maxValue ); }
+	bool UpdateDefaultValueString( const char *value );
+	bool UpdateMinValueString( const char *value );
+	bool UpdateMaxValueString( const char *value );
 
 	// Sets default value by copying it, doesn't need to be allocated
-	void SetDefaultValue( CVValue_t *value ) { TypeTraits()->Copy( m_defaultValue, *value ); }
+	void SetDefaultValue( CVValue_t *value );
 
 	// AMNOTE: Expects you to manually allocate its value and for it to be alive while it's used by the cvar
 	// Also you should be responsible for clearing memory on cleanup, by default game uses CCvar memory allocator for this
 	// These are ignored for string and bool types!
-	void SetMinValue( CVValue_t *value ) { m_minValue = value; }
-	void SetMaxValue( CVValue_t *value ) { m_maxValue = value; }
+	void SetMinValue( CVValue_t *value );
+	void SetMaxValue( CVValue_t *value );
 
 	// Could be nullptr if slot is invalid for this cvar
 	CVValue_t *Value( CSplitScreenSlot slot ) const;
 	// Returns default_value if slot is invalid
 	CVValue_t *ValueOrDefault( CSplitScreenSlot slot ) const;
 
-	bool IsSetToDefault( CSplitScreenSlot slot ) const { return TypeTraits()->Equal( ValueOrDefault( slot ), m_defaultValue ); }
+	bool IsSetToDefault( CSplitScreenSlot slot ) const;
 	bool IsAllSetToDefault() const;
 
-	void ValueToString( CSplitScreenSlot slot, CBufferString &buf ) const { TypeTraits()->ValueToString( ValueOrDefault( slot ), buf ); }
-	void DefaultValueToString( CBufferString &buf ) const { TypeTraits()->ValueToString( m_defaultValue, buf ); }
+	void ValueToString( CSplitScreenSlot slot, CBufferString &buf ) const;
+	void DefaultValueToString( CBufferString &buf ) const;
 	void MinValueToString( CBufferString &buf ) const;
 	void MaxValueToString( CBufferString &buf ) const;
 
-	void Construct( CSplitScreenSlot slot ) const { if(IsSlotInRange( slot )) TypeTraits()->Construct( Value( slot ) ); }
-	void Destruct( CSplitScreenSlot slot ) const { if(IsSlotInRange( slot )) TypeTraits()->Destruct( Value( slot ) ); }
-	bool IsEqual( CSplitScreenSlot slot, CVValue_t *other ) const { return TypeTraits()->Equal( ValueOrDefault( slot ), other ); }
-	void Clamp( CSplitScreenSlot slot ) const { if(IsSlotInRange( slot )) TypeTraits()->Clamp( Value( slot ), m_minValue, m_maxValue ); }
+	void Construct( CSplitScreenSlot slot ) const;
+	void Destruct( CSplitScreenSlot slot ) const;
+	bool IsEqual( CSplitScreenSlot slot, CVValue_t *other ) const;
+	void Clamp( CSplitScreenSlot slot ) const;
 
 private:
-	bool IsSlotInRange( CSplitScreenSlot slot ) const { return slot.Get() == -1 || (slot.Get() >= 0 && slot.Get() < GetMaxSplitScreenSlots()); }
+	bool IsSlotInRange( CSplitScreenSlot slot ) const;
 
 	const char* m_pszName;
 
@@ -913,10 +795,10 @@ public:
 
 	ConVarRef( const char *name, bool allow_defensive = false );
 
-	void InvalidateRef() { m_ConVarAccessIndex = kInvalidAccessIndex; m_ConVarRegisteredIndex = 0; }
-	bool IsValidRef() const { return m_ConVarAccessIndex != kInvalidAccessIndex; }
-	uint16_t GetAccessIndex() const { return m_ConVarAccessIndex; }
-	int GetRegisteredIndex() const { return m_ConVarRegisteredIndex; }
+	void InvalidateRef();
+	bool IsValidRef() const;
+	uint16_t GetAccessIndex() const;
+	int GetRegisteredIndex() const;
 
 protected:
 	// Index into internal linked list of concommands
@@ -930,51 +812,39 @@ class ConVarRefAbstract : public ConVarRef
 public:
 	typedef ConVarRef BaseClass;
 
-	ConVarRefAbstract( const char *name, bool allow_defensive = false )
-		: BaseClass( name, allow_defensive ), m_ConVarData( nullptr )
-	{
-		Init( *this );
-	}
+	ConVarRefAbstract( const char *name, bool allow_defensive = false );
 
-	ConVarRefAbstract( ConVarRef ref, EConVarType type = EConVarType_Invalid )
-		: BaseClass( ref ), m_ConVarData( nullptr )
-	{
-		Init( *this, type );
-	}
+	ConVarRefAbstract( ConVarRef ref, EConVarType type = EConVarType_Invalid );
 
-	ConVarRefAbstract( const ConVarRefAbstract &ref )
-		: BaseClass(), m_ConVarData( nullptr )
-	{
-		CopyRef( ref );
-	}
+	ConVarRefAbstract( const ConVarRefAbstract &ref );
 
-	const char *GetName() const { return m_ConVarData->GetName(); }
-	const char *GetHelpText() const { return m_ConVarData->GetHelpText(); }
-	bool HasHelpText() const { return m_ConVarData->HasHelpText(); }
+	const char *GetName() const;
+	const char *GetHelpText() const;
+	bool HasHelpText() const;
 
-	EConVarType	GetType() const { return m_ConVarData->GetType(); }
+	EConVarType	GetType() const;
 
-	bool HasDefault() const { return m_ConVarData->HasDefaultValue(); }
-	bool HasMin() const { return m_ConVarData->HasMinValue(); }
-	bool HasMax() const { return m_ConVarData->HasMaxValue(); }
+	bool HasDefault() const;
+	bool HasMin() const;
+	bool HasMax() const;
 
-	bool IsFlagSet( uint64_t flag ) const { return m_ConVarData->IsFlagSet( flag ); }
-	void AddFlags( uint64_t flags ) { m_ConVarData->AddFlags( flags ); }
-	void RemoveFlags( uint64_t flags ) { return m_ConVarData->RemoveFlags( flags ); }
-	uint64_t GetFlags( void ) const { return m_ConVarData->GetFlags(); }
+	bool IsFlagSet( uint64_t flag ) const;
+	void AddFlags( uint64_t flags );
+	void RemoveFlags( uint64_t flags );
+	uint64_t GetFlags( void ) const;
 
 	// Returns true if convar should be treated as hidden
-	bool ShouldBeHidden() const { return !m_ConVarData || IsFlagSet( CVarFlags::REFERENCE | CVarFlags::HIDDEN | CVarFlags::DEVELOPMENTONLY ); }
+	bool ShouldBeHidden() const;
 
-	bool IsSetToDefault( CSplitScreenSlot slot = -1 ) const { return m_ConVarData->IsSetToDefault( slot ); }
-	bool IsAllSetToDefault() const { return m_ConVarData->IsAllSetToDefault(); }
+	bool IsSetToDefault( CSplitScreenSlot slot = -1 ) const;
+	bool IsAllSetToDefault() const;
 
-	void GetValueAsString( CBufferString &buf, CSplitScreenSlot slot = -1 ) const { m_ConVarData->ValueToString( slot, buf ); }
-	void GetDefaultAsString( CBufferString &buf ) const { m_ConVarData->DefaultValueToString( buf ); }
-	void GetMinAsString( CBufferString &buf ) const { m_ConVarData->MinValueToString( buf ); }
-	void GetMaxAsString( CBufferString &buf ) const { m_ConVarData->MaxValueToString( buf ); }
+	void GetValueAsString( CBufferString &buf, CSplitScreenSlot slot = -1 ) const;
+	void GetDefaultAsString( CBufferString &buf ) const;
+	void GetMinAsString( CBufferString &buf ) const;
+	void GetMaxAsString( CBufferString &buf ) const;
 
-	bool IsValuePrimitive() const { return m_ConVarData->GetType() != EConVarType_Invalid && m_ConVarData->IsPrimitiveType(); }
+	bool IsValuePrimitive() const;
 
 	// Attempts to get value as a type T, does type conversion if possible,
 	// if no such action is available for CvarType/T combo, global default value for type T would be returned
@@ -983,13 +853,13 @@ public:
 
 	// Attempts to get value as a bool, does type conversion if possible,
 	// if no such action is available for CvarType/bool combo, global default value for bool would be returned
-	bool GetBool( CSplitScreenSlot slot = -1 ) const { return GetAs<bool>( slot ); }
+	bool GetBool( CSplitScreenSlot slot = -1 ) const;
 	// Attempts to get value as a float, does type conversion if possible,
 	// if no such action is available for CvarType/float combo, global default value for float would be returned
-	float GetFloat( CSplitScreenSlot slot = -1 ) const { return GetAs<float>( slot ); }
+	float GetFloat( CSplitScreenSlot slot = -1 ) const;
 	// Attempts to get value as an int, does type conversion if possible,
 	// if no such action is available for CvarType/int combo, global default value for int would be returned
-	int GetInt( CSplitScreenSlot slot = -1 ) const { return GetAs<int>( slot ); }
+	int GetInt( CSplitScreenSlot slot = -1 ) const;
 	// Parses the value to string, mostly the same to GetValueAsString
 	CUtlString GetString( CSplitScreenSlot slot = -1 ) const;
 
@@ -1006,40 +876,35 @@ public:
 
 	// Attempts to set value as a bool, does type conversion if possible,
 	// if no such action is available for CvarType/bool combo, no action would be done
-	void SetBool( bool value, CSplitScreenSlot slot = -1 ) { SetAs<bool>( value, slot ); }
+	void SetBool( bool value, CSplitScreenSlot slot = -1 );
 	// Attempts to set value as a float, does type conversion if possible,
 	// if no such action is available for CvarType/float combo, no action would be done
-	void SetFloat( float value, CSplitScreenSlot slot = -1 ) { SetAs<float>( value, slot ); }
+	void SetFloat( float value, CSplitScreenSlot slot = -1 );
 	// Attempts to set value as an int, does type conversion if possible,
 	// if no such action is available for CvarType/int combo, no action would be done
-	void SetInt( int value, CSplitScreenSlot slot = -1 ) { SetAs<int>( value, slot ); }
+	void SetInt( int value, CSplitScreenSlot slot = -1 );
 	// Parses the string to CvarType type, returns true on success, false otherwise
 	bool SetString( CUtlString string, CSplitScreenSlot slot = -1 );
 
 	// Reset to default value
 	void Revert( CSplitScreenSlot slot = -1 );
 	// Clamps value to min/max bounds if set
-	void Clamp( CSplitScreenSlot slot = -1 ) { m_ConVarData->Clamp( slot ); }
+	void Clamp( CSplitScreenSlot slot = -1 );
 
-	CVarTypeTraits *TypeTraits() const { return m_ConVarData->TypeTraits(); }
-	ConVarData* GetConVarData() const { return m_ConVarData; };
+	CVarTypeTraits *TypeTraits() const;
+	ConVarData* GetConVarData() const;
 
 	// Checks if stored ConVarData points to invalid convar data
-	bool IsConVarDataValid() const { return m_ConVarData && GetType() != EConVarType_Invalid && m_ConVarData != TypeTraits()->m_InvalidCvarData; }
+	bool IsConVarDataValid() const;
 
 	// Checks if ConVarData is available for usage (means cvar was registered),
 	// mostly useful for CConVarRef cvars which register themselves partially
-	bool IsConVarDataAvailable() const { return !m_ConVarData->IsFlagSet( CVarFlags::REFERENCE ) && IsConVarDataValid(); }
+	bool IsConVarDataAvailable() const;
 
 protected:
-	ConVarRefAbstract() : BaseClass(), m_ConVarData( nullptr ) {}
+	ConVarRefAbstract();
 
-	void CopyRef( const ConVarRefAbstract &ref )
-	{
-		m_ConVarAccessIndex = ref.m_ConVarAccessIndex;
-		m_ConVarRegisteredIndex = ref.m_ConVarRegisteredIndex;
-		m_ConVarData = ref.m_ConVarData;
-	}
+	void CopyRef( const ConVarRefAbstract &ref );
 
 	void CallChangeCallbacks( CSplitScreenSlot slot, CVValue_t *new_value, CVValue_t *prev_value, const char *new_str, const char *prev_str );
 
@@ -1218,10 +1083,6 @@ inline const CUtlString ConVarRefAbstract::GetAs( CSplitScreenSlot slot ) const
 	return buf.Get();
 }
 
-inline CUtlString ConVarRefAbstract::GetString( CSplitScreenSlot slot ) const
-{
-	return GetAs<CUtlString>( slot );
-}
 
 template<typename T>
 inline T ConVarRefAbstract::ConvertFromPrimitiveTo( CSplitScreenSlot slot ) const

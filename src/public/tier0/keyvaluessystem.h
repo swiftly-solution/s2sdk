@@ -14,10 +14,10 @@ typedef void* HTemporaryKeyValueAllocationScope;
 class HKeySymbol
 {
 public:
-	HKeySymbol() : nIndex(0xFFFFFF) { }
-	HKeySymbol(uint32_t idx) : nIndex(idx) { }
+	HKeySymbol();
+	HKeySymbol(uint32_t idx);
 
-	inline uint32_t Get() { return nIndex; }
+	uint32_t Get();
 
 private:
 	uint32_t nIndex;

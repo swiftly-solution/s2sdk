@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <type_traits>
+#include "platform_base.h"
 
 namespace generichash_detail
 {
@@ -216,5 +217,32 @@ constexpr uint32_t HashIntAlternate( uint32_t n)
 	n = ( n ^ 0xb55a4f09 ) ^ ( n >> 16 );
 	return n;
 }
+
+constexpr uint32_t HashIntConventional( const int n ) // faster but less effective
+{
+	// first byte
+	uint32_t hash = 0xAAAAAAAA + (n & 0xFF);
+	// second byte
+	hash = ( hash << 5 ) + hash + ( (n >> 8) & 0xFF );
+	// third byte
+	hash = ( hash << 5 ) + hash + ( (n >> 16) & 0xFF );
+	// fourth byte
+	hash = ( hash << 5 ) + hash + ( (n >> 24) & 0xFF );
+
+	return hash;
+
+	/* this is the old version, which would cause a load-hit-store on every
+	   line on a PowerPC, and therefore took hundreds of clocks to execute!
+	  
+	byte *p = (byte *)&n;
+	uint32 hash = 0xAAAAAAAA + *p++;
+	hash = ( ( hash << 5 ) + hash ) + *p++;
+	hash = ( ( hash << 5 ) + hash ) + *p++;
+	return ( ( hash << 5 ) + hash ) + *p;
+	*/
+}
+
+uint32_t HashString( const char *pszKey );
+uint32_t HashStringCaseless( const char *pszKey );
 
 #endif

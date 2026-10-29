@@ -41,37 +41,37 @@ bool CaselessStringLessThanIgnoreSlashes( const char * const &lhs, const char * 
 class CDefStringLess
 {
 public:
-	CDefStringLess() {}
-	CDefStringLess( int i ) {}
-	inline bool operator()( const char * const &lhs, const char * const &rhs ) const { return ( strcmp( lhs, rhs ) < 0 ); }
-	inline bool operator!() const { return false; }
+	CDefStringLess();
+	CDefStringLess( int i );
+	bool operator()( const char * const &lhs, const char * const &rhs ) const;
+	bool operator!() const;
 };
 
 class CDefCaselessStringLess
 {
 public:
-	CDefCaselessStringLess() {}
-	CDefCaselessStringLess( int i ) {}
-	inline bool operator()( const char * const &lhs, const char * const &rhs ) const { return ( stricmp( lhs, rhs ) < 0 ); }
-	inline bool operator!() const { return false; }
+	CDefCaselessStringLess();
+	CDefCaselessStringLess( int i );
+	bool operator()( const char * const &lhs, const char * const &rhs ) const;
+	bool operator!() const;
 };
 
 class CDefFastCaselessStringLess
 {
 public:
-	CDefFastCaselessStringLess() {}
-	CDefFastCaselessStringLess( int i ) {}
-	inline bool operator()( const char * const &lhs, const char * const &rhs ) const { return ( V_stricmp_fast( lhs, rhs ) < 0 ); }
-	inline bool operator!() const { return false; }
+	CDefFastCaselessStringLess();
+	CDefFastCaselessStringLess( int i );
+	bool operator()( const char * const &lhs, const char * const &rhs ) const;
+	bool operator!() const;
 };
 
 class CDefCaselessStringLessIgnoreSlashes
 {
 public:
-	CDefCaselessStringLessIgnoreSlashes() {}
-	CDefCaselessStringLessIgnoreSlashes( int i ) {}
-	inline bool operator()( const char * const &lhs, const char * const &rhs ) const { return CaselessStringLessThanIgnoreSlashes( lhs, rhs ); }
-	inline bool operator!() const { return false; }
+	CDefCaselessStringLessIgnoreSlashes();
+	CDefCaselessStringLessIgnoreSlashes( int i );
+	bool operator()( const char * const &lhs, const char * const &rhs ) const;
+	bool operator!() const;
 };
 
 template <> inline bool CDefOps<const char *>::LessFunc( const char * const &lhs, const char * const &rhs )	{ return StringLessThan( lhs, rhs ); }

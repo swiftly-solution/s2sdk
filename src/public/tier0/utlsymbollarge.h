@@ -16,42 +16,19 @@ typedef unsigned int UtlSymLargeId_t;
 class CUtlSymbolLarge
 {
 public:
-	CUtlSymbolLarge() 
-	{
-		m_pString = nullptr;
-	}
+	CUtlSymbolLarge();
 
-	CUtlSymbolLarge( const char* pString )
-	{
-		m_pString = pString;
-	}
+	CUtlSymbolLarge( const char* pString );
 
-	bool operator==( CUtlSymbolLarge const& src ) const 
-	{ 
-		return m_pString == src.m_pString; 
-	}
+	bool operator==( CUtlSymbolLarge const& src ) const;
 
-	bool operator!=( CUtlSymbolLarge const& src ) const 
-	{ 
-		return m_pString != src.m_pString; 
-	}
+	bool operator!=( CUtlSymbolLarge const& src ) const;
 	
-	bool operator<( CUtlSymbolLarge const& src ) const
-	{
-		return ( uintptr_t )m_pString < ( uintptr_t )src.m_pString;
-	}
+	bool operator<( CUtlSymbolLarge const& src ) const;
 
-	const char* String() const 
-	{ 
-		if ( !m_pString )
-			return "";
-		return m_pString; 
-	}
+	const char* String() const;
 
-	bool IsValid() const
-	{
-		return m_pString != nullptr;
-	}
+	bool IsValid() const;
 
 private:
 	bool operator==( const char* pString ) const;

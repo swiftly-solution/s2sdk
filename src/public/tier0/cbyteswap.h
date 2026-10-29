@@ -10,24 +10,14 @@
 class CByteswap
 {
 public:
-	CByteswap() 
-	{
-		// Default behavior sets the target endian to match the machine native endian (no swap).
-		SetTargetBigEndian( IsMachineBigEndian() );
-	}
+	CByteswap();
 
 	//-----------------------------------------------------------------------------
 	// True if the current machine is detected as big endian. 
 	// (Endienness is effectively detected at compile time when optimizations are
 	// enabled)
 	//-----------------------------------------------------------------------------
-	static bool IsMachineBigEndian()
-	{
-		short nIsBigEndian = 1;
-
-		// if we are big endian, the first byte will be a 0, if little endian, it will be a one.
-		return (bool)(0 ==  *(char *)&nIsBigEndian );
-	}
+	static bool IsMachineBigEndian();
 
 	//-----------------------------------------------------------------------------
 	// Sets the target byte ordering we are swapping to or from.
@@ -36,39 +26,22 @@ public:
 	//		x86 is LITTLE Endian
 	//		PowerPC is BIG Endian
 	//-----------------------------------------------------------------------------
-	inline void SetTargetBigEndian( bool bigEndian )
-	{
-		m_bBigEndian = bigEndian;
-		m_bSwapBytes = IsMachineBigEndian() != bigEndian;
-	}
+	void SetTargetBigEndian( bool bigEndian );
 
 	// Changes target endian
-	inline void FlipTargetEndian( void )	
-	{
-		m_bSwapBytes = !m_bSwapBytes;
-		m_bBigEndian = !m_bBigEndian;
-	}
+	void FlipTargetEndian( void );
 
 	// Forces byte swapping state, regardless of endianess
-	inline void ActivateByteSwapping( bool bActivate )	
-	{
-		SetTargetBigEndian( IsMachineBigEndian() != bActivate );
-	}
+	void ActivateByteSwapping( bool bActivate );
 
 	//-----------------------------------------------------------------------------
 	// Returns true if the target machine is the same as this one in endianness.
 	//
 	// Used to determine when a byteswap needs to take place.
 	//-----------------------------------------------------------------------------
-	inline bool IsSwappingBytes( void )	// Are bytes being swapped?
-	{
-		return m_bSwapBytes;
-	}
+	bool IsSwappingBytes( void );
 
-	inline bool IsTargetBigEndian( void )	// What is the current target endian?
-	{
-		return m_bBigEndian;
-	}
+	bool IsTargetBigEndian( void );
 
 	//-----------------------------------------------------------------------------
 	// IsByteSwapped()

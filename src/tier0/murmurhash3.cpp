@@ -1,6 +1,6 @@
 #include "public/tier0/murmurhash3.h"
 
-uint32_t MurmurHash3_32( const void *key, size_t len, uint32_t seed, bool bCaselessStringVariant = false )
+uint32_t MurmurHash3_32( const void *key, size_t len, uint32_t seed, bool bCaselessStringVariant )
 {
 	const uint8_t *data = (const uint8_t *)key;
 	const size_t nblocks = len / 4;

@@ -4,10 +4,10 @@
             "cStandard": "c17",
             "compilerPath": "C:/Program Files/Microsoft Visual Studio/18/Community/VC/Tools/MSVC/14.51.36231/bin/HostX64/x64/cl.exe",
             "cppStandard": "c++23",
-            "defines": [],
+            "defines": {},
             "includePath": [
                 "${workspaceFolder}/src",
-                "C:/Users/SkuZZis/Desktop/workspace/cs2/swiftlys2/core/swiftlys2/build/.gens/protos/windows/x64/release/proto",
+                "${workspaceFolder}/build/.gens/protos/windows/x64/release/proto",
                 "${workspaceFolder}/protobufs/protobuf-3.21.8/src"
             ],
             "intelliSenseMode": "windows-msvc-x64",

@@ -27,8 +27,8 @@ struct ConVarSnapshot_t
 class IConVarListener
 {
 public:
-	virtual void OnConVarCreated( ConVarRefAbstract *pNewCvar ) {};
-	virtual void OnConCommandCreated( ConCommand *pNewCommand ) {};
+	virtual void OnConVarCreated( ConVarRefAbstract *pNewCvar );
+	virtual void OnConCommandCreated( ConCommand *pNewCommand );
 };
 
 class ICvar : public IAppSystem
@@ -61,7 +61,7 @@ public:
 	virtual void			ResetConVarsToDefaultValuesByFlag( uint64_t nFlag ) = 0;
 
 	virtual void			SetMaxSplitScreenSlots( int nSlots ) = 0;
-	int						GetMaxSplitScreenSlots() const { return m_MaxSplitScreenSlots; }
+	int						GetMaxSplitScreenSlots() const;
 
 	virtual void			RegisterCreationListeners( IConVarListener *callbacks ) = 0;
 	virtual void			RemoveCreationListeners( IConVarListener *callbacks ) = 0;
@@ -132,50 +132,12 @@ public:
 	// Allocates memory in its internal buffer, can't be freed
 	// (other than freeing internal buffers completely), so is leaky and thus use cautiously
 	// AMNOTE: Mostly used for allocating CVValue_t and ConVarData/ConCommandData objects
-	void *AllocateMemory( int size )
-	{
-		CAutoLock lock( m_Mutex );
-
-		int aligned_size = ALIGN_VALUE( size, 8 );
-		
-		if(aligned_size + m_CurrentMemoryBufferSize > kMemoryBufferChunkMaxSize)
-		{
-			m_CurrentMemoryBufferSize = 0;
-			*m_MemoryBuffer.AddToTailGetPtr() = (uint8_t *)malloc( kMemoryBufferChunkMaxSize );
-		}
-
-		int offs = m_CurrentMemoryBufferSize;
-		m_CurrentMemoryBufferSize += aligned_size;
-
-		return &m_MemoryBuffer[m_MemoryBuffer.Count() - 1][offs];
-	}
+	void *AllocateMemory( int size );
 
 	// Allocates memory in its internal string buffer, can't be freed
 	// (other than freeing internal buffers completely), so is leaky and thus use cautiously
 	// AMNOTE: Mostly used for allocating cvar/concommand names
-	const char *AllocateString( const char *string )
-	{
-		CAutoLock lock( m_Mutex );
-
-		if(!string || !string[0])
-			return "";
-
-		int strlen = V_strlen( string ) + 1;
-
-		if(strlen + m_CurrentStringsBufferSize > kStringBufferChunkMaxSize)
-		{
-			m_CurrentStringsBufferSize = 0;
-			*m_StringsBuffer.AddToTailGetPtr() = (char *)malloc( kStringBufferChunkMaxSize );
-		}
-
-		int offs = m_CurrentStringsBufferSize;
-		m_CurrentStringsBufferSize += strlen;
-
-		char *base = &m_StringsBuffer[m_StringsBuffer.Count() - 1][offs];
-		V_memmove( base, string, strlen );
-
-		return base;
-	}
+	const char *AllocateString( const char *string );
 
 	struct ConVarChangeCallbackData_t
 	{

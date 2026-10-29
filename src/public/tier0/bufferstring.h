@@ -34,99 +34,51 @@ public:
 		ALLOW_HEAP_ALLOCATION = (1 << 31)
 	};
 public:
-	CBufferString( bool bAllowHeapAllocation = true ) :
-		m_nLength( 0 ),
-		m_nAllocatedSize( (bAllowHeapAllocation * ALLOW_HEAP_ALLOCATION) | STACK_ALLOCATED_MARKER | sizeof( m_pString ) ),
-		m_pString( nullptr )
-	{ }
+	CBufferString( bool bAllowHeapAllocation = true );
 
-	CBufferString( const char *pString, bool bAllowHeapAllocation = true ) :
-		CBufferString( bAllowHeapAllocation )
-	{
-		Insert( 0, pString );
-	}
+	CBufferString( const char *pString, bool bAllowHeapAllocation = true );
 
 protected:
-	CBufferString( size_t nAllocatedSize, bool bAllowHeapAllocation = true ) :
-		m_nLength( 0 ),
-		m_nAllocatedSize( (bAllowHeapAllocation * ALLOW_HEAP_ALLOCATION) | STACK_ALLOCATED_MARKER | (int)( nAllocatedSize + sizeof( m_pString ) ) ),
-		m_pString( nullptr )
-	{ }
+	CBufferString( size_t nAllocatedSize, bool bAllowHeapAllocation = true );
 
 public:
-	CBufferString( const CBufferString &other ) : CBufferString() { CopyFrom( other ); }
-	CBufferString( CBufferString &&other ) : CBufferString() { MoveFrom( other ); }
-	~CBufferString() { Purge(); }
+	CBufferString( const CBufferString &other );
+	CBufferString( CBufferString &&other );
+	~CBufferString();
 
-	void CopyFrom( const CBufferString &other ) { CopyFrom( other.Get() ); }
-	void CopyFrom( const char *other )
-	{
-		Clear();
-		Insert( 0, other );
-	}
+	void CopyFrom( const CBufferString &other );
+	void CopyFrom( const char *other );
 
-	CBufferString &operator=( const CBufferString &src )
-	{
-		if(this != &src)
-			CopyFrom( src );
+	CBufferString &operator=( const CBufferString &src );
 
-		return *this;
-	}
+	CBufferString &operator=( CBufferString &&src );
 
-	CBufferString &operator=( CBufferString &&src )
-	{
-		if ( this != &src )
-			MoveFrom( src );
+	CBufferString &operator=( const char *pString );
 
-		return *this;
-	}
+	void SetHeapAllocationState( bool state );
 
-	CBufferString &operator=( const char *pString )
-	{
-		CopyFrom( pString );
-		return *this;
-	}
+	int AllocatedNum() const;
+	int Length() const;
 
-	void SetHeapAllocationState( bool state )
-	{
-		if(state)
-			m_nAllocatedSize |= ALLOW_HEAP_ALLOCATION;
-		else
-			m_nAllocatedSize &= ~ALLOW_HEAP_ALLOCATION;
-	}
+	bool CanHeapAllocate() const;
+	bool IsStackAllocated() const;
+	bool ShouldFreeMemory() const;
+	bool IsOverflowed() const;
 
-	int AllocatedNum() const { return m_nAllocatedSize & LENGTH_MASK; }
-	int Length() const { return m_nLength & LENGTH_MASK; }
+	bool IsInputStringUnsafe( const char *pData ) const;
 
-	bool CanHeapAllocate() const { return (m_nAllocatedSize & ALLOW_HEAP_ALLOCATION) != 0; }
-	bool IsStackAllocated() const { return (m_nAllocatedSize & STACK_ALLOCATED_MARKER) != 0; }
-	bool ShouldFreeMemory() const { return (m_nLength & FREE_HEAP_MARKER) != 0; }
-	bool IsOverflowed() const { return (m_nLength & OVERFLOWED_MARKER) != 0; }
-
-	bool IsInputStringUnsafe( const char *pData ) const
-	{
-		return ((void *)pData >= this && (void *)pData < &this[1]) ||
-				(!IsAllocationEmpty() && pData >= Base() && pData < (Base() + AllocatedNum()));
-	}
-
-	bool IsAllocationEmpty() const { return AllocatedNum() == 0; }
+	bool IsAllocationEmpty() const;
 
 protected:
 	// AMNOTE: GCC with -O2/3 can optimize out string functions on this (strcmp, etc)
 	// by deducing the size 8 which is wrong for CBufferStringN<N> structure, so a recast to raw char * is needed
-	char *Base() { return IsStackAllocated() ? reinterpret_cast<char *>( this ) + offsetof( CBufferString, m_pString ) : (!IsAllocationEmpty() ? m_pString : nullptr); }
-	const char *Base() const { return const_cast<CBufferString *>( this )->Base(); }
+	char *Base();
+	const char *Base() const;
 
 public:
-	const char *Get() const { auto base = Base(); return base ? base : ""; }
+	const char *Get() const;
 
-	void Clear()
-	{
-		if(!IsAllocationEmpty())
-			Base()[0] = '\0';
-
-		m_nLength &= ~LENGTH_MASK;
-	}
+	void Clear();
 
 public:
 	DLL_CLASS_IMPORT const char *AppendConcat(int, const char * const *, const int *, bool bIgnoreAlignment = false);

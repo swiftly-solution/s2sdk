@@ -14,11 +14,7 @@ class CUtlFilenameSymbolTable
 {
 	struct FileNameHandleInternal_t
 	{
-		FileNameHandleInternal_t()
-		{
-			path = 0;
-			file = 0;
-		}
+		FileNameHandleInternal_t();
 
 		unsigned short path;
 		unsigned short file;
@@ -27,7 +23,7 @@ class CUtlFilenameSymbolTable
 public:
 	FileNameHandle_t	FindOrAddFileName( const char *pFileName );
 	FileNameHandle_t	FindFileName( const char *pFileName ) const;
-	int					PathIndex(const FileNameHandle_t &handle) { return (( const FileNameHandleInternal_t * )&handle)->path; }
+	int					PathIndex(const FileNameHandle_t &handle);
 	bool				String( const FileNameHandle_t& handle, char *buf, int buflen );
 	bool				String( const FileNameHandle_t& handle, CBufferString *pOut );
 	void				RemoveAll();

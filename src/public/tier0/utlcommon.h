@@ -84,21 +84,21 @@ template <typename T> struct DefaultEqualFunctor;
 template <typename T> struct DefaultHashFunctor;
 template <typename T> struct ArgumentTypeInfo;
 
-struct StringLessFunctor { bool operator()( const char *a, const char *b ) const { return Q_strcmp( a, b ) < 0; } };
-struct StringEqualFunctor { bool operator()( const char *a, const char *b ) const { return Q_strcmp( a, b ) == 0; } };
-struct CaselessStringLessFunctor { bool operator()( const char *a, const char *b ) const { return Q_strcasecmp( a, b ) < 0; } };
-struct CaselessStringEqualFunctor { bool operator()( const char *a, const char *b ) const { return Q_strcasecmp( a, b ) == 0; } };
+struct StringLessFunctor { bool operator()( const char *a, const char *b ) const; };
+struct StringEqualFunctor { bool operator()( const char *a, const char *b ) const; };
+struct CaselessStringLessFunctor { bool operator()( const char *a, const char *b ) const; };
+struct CaselessStringEqualFunctor { bool operator()( const char *a, const char *b ) const; };
 
-struct MurmurHash3Mix32HashFunctor { unsigned int operator()( uint32_t n ) const { return MurmurHash3Int( n ); } };
-struct MurmurHash3Mix64HashFunctor { unsigned int operator()( uint64_t n ) const { return MurmurHash3Int64( n ); } };
+struct MurmurHash3Mix32HashFunctor { unsigned int operator()( uint32_t n ) const; };
+struct MurmurHash3Mix64HashFunctor { unsigned int operator()( uint64_t n ) const; };
 struct StringHashFunctor { unsigned int operator()( const char* s ) const; };
 struct CaselessStringHashFunctor { unsigned int operator()( const char* s ) const; };
 
 template <typename T> struct IntegerHashFunctor : CTypeSelect<( sizeof( T ) > sizeof( uint32_t ) ), MurmurHash3Mix64HashFunctor, MurmurHash3Mix32HashFunctor>::type { };
 
-struct PointerLessFunctor { bool operator()( const void *a, const void *b ) const { return a < b; } };
-struct PointerEqualFunctor { bool operator()( const void *a, const void *b ) const { return a == b; } };
-struct PointerHashFunctor { unsigned int operator()( const void* s ) const { return MurmurHash3Mix64HashFunctor()( (uint64_t)(uintptr_t)s ); } };
+struct PointerLessFunctor { bool operator()( const void *a, const void *b ) const; };
+struct PointerEqualFunctor { bool operator()( const void *a, const void *b ) const; };
+struct PointerHashFunctor { unsigned int operator()( const void* s ) const; };
 
 template < typename T >
 struct DefaultLessFunctor
@@ -275,30 +275,7 @@ template <typename T> struct DefaultHashFunctor< T * > : PointerHashFunctor { };
 // Based on the widely-used FNV-1A string hash with a final
 // mixing step to improve dispersion for very small and very
 // large hash table sizes.
-inline unsigned int StringHashFunctor::operator()( const char* s ) const
-{
-	uint32_t h = 2166136261u;
-	for ( ; *s; ++s )
-	{
-		uint32_t c = (unsigned char) *s;
-		h = (h ^ c) * 16777619;
-	}
-	return (h ^ (h << 17)) + (h >> 21);
-}
 
 // Equivalent to StringHashFunctor on lower-case strings.
-inline unsigned int CaselessStringHashFunctor::operator()( const char* s ) const
-{
-	uint32_t h = 2166136261u;
-	for ( ; *s; ++s )
-	{
-		uint32_t c = (unsigned char) *s;
-		// Brutally fast branchless ASCII tolower():
-		// if ((c >= 'A') && (c <= 'Z')) c += ('a' - 'A');
-		c += (((('A'-1) - c) & (c - ('Z'+1))) >> 26) & 32;
-		h = (h ^ c) * 16777619;
-	}
-	return (h ^ (h << 17)) + (h >> 21);
-}
 
 #endif

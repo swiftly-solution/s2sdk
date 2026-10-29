@@ -1,31 +1,28 @@
-#ifndef COMMONMACROS_H
-#define COMMONMACROS_H
+#ifndef COMMON_H
+#define COMMON_H
 
 #ifdef _WIN32
 #pragma once
 #endif
 
-template <typename T>
-inline T CalcNewDoublingCount( T old_count, T requested_count, T min_count, T max_count )
-{
-	T new_count = old_count;
+#include <cstdint>
 
-	while(new_count < requested_count)
-	{
-		if(new_count < max_count / 2)
-		{
-			new_count *= 2;
-			if(new_count < min_count)
-				new_count = min_count;
-		}
-		else
-		{
-			new_count = max_count;
-			break;
-		}
-	}
+#include "public/tier0/commonmacros.h"
 
-	return new_count;
-}
+uint32_t& FloatBits( float& f );
+uint32_t const FloatBits( const float &f );
+float BitsToFloat( uint32_t i );
+bool IsFinite( const float &f );
+uint32_t FloatAbsBits( float f );
+float FloatMakeNegative( float f );
+float FloatMakePositive( float f );
+float fpmin( float a, float b );
+float fpmax( float a, float b );
+
+#define PAD_NUMBER(number, boundary) \
+	( ((number) + ((boundary)-1)) / (boundary) ) * (boundary)
+
+#define FLOAT32_NAN_BITS     (uint32)0x7FC00000
+#define FLOAT32_NAN          BitsToFloat( FLOAT32_NAN_BITS )
 
 #endif

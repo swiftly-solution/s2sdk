@@ -791,3 +791,531 @@ void ConVar_PrintDescription( const ConVarRefAbstract *ref )
 	else
 		ConMsg( "%-120s\n", desc.Get() );
 }
+
+CVarCreationBase_t::CVarCreationBase_t()
+:
+	m_pszName( nullptr ),
+	m_pszHelpString( nullptr ),
+	m_nFlags( 0 )
+{}
+
+CCommandContext::CCommandContext( CommandTarget_t nTarget, CPlayerSlot nSlot )
+:
+	m_nTarget( nTarget ), m_nPlayerSlot( nSlot )
+{}
+
+CommandTarget_t CCommandContext::GetTarget() const
+{
+	return m_nTarget;
+}
+
+CPlayerSlot CCommandContext::GetPlayerSlot() const
+{
+	return m_nPlayerSlot;
+}
+
+ConCommandCallbackInfo_t::ConCommandCallbackInfo_t()
+:
+	m_fnCommandCallback( nullptr ),
+	m_bIsInterface( false ),
+	m_bIsVoidCallback( false ),
+	m_bIsContextLess( false )
+{}
+
+ConCommandCallbackInfo_t::ConCommandCallbackInfo_t( FnCommandCallback_t cb )
+:
+	m_fnCommandCallback( cb ),
+	m_bIsInterface( false ),
+	m_bIsVoidCallback( false ),
+	m_bIsContextLess( false )
+{}
+
+ConCommandCallbackInfo_t::ConCommandCallbackInfo_t( FnCommandCallbackVoid_t cb )
+:
+	m_fnVoidCommandCallback( cb ),
+	m_bIsInterface( false ),
+	m_bIsVoidCallback( cb ? true : false ),
+	m_bIsContextLess( false )
+{}
+
+ConCommandCallbackInfo_t::ConCommandCallbackInfo_t( FnCommandCallbackNoContext_t cb )
+:
+	m_fnContextlessCommandCallback( cb ),
+	m_bIsInterface( false ),
+	m_bIsVoidCallback( false ),
+	m_bIsContextLess( cb ? true : false )
+{}
+
+ConCommandCallbackInfo_t::ConCommandCallbackInfo_t( ICommandCallback *cb )
+:
+	m_pCommandCallback( cb ),
+	m_bIsInterface( cb ? true : false ),
+	m_bIsVoidCallback( false ),
+	m_bIsContextLess( false )
+{}
+
+bool ConCommandCallbackInfo_t::IsValid() const
+{ return m_fnCommandCallback != nullptr; }
+
+void ConCommandCallbackInfo_t::Dispatch( const CCommandContext &context, const CCommand &command ) const
+{
+	if(!IsValid())
+		return;
+
+	if(m_bIsInterface)
+		m_pCommandCallback->CommandCallback( context, command );
+	else if(m_bIsVoidCallback)
+		m_fnVoidCommandCallback();
+	else if(m_bIsContextLess)
+		m_fnContextlessCommandCallback( command );
+	else
+		m_fnCommandCallback( context, command );
+}
+
+CompletionCallbackInfo_t::CompletionCallbackInfo_t()
+:
+	m_fnCompletionCallback( nullptr ),
+	m_bIsInterface( false )
+{}
+
+CompletionCallbackInfo_t::CompletionCallbackInfo_t( FnCommandCompletionCallback cb )
+:
+	m_fnCompletionCallback( cb ),
+	m_bIsInterface( false )
+{}
+
+CompletionCallbackInfo_t::CompletionCallbackInfo_t( ICommandCompletionCallback *cb )
+:
+	m_pCommandCompletionCallback( cb ),
+	m_bIsInterface( cb ? true : false )
+{}
+
+bool CompletionCallbackInfo_t::IsValid() const
+{ return m_fnCompletionCallback != nullptr; }
+
+int CompletionCallbackInfo_t::Dispatch( const CCommand &command, CUtlVector< CUtlString > &completions ) const
+{
+	if(!IsValid())
+		return 0;
+
+	if(m_bIsInterface)
+		return m_pCommandCompletionCallback->CommandCompletionCallback( command, completions );
+	
+	m_fnCompletionCallback( command, completions );
+	return completions.Count();
+}
+
+const char * ConCommandData::GetName() const
+{ return m_pszName; }
+
+const char * ConCommandData::GetHelpText() const
+{ return m_pszHelpString; }
+
+bool ConCommandData::HasHelpText() const
+{ return m_pszHelpString && m_pszHelpString[0]; }
+
+bool ConCommandData::IsFlagSet( uint64_t flag ) const
+{ return (m_nFlags & flag) != 0; }
+
+void ConCommandData::AddFlags( uint64_t flags )
+{ m_nFlags |= flags; }
+
+void ConCommandData::RemoveFlags( uint64_t flags )
+{ m_nFlags &= ~flags; }
+
+uint64_t ConCommandData::GetFlags( void ) const
+{ return m_nFlags; }
+
+int ConCommandData::GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const
+{
+	return m_CompletionCB.Dispatch( command, completions );
+}
+
+bool ConCommandData::HasCompletionCallback() const
+{ return m_CompletionCB.IsValid(); }
+
+bool ConCommandData::HasCallback() const
+{ return m_CallbackInfoIndex > 0; }
+
+const char * ConCommandRef::GetName() const
+{ return GetRawData()->GetName(); }
+
+const char * ConCommandRef::GetHelpText() const
+{ return GetRawData()->GetHelpText(); }
+
+bool ConCommandRef::HasHelpText() const
+{ return GetRawData()->HasHelpText(); }
+
+bool ConCommandRef::IsFlagSet( uint64_t flag ) const
+{ return GetRawData()->IsFlagSet( flag ); }
+
+void ConCommandRef::AddFlags( uint64_t flags )
+{ GetRawData()->AddFlags( flags ); }
+
+void ConCommandRef::RemoveFlags( uint64_t flags )
+{ GetRawData()->RemoveFlags( flags ); }
+
+uint64_t ConCommandRef::GetFlags() const
+{ return GetRawData()->GetFlags(); }
+
+bool ConCommandRef::HasCompletionCallback() const
+{ return GetRawData()->HasCompletionCallback(); }
+
+bool ConCommandRef::HasCallback() const
+{ return GetRawData()->HasCallback(); }
+
+int ConCommandRef::GetCompletionCommandIndex() const
+{ return GetRawData()->m_CompletionCBCmdIndex; }
+
+uint16_t ConCommandRef::GetCallbackIndex() const
+{ return GetRawData()->m_CallbackInfoIndex; }
+
+int ConCommandRef::GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const
+{
+	return GetRawData()->GetAutoCompleteSuggestions( command, completions );
+}
+
+void ConCommandRef::InvalidateRef()
+{ m_CommandAccessIndex = kInvalidAccessIndex; m_CommandRegisteredIndex = 0; }
+
+bool ConCommandRef::IsValidRef() const
+{ return m_CommandAccessIndex != kInvalidAccessIndex; }
+
+uint16_t ConCommandRef::GetAccessIndex() const
+{ return m_CommandAccessIndex; }
+
+int ConCommandRef::GetRegisteredIndex() const
+{ return m_CommandRegisteredIndex; }
+
+ConCommand::ConCommand( const char *pName, ConCommandCallbackInfo_t callback,
+	const char *pHelpString, uint64_t flags,
+	CompletionCallbackInfo_t completionFunc )
+: BaseClass()
+{
+	Create( pName, callback, pHelpString, flags, completionFunc );
+}
+
+ConCommand::~ConCommand()
+{
+	Destroy();
+}
+
+ConVarValueInfo_t::ConVarValueInfo_t( EConVarType type )
+:
+	m_Version( 0 ),
+	m_bHasDefault( false ),
+	m_bHasMin( false ),
+	m_bHasMax( false ),
+	m_defaultValue {},
+	m_minValue {},
+	m_maxValue {},
+	m_fnProviderCallBack( nullptr ),
+	m_fnCallBack( nullptr ),
+	m_fnProviderFilterCallBack( nullptr ),
+	m_fnFilterCallBack( nullptr ),
+	m_fnGetEnumInfoHandle( nullptr ),
+	m_eVarType( type ),
+	m_CompletionCallBack()
+{}
+
+void ConVarValueInfo_t::SetCompletionCallback( const CompletionCallbackInfo_t &cb )
+{
+	m_CompletionCallBack = cb;
+}
+
+ConVarData::ConVarData( EConVarType type )
+: m_Value {}
+{
+	Invalidate( type, true );
+}
+
+void ConVarData::Invalidate( EConVarType type, bool as_undefined )
+{
+	if(as_undefined)
+		m_pszName = "<undefined>";
+	m_defaultValue = CVValue_t::InvalidValue();
+	m_minValue = nullptr;
+	m_maxValue = nullptr;
+	m_pszHelpString = as_undefined ? "This convar is being accessed prior to ConVar_Register being called" : nullptr;
+	m_eVarType = type;
+	m_Version = 0;
+	m_iTimesChanged = 0;
+	m_nFlags = CVarFlags::REFERENCE;
+	m_iCallbackIndex = 0;
+	m_iFilterCBIndex = 0;
+	m_iCompletionCBIndex = 0;
+	m_GameInfoFlags = 0;
+	m_UserInfoByteIndex = 0;
+	m_fnGetEnumInfoHandle = nullptr;
+}
+
+const char * ConVarData::GetName( void ) const
+{ return m_pszName; }
+
+const char * ConVarData::GetHelpText( void ) const
+{ return m_pszHelpString; }
+
+bool ConVarData::HasHelpText() const
+{ return m_pszHelpString && m_pszHelpString[0]; }
+
+EConVarType ConVarData::GetType() const
+{ return m_eVarType; }
+
+short ConVarData::GetVersion() const
+{ return m_Version; }
+
+int ConVarData::GetTimesChanged() const
+{ return m_iTimesChanged; }
+
+void ConVarData::SetTimesChanged( int val )
+{ m_iTimesChanged = val; }
+
+void ConVarData::IncrementTimesChanged()
+{ m_iTimesChanged++; }
+
+bool ConVarData::IsFlagSet( uint64_t flag ) const
+{ return (m_nFlags & flag) != 0; }
+
+void ConVarData::AddFlags( uint64_t flags )
+{ m_nFlags |= flags; }
+
+void ConVarData::RemoveFlags( uint64_t flags )
+{ m_nFlags &= ~flags; }
+
+uint64_t ConVarData::GetFlags() const
+{ return m_nFlags; }
+
+int ConVarData::GetGameInfoFlags() const
+{ return m_GameInfoFlags; }
+
+int ConVarData::GetCallbackIndex() const
+{ return m_iCallbackIndex; }
+
+int ConVarData::GetUserInfoByteIndex() const
+{ return m_UserInfoByteIndex; }
+
+CVarTypeTraits * ConVarData::TypeTraits() const
+{
+	Assert( m_eVarType != EConVarType_Invalid );
+	return GetCvarTypeTraits( m_eVarType );
+}
+
+bool ConVarData::HasEnumInfo() const
+{ return m_fnGetEnumInfoHandle != nullptr; }
+
+SchemaMetaInfoHandle_t<CSchemaEnumInfo> ConVarData::GetEnumInfo() const
+{ return HasEnumInfo() ? m_fnGetEnumInfoHandle() : SchemaMetaInfoHandle_t<CSchemaEnumInfo> {}; }
+
+int ConVarData::GetDataByteSize() const
+{ return TypeTraits()->m_ByteSize; }
+
+bool ConVarData::IsPrimitiveType() const
+{ return TypeTraits()->m_IsPrimitive; }
+
+const char * ConVarData::GetDataTypeName() const
+{ return TypeTraits()->m_TypeName; }
+
+bool ConVarData::HasDefaultValue() const
+{ return m_defaultValue && m_defaultValue != CVValue_t::InvalidValue(); }
+
+bool ConVarData::HasMinValue() const
+{ return m_minValue != nullptr; }
+
+bool ConVarData::HasMaxValue() const
+{ return m_maxValue != nullptr; }
+
+CVValue_t * ConVarData::DefaultValue() const
+{ return m_defaultValue; }
+
+CVValue_t * ConVarData::MinValue() const
+{ return m_minValue; }
+
+CVValue_t * ConVarData::MaxValue() const
+{ return m_maxValue; }
+
+void ConVarData::RemoveDefaultValue()
+{ if(HasDefaultValue()) TypeTraits()->StringToValue( TypeTraits()->m_DefaultValue, m_defaultValue ); }
+
+void ConVarData::RemoveMinValue()
+{ m_minValue = nullptr; }
+
+void ConVarData::RemoveMaxValue()
+{ m_maxValue = nullptr; }
+
+bool ConVarData::UpdateDefaultValueString( const char *value )
+{ return HasDefaultValue() && TypeTraits()->StringToValue( value, m_defaultValue ); }
+
+bool ConVarData::UpdateMinValueString( const char *value )
+{ return HasMinValue() && TypeTraits()->StringToValue( value, m_minValue ); }
+
+bool ConVarData::UpdateMaxValueString( const char *value )
+{ return HasMaxValue() && TypeTraits()->StringToValue( value, m_maxValue ); }
+
+void ConVarData::SetDefaultValue( CVValue_t *value )
+{ TypeTraits()->Copy( m_defaultValue, *value ); }
+
+void ConVarData::SetMinValue( CVValue_t *value )
+{ m_minValue = value; }
+
+void ConVarData::SetMaxValue( CVValue_t *value )
+{ m_maxValue = value; }
+
+bool ConVarData::IsSetToDefault( CSplitScreenSlot slot ) const
+{ return TypeTraits()->Equal( ValueOrDefault( slot ), m_defaultValue ); }
+
+void ConVarData::ValueToString( CSplitScreenSlot slot, CBufferString &buf ) const
+{ TypeTraits()->ValueToString( ValueOrDefault( slot ), buf ); }
+
+void ConVarData::DefaultValueToString( CBufferString &buf ) const
+{ TypeTraits()->ValueToString( m_defaultValue, buf ); }
+
+void ConVarData::Construct( CSplitScreenSlot slot ) const
+{ if(IsSlotInRange( slot )) TypeTraits()->Construct( Value( slot ) ); }
+
+void ConVarData::Destruct( CSplitScreenSlot slot ) const
+{ if(IsSlotInRange( slot )) TypeTraits()->Destruct( Value( slot ) ); }
+
+bool ConVarData::IsEqual( CSplitScreenSlot slot, CVValue_t *other ) const
+{ return TypeTraits()->Equal( ValueOrDefault( slot ), other ); }
+
+void ConVarData::Clamp( CSplitScreenSlot slot ) const
+{ if(IsSlotInRange( slot )) TypeTraits()->Clamp( Value( slot ), m_minValue, m_maxValue ); }
+
+bool ConVarData::IsSlotInRange( CSplitScreenSlot slot ) const
+{ return slot.Get() == -1 || (slot.Get() >= 0 && slot.Get() < GetMaxSplitScreenSlots()); }
+
+void ConVarRef::InvalidateRef()
+{ m_ConVarAccessIndex = kInvalidAccessIndex; m_ConVarRegisteredIndex = 0; }
+
+bool ConVarRef::IsValidRef() const
+{ return m_ConVarAccessIndex != kInvalidAccessIndex; }
+
+uint16_t ConVarRef::GetAccessIndex() const
+{ return m_ConVarAccessIndex; }
+
+int ConVarRef::GetRegisteredIndex() const
+{ return m_ConVarRegisteredIndex; }
+
+ConVarRefAbstract::ConVarRefAbstract( const char *name, bool allow_defensive )
+: BaseClass( name, allow_defensive ), m_ConVarData( nullptr )
+{
+	Init( *this );
+}
+
+ConVarRefAbstract::ConVarRefAbstract( ConVarRef ref, EConVarType type )
+: BaseClass( ref ), m_ConVarData( nullptr )
+{
+	Init( *this, type );
+}
+
+ConVarRefAbstract::ConVarRefAbstract( const ConVarRefAbstract &ref )
+: BaseClass(), m_ConVarData( nullptr )
+{
+	CopyRef( ref );
+}
+
+const char * ConVarRefAbstract::GetName() const
+{ return m_ConVarData->GetName(); }
+
+const char * ConVarRefAbstract::GetHelpText() const
+{ return m_ConVarData->GetHelpText(); }
+
+bool ConVarRefAbstract::HasHelpText() const
+{ return m_ConVarData->HasHelpText(); }
+
+EConVarType ConVarRefAbstract::GetType() const
+{ return m_ConVarData->GetType(); }
+
+bool ConVarRefAbstract::HasDefault() const
+{ return m_ConVarData->HasDefaultValue(); }
+
+bool ConVarRefAbstract::HasMin() const
+{ return m_ConVarData->HasMinValue(); }
+
+bool ConVarRefAbstract::HasMax() const
+{ return m_ConVarData->HasMaxValue(); }
+
+bool ConVarRefAbstract::IsFlagSet( uint64_t flag ) const
+{ return m_ConVarData->IsFlagSet( flag ); }
+
+void ConVarRefAbstract::AddFlags( uint64_t flags )
+{ m_ConVarData->AddFlags( flags ); }
+
+void ConVarRefAbstract::RemoveFlags( uint64_t flags )
+{ return m_ConVarData->RemoveFlags( flags ); }
+
+uint64_t ConVarRefAbstract::GetFlags( void ) const
+{ return m_ConVarData->GetFlags(); }
+
+bool ConVarRefAbstract::ShouldBeHidden() const
+{ return !m_ConVarData || IsFlagSet( CVarFlags::REFERENCE | CVarFlags::HIDDEN | CVarFlags::DEVELOPMENTONLY ); }
+
+bool ConVarRefAbstract::IsSetToDefault( CSplitScreenSlot slot ) const
+{ return m_ConVarData->IsSetToDefault( slot ); }
+
+bool ConVarRefAbstract::IsAllSetToDefault() const
+{ return m_ConVarData->IsAllSetToDefault(); }
+
+void ConVarRefAbstract::GetValueAsString( CBufferString &buf, CSplitScreenSlot slot ) const
+{ m_ConVarData->ValueToString( slot, buf ); }
+
+void ConVarRefAbstract::GetDefaultAsString( CBufferString &buf ) const
+{ m_ConVarData->DefaultValueToString( buf ); }
+
+void ConVarRefAbstract::GetMinAsString( CBufferString &buf ) const
+{ m_ConVarData->MinValueToString( buf ); }
+
+void ConVarRefAbstract::GetMaxAsString( CBufferString &buf ) const
+{ m_ConVarData->MaxValueToString( buf ); }
+
+bool ConVarRefAbstract::IsValuePrimitive() const
+{ return m_ConVarData->GetType() != EConVarType_Invalid && m_ConVarData->IsPrimitiveType(); }
+
+bool ConVarRefAbstract::GetBool( CSplitScreenSlot slot ) const
+{ return GetAs<bool>( slot ); }
+
+float ConVarRefAbstract::GetFloat( CSplitScreenSlot slot ) const
+{ return GetAs<float>( slot ); }
+
+int ConVarRefAbstract::GetInt( CSplitScreenSlot slot ) const
+{ return GetAs<int>( slot ); }
+
+void ConVarRefAbstract::SetBool( bool value, CSplitScreenSlot slot )
+{ SetAs<bool>( value, slot ); }
+
+void ConVarRefAbstract::SetFloat( float value, CSplitScreenSlot slot )
+{ SetAs<float>( value, slot ); }
+
+void ConVarRefAbstract::SetInt( int value, CSplitScreenSlot slot )
+{ SetAs<int>( value, slot ); }
+
+void ConVarRefAbstract::Clamp( CSplitScreenSlot slot )
+{ m_ConVarData->Clamp( slot ); }
+
+CVarTypeTraits * ConVarRefAbstract::TypeTraits() const
+{ return m_ConVarData->TypeTraits(); }
+
+ConVarData* ConVarRefAbstract::GetConVarData() const
+{ return m_ConVarData; }
+
+bool ConVarRefAbstract::IsConVarDataValid() const
+{ return m_ConVarData && GetType() != EConVarType_Invalid && m_ConVarData != TypeTraits()->m_InvalidCvarData; }
+
+bool ConVarRefAbstract::IsConVarDataAvailable() const
+{ return !m_ConVarData->IsFlagSet( CVarFlags::REFERENCE ) && IsConVarDataValid(); }
+
+ConVarRefAbstract::ConVarRefAbstract()
+: BaseClass(), m_ConVarData( nullptr )
+{}
+
+void ConVarRefAbstract::CopyRef( const ConVarRefAbstract &ref )
+{
+	m_ConVarAccessIndex = ref.m_ConVarAccessIndex;
+	m_ConVarRegisteredIndex = ref.m_ConVarRegisteredIndex;
+	m_ConVarData = ref.m_ConVarData;
+}
+
+CUtlString ConVarRefAbstract::GetString( CSplitScreenSlot slot ) const
+{
+	return GetAs<CUtlString>( slot );
+}

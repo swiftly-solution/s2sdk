@@ -1,6 +1,10 @@
 #ifndef PLATFORM_COMPILE_BASE_H
 #define PLATFORM_COMPILE_BASE_H
 
+#if defined( _MSC_VER ) && !defined( MSVC )
+	#define MSVC 1
+#endif
+
 #ifdef _WIN32
 #pragma once
 #endif
@@ -13,6 +17,11 @@
 #define VALIGNOF_PORTABLE( type ) ( sizeof( AlignOf_t<type> ) - sizeof( type ) )
 #define VALIGNOF( type ) __alignof( type )
 #define VALIGNOF_TEMPLATE_SAFE( type ) VALIGNOF_PORTABLE( type )
+
+#if defined( _WIN32 ) && !defined( PLATFORM_WINDOWS )
+	#define PLATFORM_WINDOWS 1
+	#define PLATFORM_WINDOWS_PC 1
+#endif
 
 #ifdef _WIN32
 	#define DLL_EXPORT				extern "C" __declspec( dllexport )
@@ -27,6 +36,9 @@
     #define DebuggerBreak()         __debugbreak()
     #define FMTFUNCTION( a, b )
     #define DECL_ALIGN(x)			__declspec( align( x ) )
+
+    #define SINGLE_INHERITANCE		__single_inheritance
+	#define MULTIPLE_INHERITANCE	__multiple_inheritance
 #else
 	#define DLL_EXPORT				extern "C" __attribute__ ((visibility("default")))
 	#define DLL_IMPORT				extern "C"
@@ -40,12 +52,46 @@
     #define DebuggerBreak()  raise(SIGTRAP)
     #define FMTFUNCTION( fmtargnumber, firstvarargnumber ) __attribute__ (( format( printf, fmtargnumber, firstvarargnumber )))
     #define DECL_ALIGN(x)			__attribute__( ( aligned( x ) ) )
+
+    #define SINGLE_INHERITANCE		
+	#define MULTIPLE_INHERITANCE	
 #endif
 
 #define PLATFORM_INTERFACE	DLL_IMPORT
 #define PLATFORM_OVERLOAD	DLL_GLOBAL_IMPORT
 #define PLATFORM_CLASS		DLL_CLASS_IMPORT
 #define Assert              assert
+
+#if defined( _MSC_VER ) && defined( _WIN64 ) && !defined( COMPILER_MSVC64 )
+#define COMPILER_MSVC64 1
+#endif
+#ifndef AssertMsg
+#define AssertMsg( expr, msg ) assert( ( expr ) && ( msg ) )
+#endif
+
+typedef unsigned char byte;
+typedef unsigned int uint;
+typedef int qboolean;
+typedef uint8_t uint8;
+typedef int8_t int8;
+typedef uint16_t uint16;
+typedef int16_t int16;
+typedef uint32_t uint32;
+typedef int32_t int32;
+typedef uint64_t uint64;
+typedef int64_t int64;
+typedef float float32;
+typedef double float64;
+
+#ifndef MAX
+	#define MAX( a, b ) ( ( (a) > (b) ) ? (a) : (b) )
+#endif
+#ifndef MIN
+	#define MIN( a, b ) ( ( (a) < (b) ) ? (a) : (b) )
+#endif
+#ifndef stackalloc
+	#define stackalloc( _size ) alloca( _size )
+#endif
 
 #if !defined( offsetof )
 	#ifdef __GNUC__
@@ -54,6 +100,9 @@
 		#define offsetof(s,m)	(size_t)&(((s *)0)->m)
 	#endif
 #endif
+
+#define GET_OUTER( OuterType, OuterMember ) \
+	( ( OuterType * ) ( (uint8_t *)this - offsetof( OuterType, OuterMember ) ) )
 
 #if defined( GNUC )
 // gnuc has the align decoration at the end
@@ -86,11 +135,50 @@
 #define ALIGN_N_POST( _align_ )
 #endif
 
+#ifdef _WIN32
+#define CORRECT_PATH_SEPARATOR '\\'
+#define CORRECT_PATH_SEPARATOR_S "\\"
+#define INCORRECT_PATH_SEPARATOR '/'
+#define INCORRECT_PATH_SEPARATOR_S "/"
+#else
+#define CORRECT_PATH_SEPARATOR '/'
+#define CORRECT_PATH_SEPARATOR_S "/"
+#define INCORRECT_PATH_SEPARATOR '\\'
+#define INCORRECT_PATH_SEPARATOR_S "\\"
+#endif
+
 #define INT_TO_POINTER( i ) (void *)( ( i ) + (char *)NULL )
 #define POINTER_TO_INT( p ) ( (int)(uintptr_t)( p ) )
 #define MAX_PATH  260
 
 struct empty_t {};
+
+#ifdef _WIN32
+	#define STDCALL __stdcall
+	typedef void *HANDLE;
+#else
+	#define STDCALL
+#endif
+
+#if defined( _WIN64 ) || defined( __LP64__ ) || defined( __x86_64__ ) || defined( __aarch64__ )
+	#define PLATFORM_64BITS 1
+#endif
+
+typedef uintptr_t uintp;
+
+#define FORWARD_DECLARE_HANDLE( name ) typedef struct name##__ *name
+
+#define COMPILE_TIME_ASSERT( pred ) static_assert( pred, "Compile time assert constraint is not true: " #pred )
+
+
+
+#ifndef FORCEINLINE
+	#ifdef _MSC_VER
+		#define FORCEINLINE __forceinline
+	#else
+		#define FORCEINLINE inline __attribute__((always_inline))
+	#endif
+#endif
 
 PLATFORM_INTERFACE void				Plat_NonFatalErrorFunc( const char *pMsg, ... ) FMTFUNCTION( 1, 2 );
 PLATFORM_INTERFACE void				Plat_FatalError( const char *pMsg, ... ) FMTFUNCTION( 1, 2 );
@@ -145,5 +233,38 @@ DECLARE_ALIGNED_BYTE_ARRAY(16);
 DECLARE_ALIGNED_BYTE_ARRAY(32);
 DECLARE_ALIGNED_BYTE_ARRAY(64);
 DECLARE_ALIGNED_BYTE_ARRAY(128);
+
+typedef float vec_t;
+typedef intptr_t intp;
+typedef char tchar;
+
+#ifdef _WIN32
+	typedef void *OSFILEHANDLE;
+#else
+	typedef int OSFILEHANDLE;
+	typedef void *HMODULE;
+#endif
+
+#ifdef _MSC_VER
+	#define NO_VTABLE __declspec( novtable )
+	#define RESTRICT __restrict
+	#define RESTRICT_FUNC __declspec( restrict )
+#else
+	#define NO_VTABLE
+	#define RESTRICT __restrict
+	#define RESTRICT_FUNC
+#endif
+
+#define abstract_class class
+
+#if defined( __GNUC__ )
+	#define mallocsize( _p ) ( malloc_usable_size( _p ) )
+#elif defined( _MSC_VER )
+	#include <malloc.h>
+	#define mallocsize( _p ) ( _msize( _p ) )
+#endif
+
+typedef void* (*CreateInterfaceFn)( const char *pName, int *pReturnCode );
+typedef void* (*InstantiateInterfaceFn)();
 
 #endif

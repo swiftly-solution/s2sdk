@@ -16,8 +16,7 @@
 
 #define TSLIST_HEAD_ALIGNMENT 16
 #define TSLIST_NODE_ALIGNMENT 16
-inline bool ThreadInterlockedAssignIf64x128( volatile int128 *pDest, const int128 &value, const int128 &comperand )
-	{ return ThreadInterlockedAssignIf128( pDest, value, comperand ); }
+bool ThreadInterlockedAssignIf64x128( volatile int128 *pDest, const int128 &value, const int128 &comperand );
 
 #ifdef _MSC_VER
 #define TSLIST_HEAD_ALIGN DECL_ALIGN(TSLIST_HEAD_ALIGNMENT)
@@ -73,16 +72,9 @@ class TSLIST_HEAD_ALIGN PLATFORM_CLASS CTSListBase
 public:
 
 	// override new/delete so we can guarantee 8-byte aligned allocs
-	static void * operator new( size_t size )
-	{
-		CTSListBase *pNode = (CTSListBase *)MemAlloc_AllocAligned( size, TSLIST_HEAD_ALIGNMENT );
-		return pNode;
-	}
+	static void * operator new( size_t size );
 
-	static void operator delete( void *p)
-	{
-		MemAlloc_FreeAligned( p );
-	}
+	static void operator delete( void *p);
 
 private:
 	// These ain't gonna work
@@ -97,20 +89,14 @@ public:
 	CTSListBase();
 	~CTSListBase();
 
-	void Push( TSLNodeBase_t *pNode ) { InternalPush( pNode ); }
-	TSLNodeBase_t *Pop() { return InternalPop(); }
+	void Push( TSLNodeBase_t *pNode );
+	TSLNodeBase_t *Pop();
 
 	TSLNodeBase_t *Detach();
 
-	TSLHead_t *AccessUnprotected()
-	{
-		return &m_Head;
-	}
+	TSLHead_t *AccessUnprotected();
 
-	int Count() const
-	{
-		return m_Head.value.Depth;
-	}
+	int Count() const;
 
 private:
 	TSLHead_t m_Head;

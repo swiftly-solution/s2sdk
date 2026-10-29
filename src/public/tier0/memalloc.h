@@ -6,7 +6,7 @@
 #endif
 
 #include "platform_base.h"
-#include "bufferstring.h"
+class CBufferString;
 
 enum MemAllocRegion
 {
@@ -55,7 +55,7 @@ enum MemoryDebugType : int16_t
 
 struct MemoryInfoState
 {
-	MemoryInfoState( MemoryDebugType type, bool debug = false ) : m_MemType( type ), m_bDebug( debug ) { }
+	MemoryInfoState( MemoryDebugType type, bool debug = false );
 
 	MemoryDebugType m_MemType;
 	bool m_bDebug;
@@ -213,5 +213,9 @@ void MemAlloc_FreeAligned( void *pMemBlock );
 size_t MemAlloc_GetSizeAligned( void *pMemBlock );
 
 #define MemAlloc_AllocAligned( s, a )	MemAlloc_AllocAlignedUnattributed( s, a )
+
+#ifndef MEM_ALLOC_CREDIT_CLASS
+#define MEM_ALLOC_CREDIT_CLASS()
+#endif
 
 #endif

@@ -93,10 +93,7 @@ inline ESteamAPIInitResult SteamAPI_InitEx( SteamErrMsg *pOutErrMsg );
 
 // See "Initializing the Steamworks SDK" above for how to choose an init method.
 // Returns true on success
-inline bool SteamAPI_Init()
-{
-	return SteamAPI_InitEx( NULL ) == k_ESteamAPIInitResult_OK;
-}
+bool SteamAPI_Init();
 
 // See "Initializing the Steamworks SDK" above for how to choose an init method.
 // Same usage as SteamAPI_InitEx(), however does not verify ISteam* interfaces are
@@ -227,37 +224,6 @@ S_API bool S_CALLTYPE SteamAPI_ManualDispatch_GetAPICallResult( HSteamPipe hStea
 // Internal implementation of SteamAPI_InitEx.  This is done in a way that checks
 // all of the versions of interfaces from headers being compiled into this code.
 S_API ESteamAPIInitResult S_CALLTYPE SteamInternal_SteamAPI_Init( const char *pszInternalCheckInterfaceVersions, SteamErrMsg *pOutErrMsg );
-inline ESteamAPIInitResult SteamAPI_InitEx( SteamErrMsg *pOutErrMsg )
-{
-	const char *pszInternalCheckInterfaceVersions = 
-		STEAMUTILS_INTERFACE_VERSION "\0"
-		STEAMNETWORKINGUTILS_INTERFACE_VERSION "\0"
-		STEAMAPPS_INTERFACE_VERSION "\0"
-		STEAMCONTROLLER_INTERFACE_VERSION "\0"
-		STEAMFRIENDS_INTERFACE_VERSION "\0"
-		STEAMHTMLSURFACE_INTERFACE_VERSION "\0"
-		STEAMHTTP_INTERFACE_VERSION "\0"
-		STEAMINPUT_INTERFACE_VERSION "\0"
-		STEAMINVENTORY_INTERFACE_VERSION "\0"
-		STEAMMATCHMAKINGSERVERS_INTERFACE_VERSION "\0"
-		STEAMMATCHMAKING_INTERFACE_VERSION "\0"
-		STEAMMUSIC_INTERFACE_VERSION "\0"
-		STEAMNETWORKINGMESSAGES_INTERFACE_VERSION "\0"
-		STEAMNETWORKINGSOCKETS_INTERFACE_VERSION "\0"
-		STEAMNETWORKING_INTERFACE_VERSION "\0"
-		STEAMPARENTALSETTINGS_INTERFACE_VERSION "\0"
-		STEAMPARTIES_INTERFACE_VERSION "\0"
-		STEAMREMOTEPLAY_INTERFACE_VERSION "\0"
-		STEAMREMOTESTORAGE_INTERFACE_VERSION "\0"
-		STEAMSCREENSHOTS_INTERFACE_VERSION "\0"
-		STEAMUGC_INTERFACE_VERSION "\0"
-		STEAMUSERSTATS_INTERFACE_VERSION "\0"
-		STEAMUSER_INTERFACE_VERSION "\0"
-		STEAMVIDEO_INTERFACE_VERSION "\0"
-
-		"\0";
-
-	return SteamInternal_SteamAPI_Init( pszInternalCheckInterfaceVersions, pOutErrMsg );
-}
+ESteamAPIInitResult SteamAPI_InitEx( SteamErrMsg *pOutErrMsg );
 
 #endif // STEAM_API_H

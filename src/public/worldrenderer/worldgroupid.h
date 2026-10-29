@@ -11,14 +11,14 @@
 class WorldGroupId_t
 {
 public:
-	WorldGroupId_t( uint32_t nId = 0 ) : m_nId( nId ) {}
+	WorldGroupId_t( uint32_t nId = 0 );
 
-	bool operator==( const WorldGroupId_t &other ) const { return m_nId == other.m_nId; }
-	bool operator!=( const WorldGroupId_t &other ) const { return m_nId != other.m_nId; }
-	bool operator<( const WorldGroupId_t &other ) const { return m_nId < other.m_nId; }
+	bool operator==( const WorldGroupId_t &other ) const;
+	bool operator!=( const WorldGroupId_t &other ) const;
+	bool operator<( const WorldGroupId_t &other ) const;
 
-    uint32_t GetId() { return m_nId; }
-    void SetId(uint32_t id) { m_nId = id; }
+    uint32_t GetId() const;
+    void SetId(uint32_t id);
 
 private:
 	uint32_t m_nId;

@@ -246,7 +246,7 @@ struct SteamNetworkingIPAddr
 	ESteamNetworkingFakeIPType GetFakeIPType() const;
 
 	/// Return true if we are a FakeIP
-	bool IsFakeIP() const { return GetFakeIPType() > k_ESteamNetworkingFakeIPType_NotFake; }
+	bool IsFakeIP() const;
 };
 
 /// An abstract way to represent the identity of a network host.  All identities can
@@ -283,7 +283,7 @@ struct SteamNetworkingIdentity
 	uint32 GetIPv4() const; // returns 0 if we are not an IPv4 address.
 
 	ESteamNetworkingFakeIPType GetFakeIPType() const;
-	bool IsFakeIP() const { return GetFakeIPType() > k_ESteamNetworkingFakeIPType_NotFake; }
+	bool IsFakeIP() const;
 
 	// "localhost" is equivalent for many purposes to "anonymous."  Our remote
 	// will identify us by the network address we use.
@@ -933,7 +933,7 @@ protected:
 	// - You will receive a pointer to a message object when you receive messages (e.g. ISteamNetworkingSockets::ReceiveMessagesOnConnection)
 	// - You can allocate a message object for efficient sending using ISteamNetworkingUtils::AllocateMessage
 	// - Call Release() to free the object
-	inline ~SteamNetworkingMessage_t() {}
+	~SteamNetworkingMessage_t();
 };
 
 //
@@ -1739,36 +1739,11 @@ struct SteamNetworkingConfigValue_t
 	//
 	// Shortcut helpers to set the type and value in a single call
 	//
-	inline void SetInt32( ESteamNetworkingConfigValue eVal, int32_t data )
-	{
-		m_eValue = eVal;
-		m_eDataType = k_ESteamNetworkingConfig_Int32;
-		m_val.m_int32 = data;
-	}
-	inline void SetInt64( ESteamNetworkingConfigValue eVal, int64_t data )
-	{
-		m_eValue = eVal;
-		m_eDataType = k_ESteamNetworkingConfig_Int64;
-		m_val.m_int64 = data;
-	}
-	inline void SetFloat( ESteamNetworkingConfigValue eVal, float data )
-	{
-		m_eValue = eVal;
-		m_eDataType = k_ESteamNetworkingConfig_Float;
-		m_val.m_float = data;
-	}
-	inline void SetPtr( ESteamNetworkingConfigValue eVal, void *data )
-	{
-		m_eValue = eVal;
-		m_eDataType = k_ESteamNetworkingConfig_Ptr;
-		m_val.m_ptr = data;
-	}
-	inline void SetString( ESteamNetworkingConfigValue eVal, const char *data ) // WARNING - Just saves your pointer.  Does NOT make a copy of the string
-	{
-		m_eValue = eVal;
-		m_eDataType = k_ESteamNetworkingConfig_Ptr;
-		m_val.m_string = data;
-	}
+	void SetInt32( ESteamNetworkingConfigValue eVal, int32_t data );
+	void SetInt64( ESteamNetworkingConfigValue eVal, int64_t data );
+	void SetFloat( ESteamNetworkingConfigValue eVal, float data );
+	void SetPtr( ESteamNetworkingConfigValue eVal, void *data );
+	void SetString( ESteamNetworkingConfigValue eVal, const char *data );
 };
 
 /// Return value of ISteamNetworkintgUtils::GetConfigValue
@@ -1812,29 +1787,7 @@ typedef void (*FSteamNetworkingSocketsDebugOutput)( ESteamNetworkingSocketsDebug
 //
 
 /// Convert 3- or 4-character ID to 32-bit int.
-inline SteamNetworkingPOPID CalculateSteamNetworkingPOPIDFromString( const char *pszCode )
-{
-	// OK we made a bad decision when we decided how to pack 3-character codes into a uint32.  We'd like to support
-	// 4-character codes, but we don't want to break compatibility.  The migration path has some subtleties that make
-	// this nontrivial, and there are already some IDs stored in SQL.  Ug, so the 4 character code "abcd" will
-	// be encoded with the digits like "0xddaabbcc".
-	//
-	// Also: we don't currently use 1- or 2-character codes, but if ever do in the future, let's make sure don't read
-	// past the end of the string and access uninitialized memory.  (And if the string is empty, we always want
-	// to return 0 and not read bytes past the '\0'.)
-	//
-	// There is also extra paranoia to make sure the bytes are not treated as signed.
-	SteamNetworkingPOPID result = (uint32)(uint8)pszCode[0] << 16U;
-	if ( result && pszCode[1] )
-	{
-		result |= ( (uint32)(uint8)pszCode[1] << 8U );
-		if ( pszCode[2] )
-		{
-			result |= (uint32)(uint8)pszCode[2] | ( (uint32)(uint8)pszCode[3] << 24U );
-		}
-	}
-	return result;
-}
+SteamNetworkingPOPID CalculateSteamNetworkingPOPIDFromString( const char *pszCode );
 
 /// Unpack integer to string representation, including terminating '\0'
 ///

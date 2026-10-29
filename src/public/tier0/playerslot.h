@@ -5,24 +5,36 @@
 #pragma once
 #endif
 
+#include "public/const.h"
+
 class CPlayerSlot
 {
 public:
-	CPlayerSlot( int slot )
-	{
-		_slot = slot;
-	}
+	CPlayerSlot( int slot );
 
-	int Get() const
-	{
-		return _slot;
-	}
+	void Invalidate();
+	bool IsValid() const;
+	int Get() const;
 
-	bool operator==( const CPlayerSlot &other ) const { return other._slot == _slot; }
-	bool operator!=( const CPlayerSlot &other ) const { return other._slot != _slot; }
-	
+	bool operator==( const CPlayerSlot &other ) const;
+	bool operator!=( const CPlayerSlot &other ) const;
+
 private:
-	int _slot;
+	int m_Data;
 };
 
-#endif
+class CPlayerUserId
+{
+public:
+	CPlayerUserId( int index );
+
+	int Get() const;
+
+	bool operator==( const CPlayerUserId &other ) const;
+	bool operator!=( const CPlayerUserId &other ) const;
+
+private:
+	unsigned short _index;
+};
+
+#endif // PLAYERSLOT_H

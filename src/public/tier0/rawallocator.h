@@ -29,11 +29,7 @@ public:
 		return ptr;
 	}
 
-	static void Free( void* pMem )
-	{
-		if(pMem)
-			free( pMem );
-	}
+	static void Free( void* pMem );
 };
 
 #include "memdbgoff.h"

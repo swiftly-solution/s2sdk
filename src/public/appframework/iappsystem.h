@@ -54,4 +54,31 @@ public:
 	virtual BuildType_t	GetBuildType() = 0;
 };
 
+template< class IInterface >
+class CBaseAppSystem : public IInterface
+{
+public:
+	virtual bool Connect( CreateInterfaceFn factory ) { return true; }
+	virtual void Disconnect() {}
+	virtual void *QueryInterface( const char *pInterfaceName ) { return NULL; }
+	virtual InitReturnVal_t Init() { return INIT_OK; }
+	virtual void Shutdown() {}
+	virtual void PreShutdown() {}
+	virtual const AppSystemInfo_t* GetDependencies() { return NULL; }
+	virtual AppSystemTier_t GetTier() { return APP_SYSTEM_TIER_OTHER; }
+	virtual void Reconnect( CreateInterfaceFn factory, const char *pInterfaceName )
+	{
+		ReconnectInterface( factory, pInterfaceName );
+	}
+	virtual bool IsSingleton() { return true; }
+	virtual BuildType_t GetBuildType() { return kBuildTypeRelease; }
+};
+
+template< class IInterface >
+class CTier0AppSystem : public CBaseAppSystem< IInterface >
+{
+public:
+	virtual AppSystemTier_t GetTier() { return APP_SYSTEM_TIER0; }
+};
+
 #endif

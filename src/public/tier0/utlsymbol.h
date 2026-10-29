@@ -13,21 +13,21 @@ class CUtlSymbol
 {
 public:
 	// constructor, destructor
-	CUtlSymbol() : m_Id(UTL_INVAL_SYMBOL) {}
-	CUtlSymbol( UtlSymId_t id ) : m_Id(id) {}
-	CUtlSymbol( CUtlSymbol const& sym ) : m_Id(sym.m_Id) {}
+	CUtlSymbol();
+	CUtlSymbol( UtlSymId_t id );
+	CUtlSymbol( CUtlSymbol const& sym );
 	
 	// operator=
-	CUtlSymbol& operator=( CUtlSymbol const& src ) { m_Id = src.m_Id; return *this; }
+	CUtlSymbol& operator=( CUtlSymbol const& src );
 	
 	// operator==
-	bool operator==( CUtlSymbol const& src ) const { return m_Id == src.m_Id; }
+	bool operator==( CUtlSymbol const& src ) const;
 
 	// Is valid?
-	bool IsValid() const { return m_Id != UTL_INVAL_SYMBOL; }
+	bool IsValid() const;
 	
 	// Gets at the symbol
-	operator UtlSymId_t () const { return m_Id; }
+	operator UtlSymId_t () const;
 
 protected:
 	CUtlSymbol( const char* pStr );

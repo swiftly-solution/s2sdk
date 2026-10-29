@@ -44,10 +44,7 @@ public:
 	DLL_CLASS_IMPORT bool SaveToBuffer( CUtlBuffer& buff ) const;
 	DLL_CLASS_IMPORT bool RestoreFromBuffer( CUtlBuffer& buff );
 
-	int GetNumStrings( void ) const
-	{
-		return m_MemBlocks.Count();
-	}
+	int GetNumStrings( void ) const;
 
 protected:
 	struct UtlSymTableAltKey
@@ -85,50 +82,17 @@ protected:
 class CUtlSymbolTableMT :  public CUtlSymbolTable
 {
 public:
-	CUtlSymbolTableMT( int growSize = 0, int initSize = 32, bool caseInsensitive = false )
-		: CUtlSymbolTable( growSize, initSize, caseInsensitive )
-	{
-	}
+	CUtlSymbolTableMT( int growSize = 0, int initSize = 32, bool caseInsensitive = false );
 
-	CUtlSymbol AddString( const char* pString, bool* created = NULL )
-	{
-		m_lock.LockForWrite( __FILE__, __LINE__ );
-		CUtlSymbol result = CUtlSymbolTable::AddString( pString, created );
-		m_lock.UnlockWrite( __FILE__, __LINE__ );
-		return result;
-	}
+	CUtlSymbol AddString( const char* pString, bool* created = NULL );
 
-	CUtlSymbol AddString( const char* pString, int nLength, bool* created = NULL )
-	{
-		m_lock.LockForWrite( __FILE__, __LINE__ );
-		CUtlSymbol result = CUtlSymbolTable::AddString( pString, nLength, created );
-		m_lock.UnlockWrite( __FILE__, __LINE__ );
-		return result;
-	}
+	CUtlSymbol AddString( const char* pString, int nLength, bool* created = NULL );
 
-	CUtlSymbol Find( const char* pString ) const
-	{
-		m_lock.LockForWrite( __FILE__, __LINE__ );
-		CUtlSymbol result = CUtlSymbolTable::Find( pString );
-		m_lock.UnlockWrite( __FILE__, __LINE__ );
-		return result;
-	}
+	CUtlSymbol Find( const char* pString ) const;
 
-	CUtlSymbol Find( const char* pString, int nLength ) const
-	{
-		m_lock.LockForWrite( __FILE__, __LINE__ );
-		CUtlSymbol result = CUtlSymbolTable::Find( pString, nLength );
-		m_lock.UnlockWrite( __FILE__, __LINE__ );
-		return result;
-	}
+	CUtlSymbol Find( const char* pString, int nLength ) const;
 
-	const char* String( CUtlSymbol id ) const
-	{
-		m_lock.LockForRead( __FILE__, __LINE__ );
-		const char *pszResult = CUtlSymbolTable::String( id );
-		m_lock.UnlockRead( __FILE__, __LINE__ );
-		return pszResult;
-	}
+	const char* String( CUtlSymbol id ) const;
 	
 private:
 	mutable CThreadSpinRWLock m_lock;

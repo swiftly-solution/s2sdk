@@ -192,4 +192,60 @@ private:
 typedef CInterlockedIntT<int> CInterlockedInt;
 typedef CInterlockedIntT<unsigned> CInterlockedUInt;
 
+void ThreadInterlockedExchangePointerToConst( void const * volatile *p, void const *value );
+
+bool ThreadInterlockedAssignPointerToConstIf( void const * volatile *p, void const *value, void const *comparand );
+
+template <typename T>
+class CInterlockedPtr
+{
+public:
+	CInterlockedPtr() : m_value( 0 ) 				
+	{ 
+#ifdef PLATFORM_64BITS 
+		COMPILE_TIME_ASSERT( sizeof(T *) == sizeof(int64) );
+#define THREADINTERLOCKEDEXCHANGEADD( _dest, _value ) 	ThreadInterlockedExchangeAdd64( (volatile int64 *)_dest, _value )
+#else  // PLATFORM_64BITS
+		COMPILE_TIME_ASSERT( sizeof(T *) == sizeof(int32) );
+#define THREADINTERLOCKEDEXCHANGEADD( _dest, _value )	ThreadInterlockedExchangeAdd( (volatile int32 *)_dest, _value )
+#endif  // PLATFORM_64BITS
+	}
+
+	CInterlockedPtr( T *value ) : m_value( value ) 	{}
+
+	operator T *() const			{ return m_value; }
+
+	bool operator!() const			{ return ( m_value == 0 ); }
+	bool operator==( T *rhs ) const	{ return ( m_value == rhs ); }
+	bool operator!=( T *rhs ) const	{ return ( m_value != rhs ); }
+
+	T *operator++()					{ return ((T *)THREADINTERLOCKEDEXCHANGEADD( &m_value, sizeof(T) )) + 1; }
+	T *operator++(int)				{ return (T *)THREADINTERLOCKEDEXCHANGEADD( &m_value, sizeof(T) ); }
+
+	T *operator--()					{ return ((T *)THREADINTERLOCKEDEXCHANGEADD( &m_value, -sizeof(T) )) - 1; }
+	T *operator--(int)				{ return (T *)THREADINTERLOCKEDEXCHANGEADD( &m_value, -sizeof(T) ); }
+
+	bool AssignIf( T *conditionValue, T *newValue )	{ return ThreadInterlockedAssignPointerToConstIf( (void const **) &m_value, (void const *) newValue, (void const *) conditionValue ); }
+
+	T *operator=( T *newValue )		{ ThreadInterlockedExchangePointerToConst( (void const **) &m_value, (void const *) newValue ); return newValue; }
+
+	void operator+=( int add )		{ THREADINTERLOCKEDEXCHANGEADD( &m_value, add * sizeof(T) ); }
+	void operator-=( int subtract )	{ operator+=( -subtract ); }
+
+	// Atomic add is like += except it returns the previous value as its return value
+	T *AtomicAdd( int add ) { return ( T * ) THREADINTERLOCKEDEXCHANGEADD( &m_value, add * sizeof(T) ); }
+
+	T *operator+( int rhs ) const		{ return m_value + rhs; }
+	T *operator-( int rhs ) const		{ return m_value - rhs; }
+	T *operator+( unsigned rhs ) const	{ return m_value + rhs; }
+	T *operator-( unsigned rhs ) const	{ return m_value - rhs; }
+	size_t operator-( T *p ) const		{ return m_value - p; }
+	size_t operator-( const CInterlockedPtr<T> &p ) const	{ return m_value - p.m_value; }
+
+private:
+	T * volatile m_value;
+
+#undef THREADINTERLOCKEDEXCHANGEADD
+};
+
 #endif

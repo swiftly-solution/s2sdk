@@ -6,6 +6,7 @@
 #endif
 
 #include "platform_base.h"
+#include "annotations.h"
 
 #include <stdio.h>
 #include <setjmp.h>
@@ -88,6 +89,7 @@ PLATFORM_INTERFACE int V_isnand( double x );
 
 // String functions
 PLATFORM_INTERFACE int64_t		V_atoi( const char *str );
+PLATFORM_INTERFACE int			V_snprintf( OUT_Z_CAP( destLen ) char *pDest, int destLen, PRINTF_FORMAT_STRING const char *pFormat, ... ) FMTFUNCTION( 3, 4 );
 PLATFORM_INTERFACE char *		V_strtok( const char *str, const char *delim );
 PLATFORM_INTERFACE int			V_sscanf( const char *buffer, const char *pFormat, ... );
 PLATFORM_INTERFACE int			V_swscanf( const wchar_t *buffer, const wchar_t *pFormat, ... );

@@ -121,56 +121,15 @@ struct SteamIPAddress_t
 
 	ESteamIPType m_eType;
 
-	bool IsSet() const 
-	{ 
-		if ( k_ESteamIPTypeIPv4 == m_eType )
-		{
-			return m_unIPv4 != 0;
-		}
-		else 
-		{
-			return m_ipv6Qword[0] !=0 || m_ipv6Qword[1] != 0; 
-		}
-	}
+	bool IsSet() const;
 
-	static SteamIPAddress_t IPv4Any()
-	{
-		SteamIPAddress_t ipOut;
-		ipOut.m_eType = k_ESteamIPTypeIPv4;
-		ipOut.m_unIPv4 = 0;
+	static SteamIPAddress_t IPv4Any();
 
-		return ipOut;
-	}
+	static SteamIPAddress_t IPv6Any();
 
-	static SteamIPAddress_t IPv6Any()
-	{
-		SteamIPAddress_t ipOut;
-		ipOut.m_eType = k_ESteamIPTypeIPv6;
-		ipOut.m_ipv6Qword[0] = 0;
-		ipOut.m_ipv6Qword[1] = 0;
+	static SteamIPAddress_t IPv4Loopback();
 
-		return ipOut;
-	}
-
-	static SteamIPAddress_t IPv4Loopback()
-	{
-		SteamIPAddress_t ipOut;
-		ipOut.m_eType = k_ESteamIPTypeIPv4;
-		ipOut.m_unIPv4 = 0x7f000001;
-
-		return ipOut;
-	}
-
-	static SteamIPAddress_t IPv6Loopback()
-	{
-		SteamIPAddress_t ipOut;
-		ipOut.m_eType = k_ESteamIPTypeIPv6;
-		ipOut.m_ipv6Qword[0] = 0;
-		ipOut.m_ipv6Qword[1] = 0;
-		ipOut.m_rgubIPv6[15] = 1;
-
-		return ipOut;
-	}
+	static SteamIPAddress_t IPv6Loopback();
 };
 
 #pragma pack( pop )

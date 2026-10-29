@@ -6,6 +6,7 @@
 #endif
 
 #include "utlvectormemory.h"
+#include "platform.h"
 #include "rawallocator.h"
 
 #define FOR_EACH_VEC( vecName, iteratorName ) \

@@ -488,13 +488,7 @@ public:
 	//-----------------------------------------------------------------------------
 	// Purpose: Constructor
 	//-----------------------------------------------------------------------------
-	CSteamID()
-	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
-		m_steamid.m_comp.m_EUniverse = k_EUniverseInvalid;
-		m_steamid.m_comp.m_unAccountInstance = 0;
-	}
+	CSteamID();
 
 
 	//-----------------------------------------------------------------------------
@@ -503,10 +497,7 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	CSteamID( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType )
-	{
-		Set( unAccountID, eUniverse, eAccountType );
-	}
+	CSteamID( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType );
 
 
 	//-----------------------------------------------------------------------------
@@ -516,13 +507,7 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	CSteamID( uint32 unAccountID, unsigned int unAccountInstance, EUniverse eUniverse, EAccountType eAccountType )
-	{
-#if defined(_SERVER) && defined(Assert)
-		Assert( ( k_EAccountTypeIndividual != eAccountType ) || ( unAccountInstance == k_unSteamUserDefaultInstance ) );	// enforce that for individual accounts, instance is always 1
-#endif // _SERVER
-		InstancedSet( unAccountID, unAccountInstance, eUniverse, eAccountType );
-	}
+	CSteamID( uint32 unAccountID, unsigned int unAccountInstance, EUniverse eUniverse, EAccountType eAccountType );
 
 
 	//-----------------------------------------------------------------------------
@@ -531,10 +516,7 @@ public:
 	// Note:	Will not accept a uint32 or int32 as input, as that is a probable mistake.
 	//			See the stubbed out overloads in the private: section for more info.
 	//-----------------------------------------------------------------------------
-	CSteamID( uint64 ulSteamID )
-	{
-		SetFromUint64( ulSteamID );
-	}
+	CSteamID( uint64 ulSteamID );
 #ifdef INT64_DIFFERENT_FROM_INT64_T
 	CSteamID( uint64_t ulSteamID )
 	{
@@ -549,21 +531,7 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	void Set( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType )
-	{
-		m_steamid.m_comp.m_unAccountID = unAccountID;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
-
-		if ( eAccountType == k_EAccountTypeClan || eAccountType == k_EAccountTypeGameServer )
-		{
-			m_steamid.m_comp.m_unAccountInstance = 0;
-		}
-		else
-		{
-			m_steamid.m_comp.m_unAccountInstance = k_unSteamUserDefaultInstance;
-		}
-	}
+	void Set( uint32 unAccountID, EUniverse eUniverse, EAccountType eAccountType );
 
 
 	//-----------------------------------------------------------------------------
@@ -572,57 +540,33 @@ public:
 	//			eUniverse -		Universe this account belongs to
 	//			eAccountType -	Type of account
 	//-----------------------------------------------------------------------------
-	void InstancedSet( uint32 unAccountID, uint32 unInstance, EUniverse eUniverse, EAccountType eAccountType )
-	{
-		m_steamid.m_comp.m_unAccountID = unAccountID;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
-		m_steamid.m_comp.m_unAccountInstance = unInstance;
-	}
+	void InstancedSet( uint32 unAccountID, uint32 unInstance, EUniverse eUniverse, EAccountType eAccountType );
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Initializes a steam ID from its 52 bit parts and universe/type
 	// Input  : ulIdentifier - 52 bits of goodness
 	//-----------------------------------------------------------------------------
-	void FullSet( uint64 ulIdentifier, EUniverse eUniverse, EAccountType eAccountType )
-	{
-		m_steamid.m_comp.m_unAccountID = ( ulIdentifier & k_unSteamAccountIDMask );						// account ID is low 32 bits
-		m_steamid.m_comp.m_unAccountInstance = ( ( ulIdentifier >> 32 ) & k_unSteamAccountInstanceMask );			// account instance is next 20 bits
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_EAccountType = eAccountType;
-	}
+	void FullSet( uint64 ulIdentifier, EUniverse eUniverse, EAccountType eAccountType );
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Initializes a steam ID from its 64-bit representation
 	// Input  : ulSteamID -		64-bit representation of a Steam ID
 	//-----------------------------------------------------------------------------
-	void SetFromUint64( uint64 ulSteamID )
-	{
-		m_steamid.m_unAll64Bits = ulSteamID;
-	}
+	void SetFromUint64( uint64 ulSteamID );
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Clear all fields, leaving an invalid ID.
 	//-----------------------------------------------------------------------------
-    void Clear()
-	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeInvalid;
-		m_steamid.m_comp.m_EUniverse = k_EUniverseInvalid;
-		m_steamid.m_comp.m_unAccountInstance = 0;
-	}
+    void Clear();
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Converts steam ID to its 64-bit representation
 	// Output : 64-bit representation of a Steam ID
 	//-----------------------------------------------------------------------------
-	uint64 ConvertToUint64() const
-	{
-		return m_steamid.m_unAll64Bits;
-	}
+	uint64 ConvertToUint64() const;
 
 
 	//-----------------------------------------------------------------------------
@@ -632,146 +576,93 @@ public:
 	//			account key.
 	// Output : 64-bit static account key
 	//-----------------------------------------------------------------------------
-	uint64 GetStaticAccountKey() const
-	{
-		// note we do NOT include the account instance (which is a dynamic property) in the static account key
-		return (uint64) ( ( ( (uint64) m_steamid.m_comp.m_EUniverse ) << 56 ) + ((uint64) m_steamid.m_comp.m_EAccountType << 52 ) + m_steamid.m_comp.m_unAccountID );
-	}
+	uint64 GetStaticAccountKey() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: create an anonymous game server login to be filled in by the AM
 	//-----------------------------------------------------------------------------
-	void CreateBlankAnonLogon( EUniverse eUniverse )
-	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeAnonGameServer;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_unAccountInstance = 0;
-	}
+	void CreateBlankAnonLogon( EUniverse eUniverse );
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: create an anonymous game server login to be filled in by the AM
 	//-----------------------------------------------------------------------------
-	void CreateBlankAnonUserLogon( EUniverse eUniverse )
-	{
-		m_steamid.m_comp.m_unAccountID = 0;
-		m_steamid.m_comp.m_EAccountType = k_EAccountTypeAnonUser;
-		m_steamid.m_comp.m_EUniverse = eUniverse;
-		m_steamid.m_comp.m_unAccountInstance = 0;
-	}
+	void CreateBlankAnonUserLogon( EUniverse eUniverse );
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this an anonymous game server login that will be filled in?
 	//-----------------------------------------------------------------------------
-	bool BBlankAnonAccount() const
-	{
-		return m_steamid.m_comp.m_unAccountID == 0 && BAnonAccount() && m_steamid.m_comp.m_unAccountInstance == 0;
-	}
+	bool BBlankAnonAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a game server account id?  (Either persistent or anonymous)
 	//-----------------------------------------------------------------------------
-	bool BGameServerAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer || m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
-	}
+	bool BGameServerAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a persistent (not anonymous) game server account id?
 	//-----------------------------------------------------------------------------
-	bool BPersistentGameServerAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer;
-	}
+	bool BPersistentGameServerAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this an anonymous game server account id?
 	//-----------------------------------------------------------------------------
-	bool BAnonGameServerAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
-	}
+	bool BAnonGameServerAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a content server account id?
 	//-----------------------------------------------------------------------------
-	bool BContentServerAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeContentServer;
-	}
+	bool BContentServerAccount() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a clan account id?
 	//-----------------------------------------------------------------------------
-	bool BClanAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeClan;
-	}
+	bool BClanAccount() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a chat account id?
 	//-----------------------------------------------------------------------------
-	bool BChatAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeChat;
-	}
+	bool BChatAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a chat account id?
 	//-----------------------------------------------------------------------------
-	bool IsLobby() const
-	{
-		return ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeChat )
-			&& ( m_steamid.m_comp.m_unAccountInstance & k_EChatInstanceFlagLobby );
-	}
+	bool IsLobby() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this an individual user account id?
 	//-----------------------------------------------------------------------------
-	bool BIndividualAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeIndividual || m_steamid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
-	}
+	bool BIndividualAccount() const;
 
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this an anonymous account?
 	//-----------------------------------------------------------------------------
-	bool BAnonAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonUser || m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonGameServer;
-	}
+	bool BAnonAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this an anonymous user account? ( used to create an account or reset a password )
 	//-----------------------------------------------------------------------------
-	bool BAnonUserAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeAnonUser;
-	}
+	bool BAnonUserAccount() const;
 
 	//-----------------------------------------------------------------------------
 	// Purpose: Is this a faked up Steam ID for a PSN friend account?
 	//-----------------------------------------------------------------------------
-	bool BConsoleUserAccount() const
-	{
-		return m_steamid.m_comp.m_EAccountType == k_EAccountTypeConsoleUser;
-	}
+	bool BConsoleUserAccount() const;
 
 	// simple accessors
-	void SetAccountID( uint32 unAccountID )		{ m_steamid.m_comp.m_unAccountID = unAccountID; }
-	void SetAccountInstance( uint32 unInstance ){ m_steamid.m_comp.m_unAccountInstance = unInstance; }
+	void SetAccountID( uint32 unAccountID );
+	void SetAccountInstance( uint32 unInstance );
 		
-	AccountID_t GetAccountID() const			{ return m_steamid.m_comp.m_unAccountID; }
-	uint32 GetUnAccountInstance() const			{ return m_steamid.m_comp.m_unAccountInstance; }
-	EAccountType GetEAccountType() const		{ return ( EAccountType ) m_steamid.m_comp.m_EAccountType; }
-	EUniverse GetEUniverse() const				{ return m_steamid.m_comp.m_EUniverse; }
-	void SetEUniverse( EUniverse eUniverse )	{ m_steamid.m_comp.m_EUniverse = eUniverse; }
+	AccountID_t GetAccountID() const;
+	uint32 GetUnAccountInstance() const;
+	EAccountType GetEAccountType() const;
+	EUniverse GetEUniverse() const;
+	void SetEUniverse( EUniverse eUniverse );
 	bool IsValid() const;
 
 	// this set of functions is hidden, will be moved out of class
@@ -787,10 +678,10 @@ public:
     // Returns whether the string parsed correctly.
 	bool SetFromStringStrict( const char *pchSteamID, EUniverse eDefaultUniverse );
 
-	inline bool operator==( const CSteamID &val ) const { return m_steamid.m_unAll64Bits == val.m_steamid.m_unAll64Bits; } 
-	inline bool operator!=( const CSteamID &val ) const { return !operator==( val ); }
-	inline bool operator<( const CSteamID &val ) const { return m_steamid.m_unAll64Bits < val.m_steamid.m_unAll64Bits; }
-	inline bool operator>( const CSteamID &val ) const { return m_steamid.m_unAll64Bits > val.m_steamid.m_unAll64Bits; }
+	bool operator==( const CSteamID &val ) const; 
+	bool operator!=( const CSteamID &val ) const;
+	bool operator<( const CSteamID &val ) const;
+	bool operator>( const CSteamID &val ) const;
 
 	// DEBUG function
 	bool BValidExternalSteamID() const;
@@ -825,34 +716,6 @@ private:
 	} m_steamid;
 };
 
-inline bool CSteamID::IsValid() const
-{
-	if ( m_steamid.m_comp.m_EAccountType <= k_EAccountTypeInvalid || m_steamid.m_comp.m_EAccountType >= k_EAccountTypeMax )
-		return false;
-	
-	if ( m_steamid.m_comp.m_EUniverse <= k_EUniverseInvalid || m_steamid.m_comp.m_EUniverse >= k_EUniverseMax )
-		return false;
-
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeIndividual )
-	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 || m_steamid.m_comp.m_unAccountInstance != k_unSteamUserDefaultInstance )
-			return false;
-	}
-
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeClan )
-	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 || m_steamid.m_comp.m_unAccountInstance != 0 )
-			return false;
-	}
-
-	if ( m_steamid.m_comp.m_EAccountType == k_EAccountTypeGameServer )
-	{
-		if ( m_steamid.m_comp.m_unAccountID == 0 )
-			return false;
-		// Any limit on instances?  We use them for local users and bots
-	}
-	return true;
-}
 
 #if defined( INCLUDED_STEAM2_USERID_STRUCTS ) 
 
@@ -935,17 +798,9 @@ public:
 		k_EGameIDTypeP2P		= 3,
 	};
 
-	CGameID()
-	{
-		m_gameID.m_nType = k_EGameIDTypeApp;
-		m_gameID.m_nAppID = k_uAppIdInvalid;
-		m_gameID.m_nModID = 0;
-	}
+	CGameID();
 
-	explicit CGameID( uint64 ulGameID )
-	{
-		m_ulGameID = ulGameID;
-	}
+	explicit CGameID( uint64 ulGameID );
 #ifdef INT64_DIFFERENT_FROM_INT64_T
 	CGameID( uint64_t ulGameID )
 	{
@@ -953,81 +808,37 @@ public:
 	}
 #endif
 
-	explicit CGameID( int32 nAppID )
-	{
-		m_ulGameID = 0;
-		m_gameID.m_nAppID = nAppID;
-	}
+	explicit CGameID( int32 nAppID );
 
-	explicit CGameID( uint32 nAppID )
-	{
-		m_ulGameID = 0;
-		m_gameID.m_nAppID = nAppID;
-	}
+	explicit CGameID( uint32 nAppID );
 
 	// Not validating anything .. use IsValid()
-	explicit CGameID( uint32 nAppID, uint32 nModID, CGameID::EGameIDType nType )
-	{
-		m_gameID.m_nAppID = nAppID;
-		m_gameID.m_nModID = nModID;
-		m_gameID.m_nType = nType;
-	}
+	explicit CGameID( uint32 nAppID, uint32 nModID, CGameID::EGameIDType nType );
 
-	CGameID( const CGameID &that )
-	{
-		m_ulGameID = that.m_ulGameID;
-	}
+	CGameID( const CGameID &that );
 
-	CGameID& operator=( const CGameID & that )
-	{
-		m_ulGameID = that.m_ulGameID;
-		return *this;
-	}
+	CGameID& operator=( const CGameID & that );
 
 	// Hidden functions used only by Steam
 	explicit CGameID( const char *pchGameID );
 	const char *Render() const;					// render this Game ID to string
 	static const char *Render( uint64 ulGameID );		// static method to render a uint64 representation of a Game ID to a string
 
-	uint64 ToUint64() const
-	{
-		return m_ulGameID;
-	}
+	uint64 ToUint64() const;
 
-	uint64 *GetUint64Ptr()
-	{
-		return &m_ulGameID;
-	}
+	uint64 *GetUint64Ptr();
 
-	void Set( uint64 ulGameID )
-	{
-		m_ulGameID = ulGameID;
-	}
+	void Set( uint64 ulGameID );
 
-	bool IsMod() const
-	{
-		return ( m_gameID.m_nType == k_EGameIDTypeGameMod );
-	}
+	bool IsMod() const;
 
-	bool IsShortcut() const
-	{
-		return ( m_gameID.m_nType == k_EGameIDTypeShortcut );
-	}
+	bool IsShortcut() const;
 
-	bool IsP2PFile() const
-	{
-		return ( m_gameID.m_nType == k_EGameIDTypeP2P );
-	}
+	bool IsP2PFile() const;
 
-	bool IsSteamApp() const
-	{
-		return ( m_gameID.m_nType == k_EGameIDTypeApp );
-	}
+	bool IsSteamApp() const;
 		
-	uint32 ModID() const
-	{
-		return m_gameID.m_nModID;
-	}
+	uint32 ModID() const;
 
 #if !defined(VALVE_SHORTCUT_DEBUG)
 	uint32 AppID( bool = false ) const
@@ -1038,50 +849,15 @@ public:
 	uint32 AppID( bool bShortcutOK = false ) const;
 #endif
 
-	bool operator == ( const CGameID &rhs ) const
-	{
-		return m_ulGameID == rhs.m_ulGameID;
-	}
+	bool operator == ( const CGameID &rhs ) const;
 
-	bool operator != ( const CGameID &rhs ) const
-	{
-		return !(*this == rhs);
-	}
+	bool operator != ( const CGameID &rhs ) const;
 
-	bool operator < ( const CGameID &rhs ) const
-	{
-		return ( m_ulGameID < rhs.m_ulGameID );
-	}
+	bool operator < ( const CGameID &rhs ) const;
 
-	bool IsValid() const
-	{
-		// each type has it's own invalid fixed point:
-		switch( m_gameID.m_nType )
-		{
-		case k_EGameIDTypeApp:
-			return m_gameID.m_nAppID != k_uAppIdInvalid;
+	bool IsValid() const;
 
-		case k_EGameIDTypeGameMod:
-			return m_gameID.m_nAppID != k_uAppIdInvalid && (m_gameID.m_nModID & 0x80000000);
-
-		case k_EGameIDTypeShortcut:
-			return m_gameID.m_nAppID == k_uAppIdInvalid
-				&& (m_gameID.m_nModID & 0x80000000)
-				&& m_gameID.m_nModID >= (5000 | 0x80000000); // k_unMaxExpectedLocalAppId - shortcuts are pushed beyond that range
-
-		case k_EGameIDTypeP2P:
-			return m_gameID.m_nAppID == k_uAppIdInvalid && (m_gameID.m_nModID & 0x80000000);
-
-		default:
-			return false;
-		}
-
-	}
-
-	void Reset() 
-	{
-		m_ulGameID = 0;
-	}
+	void Reset();
 
 //
 // Internal stuff.  Use the accessors above if possible

@@ -1,0 +1,42 @@
+//========= Copyright © 1996-2007, Valve Corporation, All rights reserved. ============//
+//
+//	LZMA Decoder. Designed for run time decoding.
+//
+//	LZMA SDK 4.43 Copyright (c) 1999-2006 Igor Pavlov (2006-05-01)
+//	http://www.7-zip.org/
+//
+//=====================================================================================//
+
+#ifndef _LZMADECODER_H
+#define _LZMADECODER_H
+#pragma once
+
+#define LZMA_ID				(('A'<<24)|('M'<<16)|('Z'<<8)|('L'))
+
+#include "platform.h"
+
+// bind the buffer for correct identification
+#pragma pack(1)
+struct lzma_header_t
+{
+	unsigned int	id;
+	unsigned int	actualSize;		// always little endian
+	unsigned int	lzmaSize;		// always little endian
+	unsigned char	properties[5];
+};
+#pragma pack()
+
+typedef void ( *LZMAReadProgressCallbackFunc_t )();
+
+class CLZMA
+{
+public:
+	DLL_CLASS_IMPORT unsigned int	Uncompress( unsigned const char *pInput, unsigned char *pOutput, LZMAReadProgressCallbackFunc_t pCallback = NULL );
+	DLL_CLASS_IMPORT bool			IsCompressed( unsigned const char *pInput );
+	DLL_CLASS_IMPORT unsigned int	GetActualSize( unsigned const char *pInput );
+
+private:
+};
+
+#endif
+

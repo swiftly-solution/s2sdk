@@ -225,7 +225,7 @@ typedef void (*FSAsyncScanCompleteFunc_t)( void* pContext, FSAsyncStatus_t err )
 
 struct FileAsyncRequest_t
 {
-	FileAsyncRequest_t()	{ memset( this, 0, sizeof(*this) ); hSpecificAsyncFile = FS_INVALID_ASYNC_FILE;	}
+	FileAsyncRequest_t();
 	const char *			pszFilename;		// file system name
 	void *					pData;				// optional, system will alloc/free if NULL
 	int						nOffset;			// optional initial seek_set, 0=beginning
@@ -280,21 +280,15 @@ enum MemoryMappedFileFlags_t
 class IMemoryMappedFile
 {
 public:
-	IMemoryMappedFile() : m_pMappedMemory( NULL ), m_nMappedSize( 0 ), m_nFlags( (MemoryMappedFileFlags_t)0 ), m_nRefCount( 1 ) {}
-	virtual ~IMemoryMappedFile() {}
+	IMemoryMappedFile();
+	virtual ~IMemoryMappedFile();
 
-	uint32_t AddRef() { return ++m_nRefCount; }
-	uint32_t Release()
-	{
-		uint32_t nRefCount = --m_nRefCount;
-		if ( nRefCount == 0 )
-			ReachedZeroReferences();
-		return nRefCount;
-	}
+	uint32_t AddRef();
+	uint32_t Release();
 
-	const void *GetMappedMemory() const { return m_pMappedMemory; }
-	size_t GetMappedSize() const { return m_nMappedSize; }
-	MemoryMappedFileFlags_t GetFlags() const { return m_nFlags; }
+	const void *GetMappedMemory() const;
+	size_t GetMappedSize() const;
+	MemoryMappedFileFlags_t GetFlags() const;
 
 	virtual bool WriteToContents( size_t nOffset, const void *pData, size_t nSize ) = 0;
 

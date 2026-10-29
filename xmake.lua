@@ -10,9 +10,18 @@ target("s2sdk")
     set_kind("static")
     add_rules("cpp_properties")
     set_languages("cxx23")
+    set_policy("build.merge_archive", true)
     add_files("src/**.cpp")
     add_includedirs("src", {public = true})
     add_deps("protos", {public = true})
+
+    if is_plat("windows") then
+        add_cxflags("/Gy", "/Gw", {force = true})
+        add_ldflags("/OPT:REF", "/OPT:ICF", {public = true, force = true})
+    else
+        add_cxflags("-fPIC", "-ffunction-sections", "-fdata-sections", {force = true})
+        add_ldflags("-Wl,--gc-sections", {public = true, force = true})
+    end
 
     local libs = path.join(os.scriptdir(), "libs")
     if is_plat("windows") then

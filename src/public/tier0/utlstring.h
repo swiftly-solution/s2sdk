@@ -41,8 +41,8 @@ public:
 	DLL_CLASS_IMPORT bool operator==(const CUtlString &src) const;
 	DLL_CLASS_IMPORT bool operator==(const CBufferString &src) const;
 
-	bool operator!=(const CUtlString &src) const { return !operator==(src); }
-	bool operator!=(const CBufferString &src) const { return !operator==(src); }
+	bool operator!=(const CUtlString &src) const;
+	bool operator!=(const CBufferString &src) const;
 
 	DLL_CLASS_IMPORT char operator[](int i) const;
 
@@ -58,8 +58,8 @@ public:
 	DLL_CLASS_IMPORT CUtlString &operator+=(const char *rhs);
 
 	const char *Get() const;
-	operator const char *() const { return Get(); }
-	const char *String() const { return Get(); }
+	operator const char *() const;
+	const char *String() const;
 
 	DLL_CLASS_IMPORT void		Set(const char *pValue);
 
@@ -119,7 +119,7 @@ public:
 	static int __cdecl SortCaseSensitive(const CUtlString *pString1, const CUtlString *pString2);
 
 	DLL_CLASS_IMPORT void Purge();
-	void Clear() { Purge(); }
+	void Clear();
 
 	DLL_CLASS_IMPORT CUtlString Remove(const char *string, bool bCaseSensitive = true) const;
 	DLL_CLASS_IMPORT void		RemoveDotSlashes(char replacement);
@@ -319,8 +319,8 @@ template < typename T > struct UTLConstStringCaselessStringLessFunctor { bool op
 template < typename T > struct UTLConstStringCaselessStringEqualFunctor { bool operator()( const CUtlConstStringBase<T>& a, const char *b ) const { return StringFuncs<T>::CaselessCompare( a.Get(), b ) == 0; } };
 
 // Helper function for CUtlOrderedMaps with a CUtlString key
-inline bool UtlStringLessFunc( const CUtlString &lhs, const CUtlString &rhs ) { return V_strcmp( lhs.Get(), rhs.Get() ) < 0; } 
-inline bool UtlStringCaseInsensitiveLessFunc( const CUtlString &lhs, const CUtlString &rhs ) { return V_stricmp( lhs.Get(), rhs.Get() ) < 0; } 
+bool UtlStringLessFunc( const CUtlString &lhs, const CUtlString &rhs ); 
+bool UtlStringCaseInsensitiveLessFunc( const CUtlString &lhs, const CUtlString &rhs ); 
 
 
 #endif

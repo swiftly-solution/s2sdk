@@ -17,13 +17,13 @@ class IFormatOutputStream;
 class CFormatStringElement
 {
 public:
-	CFormatStringElement() : m_unk001( 0 ) {}
+	CFormatStringElement();
 	DLL_CLASS_IMPORT CFormatStringElement( const char *pszElement );
 
 	DLL_CLASS_IMPORT const char *ParseElement( const char *pszFormat );
 	DLL_CLASS_IMPORT void EnforceTypeAndSize( const char *pszTypes, const char *pszSize );
 
-	operator const char *() const { return m_szElement; }
+	operator const char *() const;
 
 private:
 	uint16_t m_unk001;
@@ -50,8 +50,8 @@ public:
 		MULTI_LINE = (1 << 2)
 	};
 
-	IFormatOutputStream() : m_nFlags( DEFAULT ), m_nCharsWritten( 0 ), m_unk101( 64 ), m_unk102( 1 ), m_unk103( INT_MAX ) {}
-	virtual ~IFormatOutputStream() {}
+	IFormatOutputStream();
+	virtual ~IFormatOutputStream();
 
 	virtual void PutC( char c ) = 0;
 	virtual void PutS( std::string_view str );
@@ -71,14 +71,14 @@ public:
 	virtual void SetTargetLine( int nLine );
 	virtual void SetAnchor();
 
-	bool UnicodeOK() const { return ( m_nFlags & UNICODE_OK ) != 0; }
-	bool IsHTML() const { return ( m_nFlags & HTML ) != 0; }
-	bool IsMultiLine() const { return ( m_nFlags & MULTI_LINE ) != 0; }
-	bool IsNonFull() const { return !IsFull(); }
+	bool UnicodeOK() const;
+	bool IsHTML() const;
+	bool IsMultiLine() const;
+	bool IsNonFull() const;
 
-	void NewLineAndIndent() { PutC( '\n' ); OutputIndentation(); }
+	void NewLineAndIndent();
 
-	int GetCharsWritten() const { return m_nCharsWritten; }
+	int GetCharsWritten() const;
 
 protected:
 	EOutputFlags_t m_nFlags;
@@ -91,10 +91,10 @@ protected:
 class PLATFORM_CLASS CBufferStringFormatOutputStream : public IFormatOutputStream
 {
 public:
-	CBufferStringFormatOutputStream() : m_pString( nullptr ) {}
-	CBufferStringFormatOutputStream( CBufferString &str ) : m_pString( &str ) {}
+	CBufferStringFormatOutputStream();
+	CBufferStringFormatOutputStream( CBufferString &str );
 
-	void SetString( CBufferString &str ) { m_pString = &str; }
+	void SetString( CBufferString &str );
 
 	virtual void PutC( char c );
 
@@ -105,7 +105,7 @@ private:
 class PLATFORM_CLASS CCharBufferFormatOutputStream : public IFormatOutputStream
 {
 public:
-	CCharBufferFormatOutputStream( char *pBuffer, int nBufferSize ) : m_pCurrent( pBuffer ), m_pEnd( pBuffer + nBufferSize ) {}
+	CCharBufferFormatOutputStream( char *pBuffer, int nBufferSize );
 
 	virtual void PutC( char c );
 	virtual void PutS( std::string_view str );

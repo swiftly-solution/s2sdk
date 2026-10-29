@@ -1,0 +1,107 @@
+//========= Copyright © 1996-2005, Valve Corporation, All rights reserved. ============//
+//
+// Purpose: 
+//
+//=============================================================================//
+
+#ifndef GLOBALVARS_BASE_H
+#define GLOBALVARS_BASE_H
+
+#ifdef _WIN32
+#pragma once
+#endif
+
+#include "public/tier0/threadtools.h"
+
+enum GlobalVarsUsageWarning_t
+{
+	GV_RENDERTIME_CALLED_DURING_SIMULATION,
+	GV_CURTIME_CALLED_DURING_RENDERING
+};
+
+typedef void (*FnGlobalVarsWarningFunc)(GlobalVarsUsageWarning_t);
+
+//-----------------------------------------------------------------------------
+// Purpose: Global variables used by shared code
+//-----------------------------------------------------------------------------
+class CGlobalVarsBase
+{
+public:
+
+	CGlobalVarsBase();
+
+public:
+	// Absolute time (per frame still - Use Plat_FloatTime() for a high precision real time 
+	//  perf clock, but not that it doesn't obey host_timescale/host_framerate)
+	float realtime;
+	// Absolute frame counter - continues to increase even if game is paused
+	int framecount;
+
+	// Clamped to [0.0001, 0.1]
+	float absoluteframetime;
+	// Frametime before clamping, also sent as CNETMsg_Tick::host_unfiltered_frametime
+	float absoluteframetime_unbounded;
+
+	int maxClients;
+
+	// Index of the tick being simulated within this frame
+	int m_nCurrentTickThisFrame;
+	// Number of ticks simulated this frame
+	int m_nTotalTicksThisFrame;
+
+	// Client only: real time per usercmd tick (tick interval / host_timescale)
+	float m_flUsercmdTickInterval;
+	// Client only: Plat_FloatTime() at which the current usercmd tick started
+	double m_flUsercmdTickStartTime;
+
+	FnGlobalVarsWarningFunc m_pfnWarningFunc;
+
+
+	// Current time 
+	//
+	// On the client, this (along with tickcount) takes a different meaning based on what
+	// piece of code you're in:
+	// 
+	//   - While receiving network packets (like in PreDataUpdate/PostDataUpdate and proxies),
+	//     this is set to the SERVER TICKCOUNT for that packet. There is no interval between
+	//     the server ticks.
+	//     [server_current_Tick * tick_interval]
+	//
+	//   - While rendering, this is the exact client clock 
+	//     [client_current_tick * tick_interval + interpolation_amount]
+	//
+	//   - During prediction, this is based on the client's current tick:
+	//     [client_current_tick * tick_interval]
+	float curtime;
+	
+	// Time spent on last server or client frame (has nothing to do with think intervals)
+	float frametime;
+
+	// Client only, zero during simulation: fraction into the next simulation tick
+	float interpolation_amount;
+	// Client only, zero during simulation: fraction into the current usercmd tick, stamps subtick moves
+	float m_flUsercmdTickFraction;
+
+	bool m_bInSimulation;
+	bool m_bEnableAssertions;
+
+	// Simulation ticks - does not increase when game is paused
+	int tickcount;
+
+	// Client only: ticks simulated since the client started ticking, reset per connection
+	int m_nClientTickCount;
+	// Client only: m_nClientTickCount in seconds
+	float m_flClientTime;
+
+	// Non-zero when during movement processing, it's the part after the decimal point of the "when" field in player's subtick moves.
+	float m_flSubtickFraction;
+
+	// AMNOTE: CS2 has no m_flIntervalPerTick, its tick interval is a fixed 1/64
+
+	bool m_bIsOncePerFrameAsyncWorkPhase;
+
+	ThreadId_t m_nThreadId;
+};
+
+
+#endif // GLOBALVARS_BASE_H

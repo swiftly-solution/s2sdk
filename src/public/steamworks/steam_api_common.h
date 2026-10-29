@@ -138,11 +138,11 @@ S_API void S_CALLTYPE SteamGameServer_RunCallbacks();
 class CCallbackBase
 {
 public:
-	CCallbackBase() { m_nCallbackFlags = 0; m_iCallback = 0; }
+	CCallbackBase();
 	// don't add a virtual destructor because we export this binary interface across dll's
 	virtual void Run( void *pvParam ) = 0;
 	virtual void Run( void *pvParam, bool bIOFailure, SteamAPICall_t hSteamAPICall ) = 0;
-	int GetICallback() { return m_iCallback; }
+	int GetICallback();
 	virtual int GetCallbackSizeBytes() = 0;
 
 protected:

@@ -11,28 +11,13 @@
 
 typedef uint32_t CRC32_t;
 
-inline void CRC32_Init( CRC32_t *pulCRC )
-{
-	*pulCRC = CRC32_INIT_VALUE;
-}
+void CRC32_Init( CRC32_t *pulCRC );
 
-inline void CRC32_Final( CRC32_t *pulCRC )
-{
-	*pulCRC ^= CRC32_XOR_VALUE;
-}
+void CRC32_Final( CRC32_t *pulCRC );
 
 PLATFORM_INTERFACE void CRC32_ProcessBuffer( CRC32_t *pulCRC, const void *p, int len );
 PLATFORM_INTERFACE CRC32_t CRC32_GetTableEntry( unsigned int slot );
 
-inline CRC32_t CRC32_ProcessSingleBuffer( const void *p, int len )
-{
-	CRC32_t crc;
-
-	CRC32_Init( &crc );
-	CRC32_ProcessBuffer( &crc, p, len );
-	CRC32_Final( &crc );
-
-	return crc;
-}
+CRC32_t CRC32_ProcessSingleBuffer( const void *p, int len );
 
 #endif

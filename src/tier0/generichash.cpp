@@ -1,5 +1,7 @@
 #include "public/tier0/generichash.h"
 
+#include <string.h>
+
 using namespace generichash_detail;
 
 static const unsigned char* Bytes(const void* p) { return static_cast<const unsigned char*>(p); }
@@ -37,4 +39,14 @@ uint64_t MurmurHash64(const void* data, size_t len, uint32_t seed)
 uint64_t MurmurHash64CaseInsensitive(const void* data, size_t len, uint32_t seed)
 {
 	return Hash64<true>(Bytes(data), len, seed);
+}
+
+uint32_t HashString( const char *pszKey )
+{
+	return MurmurHash2( pszKey, (int)strlen( pszKey ), 0x3501A674 );
+}
+
+uint32_t HashStringCaseless( const char *pszKey )
+{
+	return MurmurHash2LowerCase( pszKey, (int)strlen( pszKey ), 0x3501A674 );
 }

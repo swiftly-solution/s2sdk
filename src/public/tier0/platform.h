@@ -49,6 +49,11 @@ PLATFORM_INTERFACE const char *		Plat_GetGameDirectory( int unknown=0 );
 #define SwapLong( val )				BigLong( val )
 #define SwapDWord( val )			BigDWord( val )
 
+uint32_t LoadLittleDWord( const uint32_t *base, unsigned int dwordIndex );
+void StoreLittleDWord( uint32_t *base, unsigned int dwordIndex, uint32_t dword );
+uint64_t CastPtrToUint64( const void* p );
+int64_t CastPtrToInt64( const void* p );
+
 // Pass floats by pointer for swapping to avoid truncation in the fpu
 #define BigFloat( pOut, pIn )		SafeSwapFloat( pOut, pIn )
 #define LittleFloat( pOut, pIn )	( *pOut = *pIn )
@@ -129,5 +134,115 @@ PLATFORM_INTERFACE int			V_tier0_memcmp( const void *m1, const void *m2, size_t 
 #define V_memcpy(dest, src, count)		V_tier0_memcpy		((dest), (src), (count))
 #define V_memmove(dest, src, count)		V_tier0_memmove		((dest), (src), (count))
 #define V_memcmp(m1, m2, count)			V_tier0_memcmp		((m1), (m2), (count))
+#define Q_memcmp				V_memcmp
+
+PLATFORM_INTERFACE uint64 Plat_CPUTickFrequency();
+PLATFORM_INTERFACE void Plat_Printf( const tchar *pFmt, ... ) FMTFUNCTION( 1, 2 );
 
 #endif
+
+#define Plat_MessageBox( ... ) ((void)0)
+
+//-----------------------------------------------------------------------------
+// What OS version are we?
+//-----------------------------------------------------------------------------
+enum EOSType
+{
+	k_eIOSUnknown = -600,
+
+	k_eAndroidUnknown = -500,
+
+	k_eAndroid50,
+	k_eAndroid51,
+	k_eAndroid60,
+	k_eAndroid70,
+	k_eAndroid711,
+	k_eAndroid8,
+	k_eAndroid8MR1,
+	k_eAndroid9,
+	k_eAndroid10,
+
+	k_eAndroidMax,
+
+	k_eOSUMQ = -400,
+
+	k_eOSPS3 = -300,
+
+	k_eLinuxUnknown = -203,
+
+	k_eLinux22,
+	k_eLinux24,
+	k_eLinux26,
+	k_eLinux32,
+	k_eLinux35,
+	k_eLinux36,
+	k_eLinux310,
+	k_eLinux40,
+	k_eLinux45,
+	k_eLinux418,
+	k_eLinux50,
+
+	k_eLinuxMax,
+
+	k_eMacOSUnknown = -102,
+
+	k_eMacOS104,
+	k_eMacOS105,
+	k_eMacOS1058,
+	k_eMacOS106 = -95,
+	k_eMacOS1063,
+	k_eMacOS1064_slgu,
+	k_eMacOS1067,
+	k_eMacOS107 = -90,
+	k_eMacOS108,
+	k_eMacOS109,
+	k_eMacOS1010,
+	k_eMacOS1011,
+	k_eMacOS1012,
+	k_eMacOS1013,
+	k_eMacOS1014,
+	k_eMacOS1015,
+	k_eMacOS1016,
+	k_eMacOS11,
+	k_eMacOS111,
+	k_eMacOS1017,
+	k_eMacOS12,
+	k_eMacOS1018,
+	k_eMacOS13,
+	k_eMacOS14,
+	k_eMacOS15,
+
+	k_eMacOSMax,
+
+	k_eWinUnknown = 0,
+
+	k_eWin311,
+	k_eWin95,
+	k_eWin98,
+	k_eWinME,
+	k_eWinNT,
+	k_eWin2000,
+	k_eWinXP,
+	k_eWin2003,
+	k_eWinVista,
+	k_eWin2008,
+	k_eWindows7,
+	k_eWin2008R2,
+	k_eWin2012,
+	k_eWindows8,
+	k_eWindows81,
+	k_eWin2012R2,
+	k_eWindows10,
+	k_eWin2016,
+	k_eWin2019,
+	k_eWin2022,
+	k_eWindows11,
+
+	k_eWinMAX,
+
+	k_eOSUnknown = -1
+};
+
+PLATFORM_INTERFACE EOSType Plat_GetOSType();
+PLATFORM_INTERFACE bool Plat_GetOSDescriptionString(char *buf, size_t size);
+PLATFORM_INTERFACE const char *GetNameFromOSType( EOSType type );

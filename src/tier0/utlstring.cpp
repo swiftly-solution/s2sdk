@@ -92,3 +92,24 @@ int __cdecl CUtlString::SortCaseSensitive( const CUtlString *pString1, const CUt
 {
 	return V_strcmp( pString1->String(), pString2->String() );
 }
+
+bool CUtlString::operator!=(const CUtlString &src) const
+{ return !operator==(src); }
+
+bool CUtlString::operator!=(const CBufferString &src) const
+{ return !operator==(src); }
+
+CUtlString::operator const char *() const
+{ return Get(); }
+
+const char * CUtlString::String() const
+{ return Get(); }
+
+void CUtlString:: Clear()
+{ Purge(); }
+
+bool  UtlStringLessFunc( const CUtlString &lhs, const CUtlString &rhs )
+{ return V_strcmp( lhs.Get(), rhs.Get() ) < 0; }
+
+bool  UtlStringCaseInsensitiveLessFunc( const CUtlString &lhs, const CUtlString &rhs )
+{ return V_stricmp( lhs.Get(), rhs.Get() ) < 0; }

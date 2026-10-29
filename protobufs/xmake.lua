@@ -39,9 +39,11 @@ target("protobuf")
     add_includedirs(path.join(pb_dir, "src"), {public = true})
 
     if is_plat("windows") then
-        add_cxflags("/w", "/EHsc", "/utf-8", "/bigobj", {force = true})
+        add_cxflags("/w", "/EHsc", "/utf-8", "/bigobj", "/Gy", "/Gw", "/Zc:inline", {force = true})
+        add_ldflags("/OPT:REF", "/OPT:ICF", {public = true, force = true})
     else
-        add_cxflags("-w", "-fPIC", {force = true})
+        add_cxflags("-w", "-fPIC", "-ffunction-sections", "-fdata-sections", {force = true})
+        add_ldflags("-Wl,--gc-sections", {public = true, force = true})
         add_defines("_GLIBCXX_USE_CXX11_ABI=0", {public = true})
     end
 
@@ -96,8 +98,14 @@ target("protos")
     end)
 
     if is_plat("windows") then
-        add_cxflags("/w", "/EHsc", "/utf-8", "/bigobj", {force = true})
+        add_cxflags("/w", "/EHsc", "/utf-8", "/bigobj", "/Gy", "/Gw", "/Zc:inline", {force = true})
+        add_ldflags("/OPT:REF", "/OPT:ICF", {public = true, force = true})
     else
-        add_cxflags("-w", "-fPIC", {force = true})
+        add_cxflags("-w", "-fPIC", "-ffunction-sections", "-fdata-sections", {force = true})
+        add_ldflags("-Wl,--gc-sections", {public = true, force = true})
     end
+
+    set_optimize("fastest")
+    set_strip("all")
+    set_symbols("none")
 target_end()

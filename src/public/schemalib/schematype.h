@@ -55,33 +55,33 @@ uint32_t CSchemaType_Hash( const char *pString, int len );
 class CSchemaType
 {
 public:
-	virtual bool IsValid() { return false; }
-	virtual const char *ToString( CBufferString &buff, bool bDontClearBuff ) { return ""; }
-	virtual void SpewDescription( LoggingChannelID_t channelID, const char *pszName ) {}
-	virtual bool GetSizeAndAlignment( int &nSize, uint8_t &nAlignment ) { return false; }
-	virtual bool CanReinterpretAs( const CSchemaType *pType ) { return false; }
-	virtual SchemaMetaInfoHandle_t<CSchemaType> GetInnerType() { return nullptr; }
-	virtual SchemaMetaInfoHandle_t<CSchemaType> GetInnermostType() { return nullptr; }
+	virtual bool IsValid();
+	virtual const char *ToString( CBufferString &buff, bool bDontClearBuff );
+	virtual void SpewDescription( LoggingChannelID_t channelID, const char *pszName );
+	virtual bool GetSizeAndAlignment( int &nSize, uint8_t &nAlignment );
+	virtual bool CanReinterpretAs( const CSchemaType *pType );
+	virtual SchemaMetaInfoHandle_t<CSchemaType> GetInnerType();
+	virtual SchemaMetaInfoHandle_t<CSchemaType> GetInnermostType();
 
 	// Returns true if pType is this object
-	virtual bool IsA( const CSchemaType *pType ) { return false; }
-	virtual CSchemaType *InternalMatchInnerAs( SchemaTypeCategory_t eTypeCategory, SchemaAtomicCategory_t eAtomicCategory ) { return nullptr; }
+	virtual bool IsA( const CSchemaType *pType );
+	virtual CSchemaType *InternalMatchInnerAs( SchemaTypeCategory_t eTypeCategory, SchemaAtomicCategory_t eAtomicCategory );
 
 	// Returns true if this type matches pType type traits
-	virtual bool IsTypeByType( const CSchemaType *pType ) { return false; }
+	virtual bool IsTypeByType( const CSchemaType *pType );
 	// Returns true if this type name matches szName
-	virtual bool IsTypeByName( const char *szName ) { return false; }
+	virtual bool IsTypeByName( const char *szName );
 
 	// Returns true if this type is builtin and matches eType
-	virtual bool IsBuiltinType( SchemaBuiltinType_t eType ) { return false; }
+	virtual bool IsBuiltinType( SchemaBuiltinType_t eType );
 	// Returns true if this type is atomic and matches nAtomicID
-	virtual bool IsAtomicType( int nAtomicID ) { return false; }
+	virtual bool IsAtomicType( int nAtomicID );
 	// Returns true if this type is declared class and matches szClassName
-	virtual bool IsDeclaredClass( const char *szClassName ) { return false; }
+	virtual bool IsDeclaredClass( const char *szClassName );
 	// Returns true if this type is declared enum and matches szEnumName
-	virtual bool IsDeclaredEnum( const char *szEnumName ) { return false; };
+	virtual bool IsDeclaredEnum( const char *szEnumName );
 
-	virtual bool DependsOnlyOnUnresolvedOrGlobalTypes( ISchemaSystemTypeScope *pTypeScope ) { return false; };
+	virtual bool DependsOnlyOnUnresolvedOrGlobalTypes( ISchemaSystemTypeScope *pTypeScope );
 
 	virtual ~CSchemaType() = 0;
 

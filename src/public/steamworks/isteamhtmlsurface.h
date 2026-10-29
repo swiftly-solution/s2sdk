@@ -21,7 +21,7 @@ const uint32 INVALID_HTMLBROWSER = 0;
 class ISteamHTMLSurface
 {
 public:
-	virtual ~ISteamHTMLSurface() {}
+	virtual ~ISteamHTMLSurface();
 
 	// Must call init and shutdown when starting/ending use of the interface
 	virtual bool Init() = 0;

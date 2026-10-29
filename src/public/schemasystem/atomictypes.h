@@ -29,16 +29,7 @@ public:
 
 struct AtomicTypeInfo_T_t
 {
-	bool operator<( const AtomicTypeInfo_T_t& rhs ) const 
-	{ 
-		if ( m_nAtomicID != rhs.m_nAtomicID )
-			return m_nAtomicID < rhs.m_nAtomicID;
-		
-		if ( m_pTemplateType != rhs.m_pTemplateType )
-			return m_pTemplateType < rhs.m_pTemplateType;
-		
-		return (void *)m_pfnManipulator < (void *)rhs.m_pfnManipulator;
-	}
+	bool operator<( const AtomicTypeInfo_T_t& rhs ) const;
 	
 	int m_nAtomicID;
 	CSchemaType* m_pTemplateType;
@@ -47,19 +38,7 @@ struct AtomicTypeInfo_T_t
 
 struct AtomicTypeInfo_CollectionOfT_t
 {
-	bool operator<( const AtomicTypeInfo_CollectionOfT_t &rhs ) const
-	{
-		if(m_nAtomicID != rhs.m_nAtomicID)
-			return m_nAtomicID < rhs.m_nAtomicID;
-
-		if(m_pTemplateType != rhs.m_pTemplateType)
-			return m_pTemplateType < rhs.m_pTemplateType;
-
-		if(m_nFixedBufferCount != rhs.m_nFixedBufferCount)
-			return m_nFixedBufferCount < rhs.m_nFixedBufferCount;
-
-		return (void *)m_pfnManipulator < (void *)rhs.m_pfnManipulator;
-	}
+	bool operator<( const AtomicTypeInfo_CollectionOfT_t &rhs ) const;
 
 	int m_nAtomicID;
 	CSchemaType *m_pTemplateType;
@@ -69,16 +48,7 @@ struct AtomicTypeInfo_CollectionOfT_t
 
 struct AtomicTypeInfo_TT_t
 {
-	bool operator<( const AtomicTypeInfo_TT_t& rhs ) const 
-	{ 
-		if ( m_nAtomicID != rhs.m_nAtomicID )
-			return m_nAtomicID < rhs.m_nAtomicID;
-		
-		if ( m_pTemplateType != rhs.m_pTemplateType )
-			return m_pTemplateType < rhs.m_pTemplateType;
-		
-		return m_pTemplateType2 < rhs.m_pTemplateType2;
-	}
+	bool operator<( const AtomicTypeInfo_TT_t& rhs ) const;
 	
 	int m_nAtomicID;
 	CSchemaType* m_pTemplateType;
@@ -87,13 +57,7 @@ struct AtomicTypeInfo_TT_t
 
 struct AtomicTypeInfo_I_t
 {
-	bool operator<( const AtomicTypeInfo_I_t& rhs ) const 
-	{ 
-		if ( m_nAtomicID != rhs.m_nAtomicID )
-			return m_nAtomicID < rhs.m_nAtomicID;
-
-		return m_nInteger < rhs.m_nInteger;
-	}
+	bool operator<( const AtomicTypeInfo_I_t& rhs ) const;
 	
 	int m_nAtomicID;
 	int m_nInteger;
@@ -101,13 +65,7 @@ struct AtomicTypeInfo_I_t
 
 struct TypeAndCountInfo_t
 {
-	bool operator<( const TypeAndCountInfo_t& rhs ) const 
-	{ 
-		if ( m_nElementCount != rhs.m_nElementCount )
-			return m_nElementCount < rhs.m_nElementCount;
-		
-		return m_pElementType < rhs.m_pElementType;
-	}
+	bool operator<( const TypeAndCountInfo_t& rhs ) const;
 	
 	int m_nElementCount;
 	CSchemaType* m_pElementType;

@@ -60,3 +60,51 @@ bool FastCaselessStringLessThan( const char * const &lhs, const char * const &rh
 	if ( !rhs ) return true;
 	return ( V_stricmp_fast( lhs, rhs ) < 0 ); 
 }
+
+CDefStringLess::CDefStringLess()
+{}
+
+CDefStringLess::CDefStringLess( int i )
+{}
+
+bool CDefStringLess::operator()( const char * const &lhs, const char * const &rhs ) const
+{ return ( strcmp( lhs, rhs ) < 0 ); }
+
+bool CDefStringLess::operator!() const
+{ return false; }
+
+CDefCaselessStringLess::CDefCaselessStringLess()
+{}
+
+CDefCaselessStringLess::CDefCaselessStringLess( int i )
+{}
+
+bool CDefCaselessStringLess::operator()( const char * const &lhs, const char * const &rhs ) const
+{ return ( stricmp( lhs, rhs ) < 0 ); }
+
+bool CDefCaselessStringLess::operator!() const
+{ return false; }
+
+CDefFastCaselessStringLess::CDefFastCaselessStringLess()
+{}
+
+CDefFastCaselessStringLess::CDefFastCaselessStringLess( int i )
+{}
+
+bool CDefFastCaselessStringLess::operator()( const char * const &lhs, const char * const &rhs ) const
+{ return ( V_stricmp_fast( lhs, rhs ) < 0 ); }
+
+bool CDefFastCaselessStringLess::operator!() const
+{ return false; }
+
+CDefCaselessStringLessIgnoreSlashes::CDefCaselessStringLessIgnoreSlashes()
+{}
+
+CDefCaselessStringLessIgnoreSlashes::CDefCaselessStringLessIgnoreSlashes( int i )
+{}
+
+bool CDefCaselessStringLessIgnoreSlashes::operator()( const char * const &lhs, const char * const &rhs ) const
+{ return CaselessStringLessThanIgnoreSlashes( lhs, rhs ); }
+
+bool CDefCaselessStringLessIgnoreSlashes::operator!() const
+{ return false; }

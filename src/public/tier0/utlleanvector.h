@@ -7,6 +7,7 @@
 
 #include "platform.h"
 #include "rawallocator.h"
+#include "public/common.h"
 
 #include <type_traits>
 

@@ -34,3 +34,7 @@ size_t MemAlloc_GetSizeAligned( void *pMemBlock )
 {
     return g_pMemAlloc->GetSizeAligned(pMemBlock);
 }
+
+MemoryInfoState::MemoryInfoState( MemoryDebugType type, bool debug )
+: m_MemType( type ), m_bDebug( debug )
+{ }

@@ -33,11 +33,8 @@ PLATFORM_INTERFACE bool KeyValuesToJSON( KeyValues *kv, CUtlBuffer *buf );
 class CTemporaryKeyValues
 {
 public:
-	CTemporaryKeyValues() : m_pKeyValues( nullptr ), m_hScope() {}
-	~CTemporaryKeyValues()
-	{
-		KeyValuesSystem()->FreeTemporaryKeyValueAllocationScope( m_hScope );
-	}
+	CTemporaryKeyValues();
+	~CTemporaryKeyValues();
 
 private:
 	KeyValues *m_pKeyValues;
@@ -156,12 +153,12 @@ public:
 	class AutoDelete
 	{
 	public:
-		explicit inline AutoDelete( KeyValues *pKeyValues ) : m_pKeyValues( pKeyValues ) {}
-		explicit inline AutoDelete( const char *pchKVName ) : m_pKeyValues( new KeyValues( pchKVName ) ) {}
-		inline ~AutoDelete( void ) { if(m_pKeyValues) delete m_pKeyValues; }
-		inline void Assign( KeyValues *pKeyValues ) { m_pKeyValues = pKeyValues; }
-		KeyValues *operator->() { return m_pKeyValues; }
-		operator KeyValues *() { return m_pKeyValues; }
+		explicit AutoDelete( KeyValues *pKeyValues );
+		explicit AutoDelete( const char *pchKVName );
+		~AutoDelete( void );
+		void Assign( KeyValues *pKeyValues );
+		KeyValues *operator->();
+		operator KeyValues *();
 	private:
 		AutoDelete( AutoDelete const &x ); // forbid
 		AutoDelete &operator= ( AutoDelete const &x ); // forbid
@@ -178,9 +175,9 @@ public:
 	class AutoDeleteInline : public AutoDelete
 	{
 	public:
-		explicit inline AutoDeleteInline( KeyValues *pKeyValues ) : AutoDelete( pKeyValues ) {}
-		inline operator KeyValues *() const { return m_pKeyValues; }
-		inline KeyValues *Get() const { return m_pKeyValues; }
+		explicit AutoDeleteInline( KeyValues *pKeyValues );
+		operator KeyValues *() const;
+		KeyValues *Get() const;
 	};
 
 	// AMNOTE: Value names unknown, the constructor taking it doesn't read it
@@ -291,7 +288,7 @@ public:
 	const wchar_t *GetWString( const char *keyName = NULL, const wchar_t *defaultValue = L"", wchar_t *pszOut = NULL, size_t maxlen = 0 );
 	void *GetPtr( const char *keyName = NULL, void *defaultValue = (void *)0 ) const;
 	Color GetColor( const char *keyName = NULL, const Color &defaultColor = Color( 0, 0, 0, 0 ) ) const;
-	bool GetBool( const char *keyName = NULL, bool defaultValue = false ) const { return GetInt( keyName, defaultValue ? 1 : 0 ) ? true : false; }
+	bool GetBool( const char *keyName = NULL, bool defaultValue = false ) const;
 	bool IsEmpty( const char *keyName = NULL ) const;
 
 	// Data access
@@ -302,7 +299,7 @@ public:
 	const wchar_t *GetWString( HKeySymbol keySymbol, const wchar_t *defaultValue = L"", wchar_t *pszOut = NULL, size_t maxlen = 0 );
 	void *GetPtr( HKeySymbol keySymbol, void *defaultValue = (void *)0 );
 	Color GetColor( HKeySymbol keySymbol, const Color &defaultColor = Color( 0, 0, 0, 0 ) );
-	bool GetBool( HKeySymbol keySymbol, bool defaultValue = false ) { return GetInt( keySymbol, defaultValue ? 1 : 0 ) ? true : false; }
+	bool GetBool( HKeySymbol keySymbol, bool defaultValue = false );
 	bool IsEmpty( HKeySymbol keySymbol );
 
 	// Key writing
@@ -313,7 +310,7 @@ public:
 	void SetFloat( const char *keyName, float value );
 	void SetPtr( const char *keyName, void *value );
 	void SetColor( const char *keyName, Color value );
-	void SetBool( const char *keyName, bool value ) { SetInt( keyName, value ? 1 : 0 ); }
+	void SetBool( const char *keyName, bool value );
 
 	// Adds key value pair
 	void AddString( const char *keyName, const char *value );
@@ -439,7 +436,7 @@ class CKeyValuesDumpContextAsDevMsg : public IKeyValuesDumpContextAsText
 {
 public:
 	// Overrides developer level to dump in DevMsg, zero to dump as Msg
-	CKeyValuesDumpContextAsDevMsg( int nDeveloperLevel = 1 ) : m_nDeveloperLevel( nDeveloperLevel ) {}
+	CKeyValuesDumpContextAsDevMsg( int nDeveloperLevel = 1 );
 
 public:
 	virtual bool KvBeginKey( KeyValues *pKey, int nIndentLevel );
