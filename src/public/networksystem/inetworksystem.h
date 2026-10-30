@@ -12,7 +12,7 @@
 #include "inetchannel.h"
 #include "inetworkserializer.h"
 
-class SteamNetworkingMessage_t;
+struct SteamNetworkingMessage_t;
 class INetPacketMemoryCustomAlloc;
 class CPeerToPeerAddress;
 class NetScratchBuffer_t;

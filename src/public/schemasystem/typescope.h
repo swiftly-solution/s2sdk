@@ -22,7 +22,7 @@ class CSchemaType_DeclaredClass;
 class CSchemaType_DeclaredEnum;
 class CSchemaType_FixedArray;
 class CSchemaType_Bitfield;
-class SchemaAtomicTypeInfo_t;
+struct SchemaAtomicTypeInfo_t;
 
 enum SchemaBuiltinType_t
 {

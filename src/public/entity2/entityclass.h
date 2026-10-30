@@ -16,7 +16,7 @@ class CPulseAPIExtensionRegistrationContext;
 class EntInput_t;
 class CEntitySharedPulseSignature;
 class CEntityComponentHelper;
-class EntOutput_t;
+struct EntOutput_t;
 
 enum EntityClassFlags_t
 {

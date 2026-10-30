@@ -18,7 +18,7 @@
 
 #include <memory>
 
-class NetMessageInfo_t;
+struct NetMessageInfo_t;
 class CCheckTransmitInfo;
 class CEntityInstance;
 class CNetworkSerializerClassInfo;
