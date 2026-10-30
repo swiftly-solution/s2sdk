@@ -60,9 +60,11 @@ private:
 public:
 	static IGameSystem* GetGlobalPtrByName(const char* pName);
 
-	// AMNOTE: This needs to be provided by a thirdparty application,
+	// AMNOTE: This needs to be provided by a thirdparty application via SetFirstPtr,
 	// and is required if you want to register your own gamesystem
 	static CBaseGameSystemFactory** sm_pFirst;
+
+	static void SetFirstPtr(CBaseGameSystemFactory** ppFirst);
 };
 
 template <class T, class U = T>

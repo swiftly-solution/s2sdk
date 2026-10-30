@@ -1,5 +1,12 @@
 #include "public/game/igamesystemfactory.h"
 
+CBaseGameSystemFactory** CBaseGameSystemFactory::sm_pFirst = nullptr;
+
+void CBaseGameSystemFactory::SetFirstPtr(CBaseGameSystemFactory** ppFirst)
+{
+	sm_pFirst = ppFirst;
+}
+
 CBaseGameSystemFactory::CBaseGameSystemFactory(const char* pName)
 {
 	m_pName = pName;
