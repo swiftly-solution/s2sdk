@@ -26,9 +26,9 @@ enum ResourceBindingFlags_t
 struct ResourceId_t
 {
 	ResourceId_t();
-	ResourceId_t( uint64_t nValue );
+	ResourceId_t( uint64 nValue );
 
-	uint64_t m_Value;
+	uint64 m_Value;
 };
 
 struct ResourceNameInfo_t
@@ -58,7 +58,7 @@ struct ResourceBindingBase_t
 
 typedef const ResourceBindingBase_t* ResourceHandle_t;
 typedef void* HGameResourceManifest;
-typedef uint64_t ResourceType_t;
+typedef uint64 ResourceType_t;
 
 class CResourceName
 {

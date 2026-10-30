@@ -1,5 +1,8 @@
 #include "public/tier0/bitvec.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "public/tier0/memdbgon.h"
+
 int FirstBitInWord( unsigned int elem, int offset )
 {
 #if _WIN32

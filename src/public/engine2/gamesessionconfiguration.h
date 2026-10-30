@@ -6,7 +6,7 @@
 #endif
 
 #include "networkbasetypes.pb.h"
-#include "public/networksystem/keyvalues.h"
+#include "public/networksystem/netmessages.h"
 
 class GameSessionConfiguration_t : public CBaseCmdKeyValues<CSVCMsg_GameSessionConfiguration>
 {

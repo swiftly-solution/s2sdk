@@ -17,6 +17,8 @@
 #include "public/mathlib/mathlib.h"
 #include <type_traits>
 
+#include "public/tier0/memdbgon.h"
+
 //-----------------------------------------------------------------------------
 //
 //-----------------------------------------------------------------------------
@@ -343,5 +345,7 @@ unsigned CUtlHashDict<T, bCaseInsensitive, bDupeStrings>::Next( unsigned i ) con
 {
 	return m_Elements.GetNextHandle(i);
 }
+
+#include "public/tier0/memdbgoff.h"
 
 #endif // UTLHASHDICT_H

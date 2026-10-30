@@ -14,6 +14,8 @@
 #include "utlleanvector.h"
 #include "public/mathlib/mathlib.h"
 
+#include "public/tier0/memdbgon.h"
+
 enum MemoryPoolGrowType_t
 {
 	UTLMEMORYPOOL_GROW_NONE=0,	// Don't allow new blobs.
@@ -955,5 +957,7 @@ public:
 private:
 	unsigned char m_initialAllocationMemory[SIZE];
 };
+
+#include "public/tier0/memdbgoff.h"
 
 #endif

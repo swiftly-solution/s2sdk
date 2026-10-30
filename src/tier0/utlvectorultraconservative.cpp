@@ -1,5 +1,8 @@
 #include "public/tier0/utlvectorultraconservative.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "public/tier0/memdbgon.h"
+
 void * CUtlVectorUltraConservativeAllocator::Alloc( size_t nSize )
 {
 	return malloc( nSize );

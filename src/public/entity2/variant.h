@@ -149,8 +149,8 @@ public:
 	CVariantBase( uint16_t val ) :			m_type( FIELD_UINT16 ), m_flags( 0 )		{ m_uint16 = val;}
 	CVariantBase( int32_t val ) :				m_type( FIELD_INT32 ), m_flags( 0 )			{ m_int32 = val;}
 	CVariantBase( uint32_t val) :				m_type( FIELD_UINT32 ), m_flags( 0 )		{ m_uint32 = val; }
-	CVariantBase( int64_t val ) :				m_type( FIELD_INT64 ), m_flags( 0 )			{ m_int64 = val; }
-	CVariantBase( uint64_t val ) :			m_type( FIELD_UINT64), m_flags( 0 )			{ m_uint64 = val; }
+	CVariantBase( int64 val ) :				m_type( FIELD_INT64 ), m_flags( 0 )			{ m_int64 = val; }
+	CVariantBase( uint64 val ) :			m_type( FIELD_UINT64), m_flags( 0 )			{ m_uint64 = val; }
 	CVariantBase( float val ) :			m_type( FIELD_FLOAT32 ), m_flags( 0 )		{ m_float32 = val; }
 	CVariantBase( double val ) :			m_type( FIELD_FLOAT64 ), m_flags( 0 )		{ m_float64 = val; }
 	CVariantBase( char val ) :				m_type( FIELD_CHARACTER ), m_flags( 0 )		{ m_char = val; }
@@ -187,8 +187,8 @@ public:
 	operator uint16_t() const					{ Assert( m_type == FIELD_UINT16 );			return m_uint16; }
 	operator int32_t() const					{ Assert( m_type == FIELD_INT32 );			return m_int32; }
 	operator uint32_t() const					{ Assert( m_type == FIELD_UINT32 );			return m_uint32; }
-	operator int64_t() const					{ Assert( m_type == FIELD_INT64);			return m_int64; }
-	operator uint64_t() const					{ Assert( m_type == FIELD_UINT64);			return m_uint64; }
+	operator int64() const					{ Assert( m_type == FIELD_INT64);			return m_int64; }
+	operator uint64() const					{ Assert( m_type == FIELD_UINT64);			return m_uint64; }
 	operator float() const				        { Assert( m_type == FIELD_FLOAT32 );		return m_float32; }
 	operator double() const				        { Assert( m_type == FIELD_FLOAT64 );		return m_float64; }
 	operator const CUtlString() const			{ Assert( m_type == FIELD_STRING );			return m_stringt; }
@@ -212,8 +212,8 @@ public:
 	void operator=( uint16_t i ) 				{ Free(); m_type = FIELD_UINT16; m_uint16 = i; }
 	void operator=( int32_t i ) 				{ Free(); m_type = FIELD_INT32; m_int32 = i; }
 	void operator=( uint32_t u )				{ Free(); m_type = FIELD_UINT32; m_uint32 = u; }
-	void operator=( int64_t i ) 				{ Free(); m_type = FIELD_INT64; m_int64 = i; }
-	void operator=( uint64_t u )				{ Free(); m_type = FIELD_UINT64; m_uint64 = u; }
+	void operator=( int64 i ) 				{ Free(); m_type = FIELD_INT64; m_int64 = i; }
+	void operator=( uint64 u )				{ Free(); m_type = FIELD_UINT64; m_uint64 = u; }
 	void operator=( float f ) 			{ Free(); m_type = FIELD_FLOAT32; m_float32 = f; }
 	void operator=( double d )				{ Free(); m_type = FIELD_FLOAT64; m_float64 = d; }
 	void operator=( const Vector &vec )		{ CopyData( vec ); }
@@ -301,8 +301,8 @@ private:
 		uint16_t m_uint16;
 		int32_t m_int32;
 		uint32_t m_uint32;
-		int64_t m_int64;
-		uint64_t m_uint64;
+		int64 m_int64;
+		uint64 m_uint64;
 		float m_float32;
 		double m_float64;
 		const char *m_pszString;
@@ -366,8 +366,8 @@ DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_INT16, int16_t );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_UINT16, uint16_t );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_INT32, int32_t );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_UINT32, uint32_t );
-DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_INT64, int64_t );
-DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_UINT64, uint64_t );
+DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_INT64, int64 );
+DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_UINT64, uint64 );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_HSCRIPT, HSCRIPT );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_EHANDLE, CEntityHandle );
 DECLARE_DEDUCE_VARIANT_FIELDTYPE( FIELD_RESOURCE, ResourceHandle_t );
@@ -405,8 +405,8 @@ DECLARE_NAMED_VARIANT_FIELDTYPE( int16_t, "int16" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( uint16_t, "uint16" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( int32_t, "int32" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( uint32_t, "uint32" );
-DECLARE_NAMED_VARIANT_FIELDTYPE( int64_t, "int64" );
-DECLARE_NAMED_VARIANT_FIELDTYPE( uint64_t, "uint64" );
+DECLARE_NAMED_VARIANT_FIELDTYPE( int64, "int64" );
+DECLARE_NAMED_VARIANT_FIELDTYPE( uint64, "uint64" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( float, "float32" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( double, "float64" );
 DECLARE_NAMED_VARIANT_FIELDTYPE( HSCRIPT, "hscript" );
@@ -691,14 +691,14 @@ inline bool CVariantBase<CValueAllocator>::AssignTo( CUtlString *pDest ) const
 {
 	if(m_type == FIELD_STRING)
 	{
-		pDest.Set(m_stringt.Get());
+		pDest->Set(m_stringt.Get());
 		return true;
 	}
 	else if(m_type == FIELD_CSTRING)
 	{
 		if(m_pszString)
 		{
-			pDest.Set(m_pszString);
+			pDest->Set(m_pszString);
 			return true;
 		}
 	}
@@ -1117,8 +1117,8 @@ inline void CVariantBase<CValueAllocator>::Set( fieldtype_t ftype, void *pData )
 		case FIELD_UINT16:			CopyData( *(uint16_t *)pData, false ); return;
 		case FIELD_INT32:			CopyData( *(int32_t *)pData, false ); return;
 		case FIELD_UINT32:			CopyData( *(uint32_t *)pData, false ); return;
-		case FIELD_INT64:			CopyData( *(int64_t *)pData, false ); return;
-		case FIELD_UINT64:			CopyData( *(uint64_t *)pData, false ); return;
+		case FIELD_INT64:			CopyData( *(int64 *)pData, false ); return;
+		case FIELD_UINT64:			CopyData( *(uint64 *)pData, false ); return;
 		case FIELD_BOOLEAN:			CopyData( *(bool *)pData, false ); return;
 		case FIELD_CHARACTER:		CopyData( *(char *)pData, false ); return;
 		case FIELD_STRING:			CopyData( *(CUtlString *)pData, false ); return;
@@ -1158,8 +1158,8 @@ inline bool CVariantBase<CValueAllocator>::Convert( fieldtype_t newType )
 		case FIELD_UINT16:			if((successful = AssignTo( (uint16_t *)&pData ))) { Set( newType, &pData ); } break;
 		case FIELD_INT32:			if((successful = AssignTo( (int32_t *)&pData ))) { Set( newType, &pData ); } break;
 		case FIELD_UINT32:			if((successful = AssignTo( (uint32_t *)&pData ))) { Set( newType, &pData ); } break;
-		case FIELD_INT64:			if((successful = AssignTo( (int64_t *)&pData ))) { Set( newType, &pData ); } break;
-		case FIELD_UINT64:			if((successful = AssignTo( (uint64_t *)&pData ))) { Set( newType, &pData ); } break;
+		case FIELD_INT64:			if((successful = AssignTo( (int64 *)&pData ))) { Set( newType, &pData ); } break;
+		case FIELD_UINT64:			if((successful = AssignTo( (uint64 *)&pData ))) { Set( newType, &pData ); } break;
 		case FIELD_BOOLEAN:			if((successful = AssignTo( (bool *)&pData ))) { Set( newType, &pData ); } break;
 		case FIELD_CHARACTER:		if((successful = AssignTo( (char *)&pData ))) { Set( newType, &pData ); } break;
 		case FIELD_STRING:			if((successful = AssignTo( (CUtlString *)&pData ))) { Set( newType, &pData ); } break;

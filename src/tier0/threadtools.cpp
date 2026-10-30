@@ -240,6 +240,42 @@ CThreadRWLock::CThreadRWLock()
 {
 }
 
+void CThreadRWLock::LockForWrite()
+{
+	// Spin instead of waiting on an event; simple and correct, revisit if contention shows up.
+	for (;;)
+	{
+		m_mutex.Lock( __FILE__, __LINE__ );
+		if ( m_nWriters == 0 && m_nActiveReaders == 0 )
+		{
+			m_nWriters++;
+			m_mutex.Unlock( __FILE__, __LINE__ );
+			return;
+		}
+		m_mutex.Unlock( __FILE__, __LINE__ );
+		ThreadPause();
+	}
+}
+
+void CThreadRWLock::UnlockWrite()
+{
+	m_mutex.Lock( __FILE__, __LINE__ );
+	m_nWriters--;
+	m_mutex.Unlock( __FILE__, __LINE__ );
+}
+
+void CThreadRWLock::WaitForRead()
+{
+	m_nPendingReaders++;
+	while ( m_nWriters != 0 )
+	{
+		m_mutex.Unlock( __FILE__, __LINE__ );
+		ThreadPause();
+		m_mutex.Lock( __FILE__, __LINE__ );
+	}
+	m_nPendingReaders--;
+}
+
 void CThreadRWLock::LockForRead()
 {
 	m_mutex.Lock( __FILE__, __LINE__ );

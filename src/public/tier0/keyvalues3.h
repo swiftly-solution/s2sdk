@@ -353,7 +353,7 @@ public:
 	// AMNOTE: Template is required to enforce compiler to pick the correct overload when inlining
 	// as otherwise non templated overload would always win the pick thus no const folding would happen
 	template <typename T, std::enable_if_t<std::is_same_v<T, const char *>, int> = 0>
-	inline CKV3MemberName( T pszString, UtlSymLargeId_t symid = UTL_INVAL_SYMBOL_LARGE ) : m_nHashCode( 0 ), m_SymId( symid ), m_pszString( "" )
+	inline CKV3MemberName( T pszString, UtlSymLargeId_t symid = UTL_INVAL_SYMBOL_LARGE ) : m_nHashCode( CUtlStringToken() ), m_SymId( symid ), m_pszString( "" )
 	{
 		if(!pszString || !pszString[0])
 			return;
@@ -437,8 +437,8 @@ public:
 	uint16_t GetUShort( uint16_t defaultValue = 0 ) const;
 	int32_t GetInt( int32_t defaultValue = 0 ) const;
 	uint32_t GetUInt( uint32_t defaultValue = 0 ) const;
-	int64_t GetInt64( int64_t defaultValue = 0 ) const;
-	uint64_t GetUInt64( uint64_t defaultValue = 0 ) const;
+	int64 GetInt64( int64 defaultValue = 0 ) const;
+	uint64 GetUInt64( uint64 defaultValue = 0 ) const;
 	float GetFloat( float defaultValue = 0.0f ) const;
 	double GetDouble( double defaultValue = 0.0 ) const;
 
@@ -451,8 +451,8 @@ public:
 	void SetUShort( uint16_t value );
 	void SetInt( int32_t value );
 	void SetUInt( uint32_t value );
-	void SetInt64( int64_t value );
-	void SetUInt64( uint64_t value );
+	void SetInt64( int64 value );
+	void SetUInt64( uint64 value );
 	void SetFloat( float value );
 	void SetDouble( double value );
 
@@ -1211,21 +1211,21 @@ template <> inline int16_t KeyValues3::FromString( int16_t defaultValue ) const	
 template <> inline uint16_t KeyValues3::FromString( uint16_t defaultValue ) const	{ return V_StringToUint16( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
 template <> inline int32_t KeyValues3::FromString( int32_t defaultValue ) const		{ return V_StringToInt32( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
 template <> inline uint32_t KeyValues3::FromString( uint32_t defaultValue ) const	{ return V_StringToUint32( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
-template <> inline int64_t KeyValues3::FromString( int64_t defaultValue ) const		{ return V_StringToInt64( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
-template <> inline uint64_t KeyValues3::FromString( uint64_t defaultValue ) const	{ return V_StringToUint64( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
+template <> inline int64 KeyValues3::FromString( int64 defaultValue ) const		{ return V_StringToInt64( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
+template <> inline uint64 KeyValues3::FromString( uint64 defaultValue ) const	{ return V_StringToUint64( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
 template <> inline float KeyValues3::FromString( float defaultValue ) const	{ return V_StringToFloat32( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
 template <> inline double KeyValues3::FromString( double defaultValue ) const	{ return V_StringToFloat64( GetString(), defaultValue, NULL, NULL, PARSING_FLAG_USE_PARTIAL_RESULT ); }
 
 template < typename T > inline void KeyValues3::SetDirect( T value ) { Assert( 0 ); }
 template <> inline void KeyValues3::SetDirect( bool value )		{ m_Data.m_Bool = value; }
-template <> inline void KeyValues3::SetDirect( int8_t value )		{ m_Data.m_Int = ( int64_t )value; }
-template <> inline void KeyValues3::SetDirect( uint8_t value )	{ m_Data.m_UInt = ( uint64_t )value; }
-template <> inline void KeyValues3::SetDirect( int16_t value )	{ m_Data.m_Int = ( int64_t )value; }
-template <> inline void KeyValues3::SetDirect( uint16_t value )	{ m_Data.m_UInt = ( uint64_t )value; }
-template <> inline void KeyValues3::SetDirect( int32_t value )	{ m_Data.m_Int = ( int64_t )value; }
-template <> inline void KeyValues3::SetDirect( uint32_t value )	{ m_Data.m_UInt = ( uint64_t )value; }
-template <> inline void KeyValues3::SetDirect( int64_t value )	{ m_Data.m_Int = value; }
-template <> inline void KeyValues3::SetDirect( uint64_t value )	{ m_Data.m_UInt = value; }
+template <> inline void KeyValues3::SetDirect( int8_t value )		{ m_Data.m_Int = ( int64 )value; }
+template <> inline void KeyValues3::SetDirect( uint8_t value )	{ m_Data.m_UInt = ( uint64 )value; }
+template <> inline void KeyValues3::SetDirect( int16_t value )	{ m_Data.m_Int = ( int64 )value; }
+template <> inline void KeyValues3::SetDirect( uint16_t value )	{ m_Data.m_UInt = ( uint64 )value; }
+template <> inline void KeyValues3::SetDirect( int32_t value )	{ m_Data.m_Int = ( int64 )value; }
+template <> inline void KeyValues3::SetDirect( uint32_t value )	{ m_Data.m_UInt = ( uint64 )value; }
+template <> inline void KeyValues3::SetDirect( int64 value )	{ m_Data.m_Int = value; }
+template <> inline void KeyValues3::SetDirect( uint64 value )	{ m_Data.m_UInt = value; }
 template <> inline void KeyValues3::SetDirect( float value )	{ m_Data.m_Double = ( double )value; }
 template <> inline void KeyValues3::SetDirect( double value )	{ m_Data.m_Double = value; }
 

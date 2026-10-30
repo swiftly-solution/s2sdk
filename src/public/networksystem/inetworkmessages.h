@@ -70,7 +70,7 @@ private:
 	int m_nInSequenceNr;
 	float m_flMargin;
 	// NetPacket_t::m_nStreamPosition of the packet it was parsed from
-	int64_t m_nStreamPosition;
+	int64 m_nStreamPosition;
 };
 
 template<typename PROTO_TYPE>

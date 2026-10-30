@@ -38,10 +38,10 @@ IAsyncFileSystem2::IReadRequestBuilder::This * IAsyncFileSystem2::IReadRequestBu
 size_t IAsyncFileSystem2::IReadRequestBuilder::GetReadBytes() const
 { return m_nReadBytes; }
 
-IAsyncFileSystem2::IReadRequestBuilder::This * IAsyncFileSystem2::IReadRequestBuilder::SetReadOffset( int64_t nReadOffset )
+IAsyncFileSystem2::IReadRequestBuilder::This * IAsyncFileSystem2::IReadRequestBuilder::SetReadOffset( int64 nReadOffset )
 { m_nReadOffset = nReadOffset; return this; }
 
-int64_t IAsyncFileSystem2::IReadRequestBuilder::GetReadOffset() const
+int64 IAsyncFileSystem2::IReadRequestBuilder::GetReadOffset() const
 { return m_nReadOffset; }
 
 IAsyncFileSystem2::IReadRequestBuilder::This * IAsyncFileSystem2::IReadRequestBuilder::SetAllowMemoryMap( bool bAllowMemoryMap )

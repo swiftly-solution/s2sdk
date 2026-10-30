@@ -21,7 +21,7 @@ template <> inline const char *GetFmtStr< short >	( int nRadix, bool bPrint ) { 
 template <> inline const char *GetFmtStr< uint16_t >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return "%hu"; }
 template <> inline const char *GetFmtStr< int >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return "%d"; }
 template <> inline const char *GetFmtStr< uint32_t >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 || nRadix == 16 ); return nRadix == 16 ? "%x" : "%u"; }
-template <> inline const char *GetFmtStr< int64_t >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return "%lld"; }
+template <> inline const char *GetFmtStr< int64 >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return "%lld"; }
 template <> inline const char *GetFmtStr< float >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return "%f"; }
 template <> inline const char *GetFmtStr< double >	( int nRadix, bool bPrint ) { Assert( nRadix == 10 ); return bPrint ? "%.15lf" : "%lf"; }
 
@@ -130,7 +130,7 @@ public:
 	short			GetShort( );
 	unsigned short	GetUnsignedShort( );
 	int				GetInt( );
-	int64_t			GetInt64( );
+	int64			GetInt64( );
 	unsigned int	GetIntHex( );
 	unsigned int	GetUnsignedInt( );
 	float			GetFloat( );
@@ -207,7 +207,7 @@ public:
 	void			PutShort( short s );
 	void			PutUnsignedShort( unsigned short us );
 	void			PutInt( int i );
-	void			PutInt64( int64_t i );
+	void			PutInt64( int64 i );
 	void			PutUnsignedInt( unsigned int u );
 	void			PutFloat( float f );
 	void			PutDouble( double d );
@@ -364,6 +364,47 @@ protected:
 constexpr CUtlBuffer::BufferFlags_t operator|( const CUtlBuffer::BufferFlags_t f, const CUtlBuffer::BufferFlags_t v )
 {
 	return static_cast<CUtlBuffer::BufferFlags_t>(static_cast<int>(f) | static_cast<int>(v));
+}
+
+
+inline int CUtlBuffer::TellGet() const
+{
+	return m_Get;
+}
+
+inline const void* CUtlBuffer::Base() const
+{
+	return m_Memory.Base();
+}
+
+inline void* CUtlBuffer::Base()
+{
+	return m_Memory.Base();
+}
+
+inline bool CUtlBuffer::IsValid() const
+{
+	return m_Error == 0;
+}
+
+inline void CUtlBuffer::Clear()
+{
+	m_Get = 0;
+	m_Put = 0;
+	m_Error = 0;
+	m_nOffset = 0;
+	m_nMaxPut = -1;
+	AddNullTermination();
+}
+
+inline void CUtlBuffer::Purge()
+{
+	m_Get = 0;
+	m_Put = 0;
+	m_nOffset = 0;
+	m_nMaxPut = 0;
+	m_Error = 0;
+	m_Memory.Purge();
 }
 
 #endif

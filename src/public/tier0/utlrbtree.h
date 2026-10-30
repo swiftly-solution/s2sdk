@@ -10,6 +10,8 @@
 #include "utliterator.h"
 #include <string.h>
 #include <type_traits>
+#include <new>
+#include <utility>
 
 #define FOR_EACH_UTLRBTREE( treeName, iteratorName ) \
 	for ( auto iteratorName = treeName.FirstInorder(); iteratorName != treeName.InvalidIndex(); iteratorName = treeName.NextInorder( iteratorName ) )
@@ -366,5 +368,1180 @@ protected:
 	}
 };
 
+
+// Out-of-class member definitions
+
+template < class T, class I, typename L, class M > 
+inline CUtlRBTree<T, I, L, M>::~CUtlRBTree()
+{
+	Purge();
+}
+
+template < class T, class I, typename L, class M >
+inline void CUtlRBTree<T, I, L, M>::EnsureCapacity( int num )        
+{ 
+	m_Elements.EnsureCapacity( num );
+}
+
+template < class T, class I, typename L, class M >
+inline void CUtlRBTree<T, I, L, M>::CopyFrom( const CUtlRBTree<T, I, L, M> &other )
+{
+	Purge();
+	m_Elements.EnsureCapacity( other.m_Elements.Count() );
+	memcpy( m_Elements.Base(), other.m_Elements.Base(), other.m_Elements.Count() * sizeof( UtlRBTreeNode_t< T, I > ) );
+	LessFunc() = other.LessFunc();
+	m_Root = other.m_Root;
+	m_NumElements = other.m_NumElements;
+	m_FirstFree = other.m_FirstFree;
+}
+
+template < class T, class I, typename L, class M >
+inline T &CUtlRBTree<T, I, L, M>::Element( I i )        
+{ 
+	return m_Elements[i].m_Data; 
+}
+
+template < class T, class I, typename L, class M >
+inline T const &CUtlRBTree<T, I, L, M>::Element( I i ) const  
+{ 
+	return m_Elements[i].m_Data; 
+}
+
+template < class T, class I, typename L, class M >
+inline T &CUtlRBTree<T, I, L, M>::operator[]( I i )        
+{ 
+	return Element(i); 
+}
+
+template < class T, class I, typename L, class M >
+inline T const &CUtlRBTree<T, I, L, M>::operator[]( I i ) const  
+{ 
+	return Element(i); 
+}
+
+template < class T, class I, typename L, class M >
+inline	I  CUtlRBTree<T, I, L, M>::Root() const             
+{ 
+	return m_Root; 
+}
+
+template < class T, class I, typename L, class M >
+inline	I CUtlRBTree<T, I, L, M>::Count() const          
+{ 
+	return m_NumElements; 
+}
+
+template < class T, class I, typename L, class M >
+inline	I  CUtlRBTree<T, I, L, M>::MaxElement() const       
+{
+	return ( I )m_Elements.NumAllocated();
+}
+
+template < class T, class I, typename L, class M >
+inline	I CUtlRBTree<T, I, L, M>::Parent( I i ) const      
+{ 
+	return Links(i).m_Parent; 
+}
+
+template < class T, class I, typename L, class M >
+inline	I CUtlRBTree<T, I, L, M>::LeftChild( I i ) const   
+{ 
+	return Links(i).m_Left; 
+}
+
+template < class T, class I, typename L, class M >
+inline	I CUtlRBTree<T, I, L, M>::RightChild( I i ) const  
+{ 
+	return Links(i).m_Right; 
+}
+
+template < class T, class I, typename L, class M >
+inline	bool CUtlRBTree<T, I, L, M>::IsLeftChild( I i ) const 
+{ 
+	return LeftChild(Parent(i)) == i; 
+}
+
+template < class T, class I, typename L, class M >
+inline	bool CUtlRBTree<T, I, L, M>::IsRightChild( I i ) const
+{ 
+	return RightChild(Parent(i)) == i; 
+}
+
+template < class T, class I, typename L, class M >
+inline	bool CUtlRBTree<T, I, L, M>::IsRoot( I i ) const     
+{ 
+	return i == m_Root; 
+}
+
+template < class T, class I, typename L, class M >
+inline	bool CUtlRBTree<T, I, L, M>::IsLeaf( I i ) const     
+{ 
+	return (LeftChild(i) == InvalidIndex()) && (RightChild(i) == InvalidIndex()); 
+}
+
+template < class T, class I, typename L, class M >
+inline	bool CUtlRBTree<T, I, L, M>::IsValidIndex( I i ) const 
+{ 
+	if ( !m_Elements.IsIdxValid( i ) )
+		return false;
+
+	return LeftChild(i) != i; 
+}
+
+template < class T, class I, typename L, class M >
+inline I CUtlRBTree<T, I, L, M>::InvalidIndex()         
+{
+	return ( I )M::InvalidIndex();
+}
+
+template < class T, class I, typename L, class M >
+inline int CUtlRBTree<T, I, L, M>::Depth() const           
+{ 
+	return Depth(Root()); 
+}
+
+template < class T, class I, typename L, class M >
+inline void  CUtlRBTree<T, I, L, M>::SetParent( I i, I parent )       
+{ 
+	Links(i).m_Parent = parent; 
+}
+
+template < class T, class I, typename L, class M >
+inline void  CUtlRBTree<T, I, L, M>::SetLeftChild( I i, I child  )    
+{ 
+	Links(i).m_Left = child; 
+}
+
+template < class T, class I, typename L, class M >
+inline void  CUtlRBTree<T, I, L, M>::SetRightChild( I i, I child  )   
+{ 
+	Links(i).m_Right = child; 
+}
+
+template < class T, class I, typename L, class M >
+inline typename CUtlRBTree<T, I, L, M>::Links_t const &CUtlRBTree<T, I, L, M>::Links( I i ) const 
+{
+	// Sentinel node, makes life easier
+	static Links_t s_Sentinel = 
+	{ 
+		InvalidIndex(), InvalidIndex(), InvalidIndex(), CUtlRBTree<T, I, L, M>::BLACK 
+	};
+
+	return (i != InvalidIndex()) ? *(Links_t*)&m_Elements[i] : *(Links_t*)&s_Sentinel;
+}
+
+template < class T, class I, typename L, class M >
+inline typename CUtlRBTree<T, I, L, M>::Links_t &CUtlRBTree<T, I, L, M>::Links( I i )       
+{ 
+	Assert(i != InvalidIndex()); 
+	return *(Links_t *)&m_Elements[i];
+}
+
+template < class T, class I, typename L, class M >
+inline bool CUtlRBTree<T, I, L, M>::IsRed( I i ) const                
+{ 
+	return (Links(i).m_Tag == RED); 
+}
+
+template < class T, class I, typename L, class M >
+inline bool CUtlRBTree<T, I, L, M>::IsBlack( I i ) const             
+{ 
+	return (Links(i).m_Tag == BLACK); 
+}
+
+template < class T, class I, typename L, class M >
+inline typename CUtlRBTree<T, I, L, M>::NodeColor_t  CUtlRBTree<T, I, L, M>::Color( I i ) const            
+{ 
+	return (NodeColor_t)Links(i).m_Tag; 
+}
+
+template < class T, class I, typename L, class M >
+inline void CUtlRBTree<T, I, L, M>::SetColor( I i, typename CUtlRBTree<T, I, L, M>::NodeColor_t c ) 
+{ 
+	Links(i).m_Tag = (I)c; 
+}
+
+template < class T, class I, typename L, class M >
+I  CUtlRBTree<T, I, L, M>::NewNode( bool bConstructElement )
+{
+	I elem;
+
+	// Nothing in the free list; add.
+	if ( m_FirstFree == InvalidIndex() )
+	{
+
+		MEM_ALLOC_CREDIT_CLASS();
+		elem = m_Elements.AddToTail();
+
+	}
+	else
+	{
+		elem = m_FirstFree;
+		m_FirstFree = Links( m_FirstFree ).m_Right;
+	}
+
+#ifdef _DEBUG
+	// reset links to invalid....
+	Links_t &node = Links( elem );
+	node.m_Left = node.m_Right = node.m_Parent = InvalidIndex();
+#endif
+
+	if ( bConstructElement )
+		Construct( &Element( elem ) );
+
+	return elem;
+}
+
+template < class T, class I, typename L, class M >
+void  CUtlRBTree<T, I, L, M>::FreeNode( I i )
+{
+	Assert( IsValidIndex(i) && (i != InvalidIndex()) );
+	Destruct( &Element(i) );
+	SetLeftChild( i, i ); // indicates it's in not in the tree
+	SetRightChild( i, m_FirstFree );
+	m_FirstFree = i;
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RotateLeft(I elem) 
+{
+	I rightchild = RightChild(elem);
+	SetRightChild( elem, LeftChild(rightchild) );
+	if (LeftChild(rightchild) != InvalidIndex())
+		SetParent( LeftChild(rightchild), elem );
+
+	if (rightchild != InvalidIndex())
+		SetParent( rightchild, Parent(elem) );
+	if (!IsRoot(elem))
+	{
+		if (IsLeftChild(elem))
+			SetLeftChild( Parent(elem), rightchild );
+		else
+			SetRightChild( Parent(elem), rightchild );
+	}
+	else
+		m_Root = rightchild;
+
+	SetLeftChild( rightchild, elem );
+	if (elem != InvalidIndex())
+		SetParent( elem, rightchild );
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RotateRight(I elem) 
+{
+	I leftchild = LeftChild(elem);
+	SetLeftChild( elem, RightChild(leftchild) );
+	if (RightChild(leftchild) != InvalidIndex())
+		SetParent( RightChild(leftchild), elem );
+
+	if (leftchild != InvalidIndex())
+		SetParent( leftchild, Parent(elem) );
+	if (!IsRoot(elem))
+	{
+		if (IsRightChild(elem))
+			SetRightChild( Parent(elem), leftchild );
+		else
+			SetLeftChild( Parent(elem), leftchild );
+	}
+	else
+		m_Root = leftchild;
+
+	SetRightChild( leftchild, elem );
+	if (elem != InvalidIndex())
+		SetParent( elem, leftchild );
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::InsertRebalance(I elem) 
+{
+	while ( !IsRoot(elem) && (Color(Parent(elem)) == RED) )
+	{
+		I parent = Parent(elem);
+		I grandparent = Parent(parent);
+
+		/* we have a violation */
+		if (IsLeftChild(parent))
+		{
+			I uncle = RightChild(grandparent);
+			if (IsRed(uncle)) 
+			{
+				/* uncle is RED */
+				SetColor(parent, BLACK);
+				SetColor(uncle, BLACK);
+				SetColor(grandparent, RED);
+				elem = grandparent;
+			} 
+			else 
+			{
+				/* uncle is BLACK */
+				if (IsRightChild(elem))
+				{
+					/* make x a left child, will change parent and grandparent */
+					elem = parent;
+					RotateLeft(elem);
+					parent = Parent(elem);
+					grandparent = Parent(parent);
+				}
+				/* recolor and rotate */
+				SetColor(parent, BLACK);
+				SetColor(grandparent, RED);
+				RotateRight(grandparent);
+			}
+		} 
+		else 
+		{
+			/* mirror image of above code */
+			I uncle = LeftChild(grandparent);
+			if (IsRed(uncle)) 
+			{
+				/* uncle is RED */
+				SetColor(parent, BLACK);
+				SetColor(uncle, BLACK);
+				SetColor(grandparent, RED);
+				elem = grandparent;
+			} 
+			else 
+			{
+				/* uncle is BLACK */
+				if (IsLeftChild(elem))
+				{
+					/* make x a right child, will change parent and grandparent */
+					elem = parent;
+					RotateRight(parent);
+					parent = Parent(elem);
+					grandparent = Parent(parent);
+				}
+				/* recolor and rotate */
+				SetColor(parent, BLACK);
+				SetColor(grandparent, RED);
+				RotateLeft(grandparent);
+			}
+		}
+	}
+	SetColor( m_Root, BLACK );
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::InsertAt( I parent, bool leftchild, bool bConstructElement )
+{
+	I i = NewNode( bConstructElement );
+	LinkToParent( i, parent, leftchild );
+	++m_NumElements;
+
+	Assert(IsValid());
+
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::LinkToParent( I i, I parent, bool isLeft )
+{
+	Links_t &elem = Links(i);
+	elem.m_Parent = parent;
+	elem.m_Left = elem.m_Right = InvalidIndex();
+	elem.m_Tag = RED;
+
+	/* insert node in tree */
+	if (parent != InvalidIndex()) 
+	{
+		if (isLeft)
+			Links(parent).m_Left = i;
+		else
+			Links(parent).m_Right = i;
+	} 
+	else 
+	{
+		m_Root = i;
+	}
+
+	InsertRebalance(i);	
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RemoveRebalance(I elem) 
+{
+	while (elem != m_Root && IsBlack(elem)) 
+	{
+		I parent = Parent(elem);
+
+		// If elem is the left child of the parent
+		if (elem == LeftChild(parent)) 
+		{
+			// Get our sibling
+			I sibling = RightChild(parent);
+			if (IsRed(sibling)) 
+			{
+				SetColor(sibling, BLACK);
+				SetColor(parent, RED);
+				RotateLeft(parent);
+
+				// We may have a new parent now
+				parent = Parent(elem);
+				sibling = RightChild(parent);
+			}
+			if ( (IsBlack(LeftChild(sibling))) && (IsBlack(RightChild(sibling))) ) 
+			{
+				if (sibling != InvalidIndex())
+					SetColor(sibling, RED);
+				elem = parent;
+			}
+			else
+			{
+				if (IsBlack(RightChild(sibling)))
+				{
+					SetColor(LeftChild(sibling), BLACK);
+					SetColor(sibling, RED);
+					RotateRight(sibling);
+
+					// rotation may have changed this
+					parent = Parent(elem);
+					sibling = RightChild(parent);
+				}
+				SetColor( sibling, Color(parent) );
+				SetColor( parent, BLACK );
+				SetColor( RightChild(sibling), BLACK );
+				RotateLeft( parent );
+				elem = m_Root;
+			}
+		}
+		else 
+		{
+			// Elem is the right child of the parent
+			I sibling = LeftChild(parent);
+			if (IsRed(sibling)) 
+			{
+				SetColor(sibling, BLACK);
+				SetColor(parent, RED);
+				RotateRight(parent);
+
+				// We may have a new parent now
+				parent = Parent(elem);
+				sibling = LeftChild(parent);
+			}
+			if ( (IsBlack(RightChild(sibling))) && (IsBlack(LeftChild(sibling))) )
+			{
+				if (sibling != InvalidIndex()) 
+					SetColor( sibling, RED );
+				elem = parent;
+			} 
+			else 
+			{
+				if (IsBlack(LeftChild(sibling)))
+				{
+					SetColor( RightChild(sibling), BLACK );
+					SetColor( sibling, RED );
+					RotateLeft( sibling );
+
+					// rotation may have changed this
+					parent = Parent(elem);
+					sibling = LeftChild(parent);
+				}
+				SetColor( sibling, Color(parent) );
+				SetColor( parent, BLACK );
+				SetColor( LeftChild(sibling), BLACK );
+				RotateRight( parent );
+				elem = m_Root;
+			}
+		}
+	}
+	SetColor( elem, BLACK );
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::Unlink( I elem )
+{
+	if ( elem != InvalidIndex() )
+	{
+		I x, y;
+
+		if ((LeftChild(elem) == InvalidIndex()) || 
+			(RightChild(elem) == InvalidIndex()))
+		{
+			/* y has a NIL node as a child */
+			y = elem;
+		}
+		else
+		{
+			/* find tree successor with a NIL node as a child */
+			y = RightChild(elem);
+			while (LeftChild(y) != InvalidIndex())
+				y = LeftChild(y);
+		}
+
+		/* x is y's only child */
+		if (LeftChild(y) != InvalidIndex())
+			x = LeftChild(y);
+		else
+			x = RightChild(y);
+
+		/* remove y from the parent chain */
+		if (x != InvalidIndex())
+			SetParent( x, Parent(y) );
+		if (!IsRoot(y))
+		{
+			if (IsLeftChild(y))
+				SetLeftChild( Parent(y), x );
+			else
+				SetRightChild( Parent(y), x );
+		}
+		else
+			m_Root = x;
+
+		// need to store this off now, we'll be resetting y's color
+		NodeColor_t ycolor = Color(y);
+		if (y != elem)
+		{
+			// Standard implementations copy the data around, we cannot here.
+			// Hook in y to link to the same stuff elem used to.
+			SetParent( y, Parent(elem) );
+			SetRightChild( y, RightChild(elem) );
+			SetLeftChild( y, LeftChild(elem) );
+
+			if (!IsRoot(elem))
+				if (IsLeftChild(elem))
+					SetLeftChild( Parent(elem), y );
+				else
+					SetRightChild( Parent(elem), y );
+			else
+				m_Root = y;
+
+			if (LeftChild(y) != InvalidIndex())
+				SetParent( LeftChild(y), y );
+			if (RightChild(y) != InvalidIndex())
+				SetParent( RightChild(y), y );
+
+			SetColor( y, Color(elem) );
+		}
+
+		if ((x != InvalidIndex()) && (ycolor == BLACK))
+			RemoveRebalance(x);
+	}
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::Link( I elem )
+{
+	if ( elem != InvalidIndex() )
+	{
+		I parent;
+		bool leftchild;
+
+		FindInsertionPosition( Element( elem ), parent, leftchild );
+
+		LinkToParent( elem, parent, leftchild );
+
+		Assert(IsValid());
+	}
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RemoveAt(I elem) 
+{
+	if ( elem != InvalidIndex() )
+	{
+		Unlink( elem );
+
+		FreeNode(elem);
+		--m_NumElements;
+
+		Assert(IsValid());
+	}
+}
+
+template < class T, class I, typename L, class M > bool CUtlRBTree<T, I, L, M>::Remove( T const &search )
+{
+	I node = Find( search );
+	if (node != InvalidIndex())
+	{
+		RemoveAt(node);
+		return true;
+	}
+	return false;
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RemoveAll()
+{
+	// Have to do some convoluted stuff to invoke the destructor on all
+	// valid elements for the multilist case (since we don't have all elements
+	// connected to each other in a list).
+
+	if ( m_Elements.Count() == 0 )
+	{
+		Assert( m_Root == InvalidIndex() );
+		Assert( m_FirstFree == InvalidIndex() );
+		Assert( m_NumElements == 0 );
+		return;
+	}
+
+	for ( typename M::Iterator_t it = m_Elements.First(); it != m_Elements.InvalidIterator(); it = m_Elements.Next( it ) )
+	{
+		I i = m_Elements.GetIndex( it );
+		if ( IsValidIndex( i ) ) // skip elements in the free list
+		{
+			Destruct( &Element( i ) );
+			SetRightChild( i, m_FirstFree );
+			SetLeftChild( i, i );
+			m_FirstFree = i;
+		}
+
+	}
+
+	// Clear everything else out
+	m_Root = InvalidIndex(); 
+	m_NumElements = 0;
+
+	Assert( IsValid() );
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::Purge()
+{
+	RemoveAll();
+	m_FirstFree = InvalidIndex();
+	m_Elements.Purge();
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FirstInorder() const
+{
+	I i = m_Root;
+	while (LeftChild(i) != InvalidIndex())
+		i = LeftChild(i);
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::NextInorder( I i ) const
+{
+	Assert(IsValidIndex(i));
+
+	if (RightChild(i) != InvalidIndex())
+	{
+		i = RightChild(i);
+		while (LeftChild(i) != InvalidIndex())
+			i = LeftChild(i);
+		return i;
+	}
+
+	I parent = Parent(i);
+	while (IsRightChild(i))
+	{
+		i = parent;
+		if (i == InvalidIndex()) break;
+		parent = Parent(i);
+	}
+	return parent;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::PrevInorder( I i ) const
+{
+	Assert(IsValidIndex(i));
+
+	if (LeftChild(i) != InvalidIndex())
+	{
+		i = LeftChild(i);
+		while (RightChild(i) != InvalidIndex())
+			i = RightChild(i);
+		return i;
+	}
+
+	I parent = Parent(i);
+	while (IsLeftChild(i))
+	{
+		i = parent;
+		if (i == InvalidIndex()) break;
+		parent = Parent(i);
+	}
+	return parent;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::LastInorder() const
+{
+	I i = m_Root;
+	while (RightChild(i) != InvalidIndex())
+		i = RightChild(i);
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FirstPreorder() const
+{
+	return m_Root;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::NextPreorder( I i ) const
+{
+	if (LeftChild(i) != InvalidIndex())
+		return LeftChild(i);
+
+	if (RightChild(i) != InvalidIndex())
+		return RightChild(i);
+
+	I parent = Parent(i);
+	while( parent != InvalidIndex())
+	{
+		if (IsLeftChild(i) && (RightChild(parent) != InvalidIndex()))
+			return RightChild(parent);
+		i = parent;
+		parent = Parent(parent);
+	}
+	return InvalidIndex();
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::PrevPreorder( I i ) const
+{
+	Assert(0);  // not implemented yet
+	return InvalidIndex();
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::LastPreorder() const
+{
+	I i = m_Root;
+	while (1)
+	{
+		while (RightChild(i) != InvalidIndex())
+			i = RightChild(i);
+
+		if (LeftChild(i) != InvalidIndex())
+			i = LeftChild(i);
+		else
+			break;
+	}
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FirstPostorder() const
+{
+	I i = m_Root;
+	while (!IsLeaf(i))
+	{
+		if (LeftChild(i))
+			i = LeftChild(i);
+		else
+			i = RightChild(i);
+	}
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::NextPostorder( I i ) const
+{
+	I parent = Parent(i);
+	if (parent == InvalidIndex())
+		return InvalidIndex();
+
+	if (IsRightChild(i))
+		return parent;
+
+	if (RightChild(parent) == InvalidIndex())
+		return parent;
+
+	i = RightChild(parent);
+	while (!IsLeaf(i))
+	{
+		if (LeftChild(i))
+			i = LeftChild(i);
+		else
+			i = RightChild(i);
+	}
+	return i;
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::Reinsert( I elem )
+{
+	Unlink( elem );
+	Link( elem );
+}
+
+template < class T, class I, typename L, class M >
+int CUtlRBTree<T, I, L, M>::Depth( I node ) const
+{
+	if (node == InvalidIndex())
+		return 0;
+
+	int depthright = Depth( RightChild(node) );
+	int depthleft = Depth( LeftChild(node) );
+	return MAX( depthright, depthleft ) + 1;
+}
+
+template < class T, class I, typename L, class M >
+bool CUtlRBTree<T, I, L, M>::IsValid() const
+{
+	if ( !Count() )
+		return true;
+
+	if ( m_Elements.Count() == 0 )
+		return false;
+
+	if ( !m_Elements.IsIdxValid( Root() ) )
+		return false;
+
+	if ( Parent( Root() ) != InvalidIndex() )
+		return false;
+
+#ifdef UTLTREE_PARANOID
+
+	// First check to see that mNumEntries matches reality.
+	// count items on the free list
+	int numFree = 0;
+	for ( int i = m_FirstFree; i != InvalidIndex(); i = RightChild( i ) )
+	{
+		++numFree;
+		if ( !m_Elements.IsIdxValid( i ) )
+			return false;
+	}
+
+	// iterate over all elements, looking for validity 
+	// based on the self pointers
+	int nElements = 0;
+	int numFree2 = 0;
+	for ( M::Iterator_t it = m_Elements.First(); it != m_Elements.InvalidIterator(); it = m_Elements.Next( it ) )
+	{
+		I i = m_Elements.GetIndex( it );
+		if ( !IsValidIndex( i ) )
+		{
+			++numFree2;
+		}
+		else
+		{
+			++nElements;
+
+			int right = RightChild( i );
+			int left = LeftChild( i );
+			if ( ( right == left ) && ( right != InvalidIndex() ) )
+				return false;
+
+			if ( right != InvalidIndex() )
+			{
+				if ( !IsValidIndex( right ) ) 
+					return false;
+				if ( Parent( right ) != i )
+					return false;
+				if ( IsRed( i ) && IsRed( right ) ) 
+					return false;
+			}
+
+			if ( left != InvalidIndex() )
+			{
+				if ( !IsValidIndex( left ) ) 
+					return false;
+				if ( Parent( left ) != i ) 
+					return false;
+				if ( IsRed( i ) && IsRed( left ) ) 
+					return false;
+			}
+		}
+
+	}
+	if ( numFree2 != numFree )
+		return false;
+
+	if ( nElements != m_NumElements )
+		return false;
+
+#endif // UTLTREE_PARANOID
+
+	return true;
+}
+
+template < class T, class I, typename L, class M >  
+void CUtlRBTree<T, I, L, M>::SetLessFunc( const typename CUtlRBTree<T, I, L, M>::LessFunc_t &func )
+{
+	if (!LessFunc())
+	{
+		LessFunc() = func;
+	}
+	else if ( Count() > 0 )
+	{
+		// need to re-sort the tree here....
+		Assert(0);
+	}
+}
+
+template < class T, class I, typename L, class M > 
+void CUtlRBTree<T, I, L, M>::FindInsertionPosition( T const &insert, I &parent, bool &leftchild )
+{
+	Assert( LessFunc() );
+
+	/* find where node belongs */
+	I current = m_Root;
+	parent = InvalidIndex();
+	leftchild = false;
+	while (current != InvalidIndex()) 
+	{
+		parent = current;
+		if (LessFunc()( insert, Element(current) ))
+		{
+			leftchild = true; current = LeftChild(current);
+		}
+		else
+		{
+			leftchild = false; current = RightChild(current);
+		}
+	}
+}
+
+template < class T, class I, typename L, class M > 
+I CUtlRBTree<T, I, L, M>::InsertIfNotFound( T const &insert )
+{
+	// use copy constructor to copy it in
+	I parent;
+	bool leftchild;
+
+	I current = m_Root;
+	parent = InvalidIndex();
+	leftchild = false;
+	while (current != InvalidIndex()) 
+	{
+		parent = current;
+		if (LessFunc()( insert, Element(current) ))
+		{
+			leftchild = true; current = LeftChild(current);
+		}
+		else if (LessFunc()( Element(current), insert ))
+		{
+			leftchild = false; current = RightChild(current);
+		}
+		else
+			// Match found, no insertion
+			return InvalidIndex();
+	}
+
+	I newNode = InsertAt( parent, leftchild, false );
+	CopyConstruct( &Element( newNode ), insert );
+	return newNode;
+}
+
+template < class T, class I, typename L, class M > 
+I CUtlRBTree<T, I, L, M>::Find( T const &search ) const
+{
+	Assert( LessFunc() );
+
+	I current = m_Root;
+	while (current != InvalidIndex()) 
+	{
+		if (LessFunc()( search, Element(current) ))
+			current = LeftChild(current);
+		else if (LessFunc()( Element(current), search ))
+			current = RightChild(current);
+		else 
+			break;
+	}
+	return current;
+}
+
+template < class T, class I, typename L, class M > 
+void CUtlRBTree<T, I, L, M>::Swap( CUtlRBTree< T, I, L, M > &that )
+{
+	m_Elements.Swap( that.m_Elements );
+	V_swap( LessFunc(), that.LessFunc() );
+	V_swap( m_Root, that.m_Root );
+	V_swap( m_NumElements, that.m_NumElements );
+	V_swap( m_FirstFree, that.m_FirstFree );
+	Assert( IsValid() );
+}
+
+template < class T, class I, typename L, class M >
+inline CUtlRBTree<T, I, L, M>::CUtlRBTree( int growSize, int initSize, const LessFunc_t &lessfunc ) :
+	LessFuncBase( lessfunc ),
+	m_Root( InvalidIndex() ),
+	m_NumElements( 0 ),
+	m_FirstFree( InvalidIndex() )
+{
+	if ( initSize > 0 )
+		m_Elements.EnsureCapacity( (I)initSize );
+}
+
+template < class T, class I, typename L, class M >
+inline CUtlRBTree<T, I, L, M>::CUtlRBTree( const LessFunc_t &lessfunc ) :
+	LessFuncBase( lessfunc ),
+	m_Root( InvalidIndex() ),
+	m_NumElements( 0 ),
+	m_FirstFree( InvalidIndex() )
+{
+}
+
+template < class T, class I, typename L, class M >
+inline bool CUtlRBTree<T, I, L, M>::IsEmpty() const
+{
+	return Count() == 0;
+}
+
+template < class T, class I, typename L, class M >
+template < typename U >
+I CUtlRBTree<T, I, L, M>::InsertInternal( U &&insert, ERBTreeInsertBehavior eInsertBehavior )
+{
+	I parent;
+	bool leftchild;
+
+	if ( eInsertBehavior == k_eInsertAllowDupes )
+	{
+		FindInsertionPosition( insert, parent, leftchild );
+	}
+	else
+	{
+		I current = m_Root;
+		parent = InvalidIndex();
+		leftchild = false;
+		while ( current != InvalidIndex() )
+		{
+			parent = current;
+			if ( LessFunc()( insert, Element( current ) ) )
+			{
+				leftchild = true; current = LeftChild( current );
+			}
+			else if ( LessFunc()( Element( current ), insert ) )
+			{
+				leftchild = false; current = RightChild( current );
+			}
+			else
+			{
+				if ( eInsertBehavior == k_eInsertAssertAboutDupes )
+					UtlRBTree_FailedInsertDuplicate();
+
+				Element( current ) = std::forward<U>( insert );
+				return current;
+			}
+		}
+	}
+
+	I newNode = InsertAt( parent, leftchild, false );
+	::new ( &Element( newNode ) ) T( std::forward<U>( insert ) );
+	return newNode;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::Insert( T const &insert, ERBTreeInsertBehavior eInsertBehavior )
+{
+	return InsertInternal( insert, eInsertBehavior );
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::Insert( T &&insert, ERBTreeInsertBehavior eInsertBehavior )
+{
+	return InsertInternal( std::move( insert ), eInsertBehavior );
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::Insert( const T *pArray, int nItems, ERBTreeInsertBehavior eInsertBehavior )
+{
+	while ( nItems-- )
+	{
+		Insert( *pArray++, eInsertBehavior );
+	}
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FindOrInsert( T const &insert, bool *pInserted )
+{
+	I existing = Find( insert );
+	if ( pInserted )
+		*pInserted = ( existing == InvalidIndex() );
+
+	return existing != InvalidIndex() ? existing : Insert( insert );
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::Find( T const &search, FindCondition_t eFindCondition ) const
+{
+	Assert( LessFunc() );
+
+	I current = m_Root;
+	I best = InvalidIndex();
+	while ( current != InvalidIndex() )
+	{
+		if ( LessFunc()( search, Element( current ) ) )
+		{
+			if ( eFindCondition == MATCH_OR_GREATER )
+				best = current;
+			current = LeftChild( current );
+		}
+		else if ( LessFunc()( Element( current ), search ) )
+		{
+			if ( eFindCondition == MATCH_OR_LESS )
+				best = current;
+			current = RightChild( current );
+		}
+		else
+			return current;
+	}
+	return best;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FindFirst( T const &search ) const
+{
+	I current = Find( search );
+	while ( current != InvalidIndex() )
+	{
+		I prev = PrevInorder( current );
+		if ( prev == InvalidIndex() || LessFunc()( Element( prev ), search ) )
+			break;
+		current = prev;
+	}
+	return current;
+}
+
+template < class T, class I, typename L, class M >
+I CUtlRBTree<T, I, L, M>::FindClosest( T const &search, CompareOperands_t eFindCriteria ) const
+{
+	Assert( LessFunc() );
+
+	I current = m_Root;
+	I best = InvalidIndex();
+	while ( current != InvalidIndex() )
+	{
+		if ( LessFunc()( search, Element( current ) ) )
+		{
+			if ( eFindCriteria & k_EGreaterThan )
+				best = current;
+			current = LeftChild( current );
+		}
+		else if ( LessFunc()( Element( current ), search ) )
+		{
+			if ( eFindCriteria & k_ELessThan )
+				best = current;
+			current = RightChild( current );
+		}
+		else
+		{
+			if ( eFindCriteria & k_EEqual )
+				return current;
+			current = ( eFindCriteria & k_EGreaterThan ) ? RightChild( current ) : LeftChild( current );
+		}
+	}
+	return best;
+}
+
+template < class T, class I, typename L, class M >
+bool CUtlRBTree<T, I, L, M>::HasElement( T const &search ) const
+{
+	return Find( search ) != InvalidIndex();
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::RemoveAllAndDeleteElements()
+{
+	for ( I i = FirstInorder(); i != InvalidIndex(); i = NextInorder( i ) )
+		delete Element( i );
+
+	RemoveAll();
+}
+
+template < class T, class I, typename L, class M >
+void CUtlRBTree<T, I, L, M>::PurgeAndDeleteElements()
+{
+	RemoveAllAndDeleteElements();
+	Purge();
+}
 
 #endif

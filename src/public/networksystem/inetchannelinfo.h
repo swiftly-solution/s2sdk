@@ -69,7 +69,7 @@ public:
 	virtual float		GetPeakJitter( int flow ) const = 0;
 	virtual float		GetAvgData( int flow ) const = 0;	 // data flow in bytes/sec
 	virtual float		GetAvgPackets( int flow ) const = 0; // avg packets/sec
-	virtual uint64_t	GetTotalData( int flow ) const = 0;	 // total flow in/out in bytes
+	virtual uint64	GetTotalData( int flow ) const = 0;	 // total flow in/out in bytes
 	virtual int			GetTotalPackets( int flow ) const = 0;
 	virtual int			GetSequenceNr( int flow ) const = 0;	// last send seq number
 	virtual float		GetTimeSinceLastReceived( void ) const = 0;	// get time since last recieved packet in seconds

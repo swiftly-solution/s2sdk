@@ -9,6 +9,9 @@
 #include "memalloc.h"
 #include "public/common.h"
 
+// malloc/free below must go through g_pMemAlloc, the engine frees these buffers too
+#include "memdbgon.h"
+
 template< class T, class I = int, size_t UNK = 0 >
 class CUtlVectorMemory_Growable
 {
@@ -804,7 +807,7 @@ CUtlVectorMemory_Aligned<T, nAlignment, I>::CUtlVectorMemory_Aligned( I nGrowSiz
 	Assert( (nGrowSize >= 0) && (nGrowSize & BaseClass::EXTERNAL_BUFFER_MARKER) == 0 );
 	if ( BaseClass::m_nAllocationCount )
 	{
-		BaseClass::m_pMemory = (T*)_aligned_malloc( (size_t)nInitAllocationCount * sizeof(T), nAlignment );
+		BaseClass::m_pMemory = (T*)MemAlloc_AllocAligned( (size_t)nInitAllocationCount * sizeof(T), nAlignment );
 	}
 }
 
@@ -1158,5 +1161,7 @@ void CUtlVectorMemory_RawAllocator<T, A>::Purge( int numElements )
 
 	m_pMemory = CAllocator::Realloc( m_pMemory, numElements, m_nAllocationCount );
 }
+
+#include "memdbgoff.h"
 
 #endif

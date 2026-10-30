@@ -171,7 +171,7 @@ typedef void ( *RegisterTagsFunc )( LoggingChannelID_t channelID );
 struct LoggingMetaData_t
 {
 	LoggingMetaData_t *m_pNext;
-	uint64_t m_TypeID;
+	uint64 m_TypeID;
 	uint8_t *m_pData;
 	size_t m_nDataSize;
 	uint8_t m_nVerbosity;

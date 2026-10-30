@@ -31,12 +31,12 @@ uint32_t MurmurHash3CaseInsensitive(const void* data, size_t len, uint32_t seed)
 	return Hash3<true>(Bytes(data), len, seed);
 }
 
-uint64_t MurmurHash64(const void* data, size_t len, uint32_t seed)
+uint64 MurmurHash64(const void* data, size_t len, uint32_t seed)
 {
 	return Hash64<false>(Bytes(data), len, seed);
 }
 
-uint64_t MurmurHash64CaseInsensitive(const void* data, size_t len, uint32_t seed)
+uint64 MurmurHash64CaseInsensitive(const void* data, size_t len, uint32_t seed)
 {
 	return Hash64<true>(Bytes(data), len, seed);
 }

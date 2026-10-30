@@ -567,14 +567,14 @@ public:
 
 	void HideBudgetGroup( int budgetGroupID, bool bHide = true );
 
-	uint64_t *FindOrCreateCounter( const char *pName, CounterGroup_t eCounterGroup = COUNTER_GROUP_DEFAULT );
+	uint64 *FindOrCreateCounter( const char *pName, CounterGroup_t eCounterGroup = COUNTER_GROUP_DEFAULT );
 	void ResetCounters( CounterGroup_t eCounterGroup );
 	
 	int GetNumCounters( void ) const;
 	
-	uint64_t GetCounterValue( int index ) const;
+	uint64 GetCounterValue( int index ) const;
 	const char *GetCounterName( int index ) const;
-	const char *GetCounterNameAndValue( int index, uint64_t &val ) const;
+	const char *GetCounterNameAndValue( int index, uint64 &val ) const;
 	CounterGroup_t GetCounterGroup( int index ) const;
 
 protected:
@@ -664,7 +664,7 @@ inline void CVProfile::ResetPeaks()
 
 // g_VProfCurrentProfile's
 PLATFORM_INTERFACE int VProf_AssignNextTimespanId();
-PLATFORM_INTERFACE uint64_t *VProf_FindOrCreateCounter( const char *pName, CounterGroup_t eCounterGroup );
+PLATFORM_INTERFACE uint64 *VProf_FindOrCreateCounter( const char *pName, CounterGroup_t eCounterGroup );
 
 
 //-----------------------------------------------------------------------------
@@ -774,13 +774,13 @@ public:
 	~CVProfCounter()
 	{
 	}
-	void Increment( uint64_t val )
+	void Increment( uint64 val )
 	{ 
 		Assert( m_pCounter );
 		*m_pCounter += val; 
 	}
 private:
-	uint64_t *m_pCounter;
+	uint64 *m_pCounter;
 };
 
 #endif

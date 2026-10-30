@@ -10,12 +10,12 @@ void StoreLittleDWord( uint32_t *base, unsigned int dwordIndex, uint32_t dword )
     base[dwordIndex] = LittleDWord(dword);
 }
 
-uint64_t CastPtrToUint64( const void* p )
+uint64 CastPtrToUint64( const void* p )
 {
-	return (uint64_t) ( (uintptr_t) p );
+	return (uint64) ( (uintptr_t) p );
 }
 
-int64_t CastPtrToInt64( const void* p )
+int64 CastPtrToInt64( const void* p )
 {
-	return (int64_t) ( (uintptr_t) p );
+	return (int64) ( (uintptr_t) p );
 }

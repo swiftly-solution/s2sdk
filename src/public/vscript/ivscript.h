@@ -26,11 +26,29 @@ class IScriptDebugger
 public:
 	virtual bool		StartDebugging( const char *pszIDEKey ) = 0;
 	virtual void		StopDebugging() = 0;
-	virtual void		ConnectVM( void * ) = 0;
-	virtual void		Update( void * ) = 0;
+	virtual bool		IsDebugging() = 0;
 	virtual const char	*GetIDEKey() = 0;
-	virtual void		HandleOutputMsg( const char *, void * ) = 0;
-	virtual void		HandleErrorMsg( const char *, void * ) = 0;
+
+	// Returns false when not debugging
+	virtual bool		ConnectVM( IScriptVM *pVM ) = 0;
+	virtual void		Update( IScriptVM *pVM ) = 0;
+	virtual IScriptVM	*GetConnectedVM() = 0;
+	virtual void		DisconnectVM( IScriptVM *pVM ) = 0;
+
+	virtual void		HandleOutputMsg( IScriptVM *pVM, const char *pszMsg ) = 0;
+	virtual void		HandleErrorMsg( IScriptVM *pVM, const char *pszMsg ) = 0;
+
+	// A compiled or released script of pVM; the debugger lists the connected VM's scripts under "file:///" URLs
+	// (pszChunkName is "@" and the script's file name)
+	virtual void		OnScriptCompiled( IScriptVM *pVM, const char *pszScript, const char *pszChunkName, HSCRIPT hScript, void *pUnk ) = 0;
+	virtual void		OnScriptReleased( IScriptVM *pVM, HSCRIPT hScript ) = 0;
+	// A script error in the VM whose IScriptVM::GetInternalVM() is pInternalVM; pauses when it's the connected VM's and
+	// the debugger asked to pause on uncaught exceptions
+	virtual void		OnScriptError( void *pInternalVM, void *pUnk ) = 0;
+	// Breaks in when the script with this file name (unqualified) runs, while debugging; null or empty clears it
+	virtual void		SetBreakOnScript( const char *pszFileName ) = 0;
+	// Pauses in the debugger, as the scripts' DebuggerBreak() does
+	virtual void		Break() = 0;
 };
 
 class IScriptManager : public IAppSystem

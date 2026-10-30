@@ -57,8 +57,8 @@ namespace bitbuf
 
 	uint32_t ZigZagEncode32(int32_t n);
 	int32_t ZigZagDecode32(uint32_t n);
-	uint64_t ZigZagEncode64(int64_t n);
-	int64_t ZigZagDecode64(uint64_t n);
+	uint64 ZigZagEncode64(int64 n);
+	int64 ZigZagDecode64(uint64 n);
 
 	const int kMaxVarintBytes = 10;
 	const int kMaxVarint32Bytes = 5;
@@ -123,13 +123,13 @@ public:
 
 	// writes a varint encoded integer
 	void			WriteVarInt32( uint32_t data );
-	void			WriteVarInt64( uint64_t data );
+	void			WriteVarInt64( uint64 data );
 	void			WriteSignedVarInt32( int32_t data );
-	void			WriteSignedVarInt64( int64_t data );
+	void			WriteSignedVarInt64( int64 data );
 	int				ByteSizeVarInt32( uint32_t data );
-	int				ByteSizeVarInt64( uint64_t data );
+	int				ByteSizeVarInt64( uint64 data );
 	int				ByteSizeSignedVarInt32( int32_t data );
-	int				ByteSizeSignedVarInt64( int64_t data );
+	int				ByteSizeSignedVarInt64( int64 data );
 
 	// Copy the bits straight out of pIn. This seeks pIn forward by nBits.
 	// Returns an error if this buffer or the read buffer overflows.
@@ -153,7 +153,7 @@ public:
 	void			WriteShort(int val);
 	void			WriteWord(int val);
 	void			WriteLong(long val);
-	void			WriteLongLong(int64_t val);
+	void			WriteLongLong(int64 val);
 	void			WriteFloat(float val);
 	bool			WriteBytes( const void *pBuf, int nBytes );
 
@@ -285,9 +285,9 @@ public:
 
 	// reads a varint encoded integer
 	uint32_t			ReadVarInt32();
-	uint64_t			ReadVarInt64();
+	uint64			ReadVarInt64();
 	int32_t			ReadSignedVarInt32();
-	int64_t			ReadSignedVarInt64();
+	int64			ReadSignedVarInt64();
 
 	// You can read signed or unsigned data with this, just cast to 
 	// a signed int if necessary.
@@ -313,7 +313,7 @@ public:
 	int	ReadShort();
 	int	ReadWord();
 	long ReadLong();
-	int64_t			ReadLongLong();
+	int64			ReadLongLong();
 	float			ReadFloat();
 	bool			ReadBytes(void *pOut, int nBytes);
 

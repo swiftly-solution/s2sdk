@@ -2484,11 +2484,11 @@ int32_t KeyValues3::GetInt( int32_t defaultValue ) const
 uint32_t KeyValues3::GetUInt( uint32_t defaultValue ) const
 { return GetValue<uint32_t>( defaultValue ); }
 
-int64_t KeyValues3::GetInt64( int64_t defaultValue ) const
-{ return GetValue<int64_t>( defaultValue ); }
+int64 KeyValues3::GetInt64( int64 defaultValue ) const
+{ return GetValue<int64>( defaultValue ); }
 
-uint64_t KeyValues3::GetUInt64( uint64_t defaultValue ) const
-{ return GetValue<uint64_t>( defaultValue ); }
+uint64 KeyValues3::GetUInt64( uint64 defaultValue ) const
+{ return GetValue<uint64>( defaultValue ); }
 
 float KeyValues3::GetFloat( float defaultValue ) const
 { return GetValue<float>( defaultValue ); }
@@ -2523,11 +2523,11 @@ void KeyValues3::SetInt( int32_t value )
 void KeyValues3::SetUInt( uint32_t value )
 { SetValue<uint32_t>( value, KV3_TYPEEX_UINT, KV3_SUBTYPE_UINT32 ); }
 
-void KeyValues3::SetInt64( int64_t value )
-{ SetValue<int64_t>( value, KV3_TYPEEX_INT, KV3_SUBTYPE_INT64 ); }
+void KeyValues3::SetInt64( int64 value )
+{ SetValue<int64>( value, KV3_TYPEEX_INT, KV3_SUBTYPE_INT64 ); }
 
-void KeyValues3::SetUInt64( uint64_t value )
-{ SetValue<uint64_t>( value, KV3_TYPEEX_UINT, KV3_SUBTYPE_UINT64 ); }
+void KeyValues3::SetUInt64( uint64 value )
+{ SetValue<uint64>( value, KV3_TYPEEX_UINT, KV3_SUBTYPE_UINT64 ); }
 
 void KeyValues3::SetFloat( float value )
 { SetValue<float>( value, KV3_TYPEEX_DOUBLE, KV3_SUBTYPE_FLOAT32 ); }
@@ -2539,7 +2539,7 @@ void* KeyValues3::GetPointer( void *defaultValue ) const
 { return ( GetSubType() == KV3_SUBTYPE_POINTER ) ? ( void* )m_Data.m_UInt : defaultValue; }
 
 void KeyValues3::SetPointer( void* ptr )
-{ SetValue<uint64_t>( ( uint64_t )ptr, KV3_TYPEEX_UINT, KV3_SUBTYPE_POINTER ); }
+{ SetValue<uint64>( ( uint64 )ptr, KV3_TYPEEX_UINT, KV3_SUBTYPE_POINTER ); }
 
 CUtlStringToken KeyValues3::GetStringToken( CUtlStringToken defaultValue ) const
 { return ( GetSubType() == KV3_SUBTYPE_STRING_TOKEN ) ? CUtlStringToken( ( uint32 )m_Data.m_UInt ) : defaultValue; }

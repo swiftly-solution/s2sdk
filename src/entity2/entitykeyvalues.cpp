@@ -1,4 +1,7 @@
 #include "public/entity2/entitykeyvalues.h"
+#include "public/game/gameentitysystem.h"
+
+CUtlScratchMemoryPool *CEntityVariantAllocator::sm_pMemoryPool = nullptr;
 
 void CEntityVariantAllocator::Free( void *pMemory )
 { /* Skipped intentionally */ }
@@ -345,4 +348,256 @@ void CEntityKeyValues::SetMatrix3x4( const EntityKeyId_t &id, const matrix3x4_t 
 {
 	KeyValues3* kv = SetKeyValue( id, bAsAttribute );
 	if ( kv ) kv->SetMatrix3x4( matrix );
+}
+
+CEntityKeyValues::CEntityKeyValues( CKV3Arena* allocator, EntityKVAllocatorType_t allocator_type ) :
+	m_pComplexKeys( NULL ),
+	m_nRefCount( 0 ),
+	m_nQueuedForSpawnCount( 0 ),
+	m_bAllowLogging( false ),
+	m_eAllocatorType( allocator_type )
+{
+	if ( allocator )
+	{
+		m_pAllocator = allocator;
+
+		if ( GameEntitySystem() && m_pAllocator == GameEntitySystem()->GetEntityKeyValuesAllocator() )
+			GameEntitySystem()->AddEntityKeyValuesAllocatorRef();
+
+		m_pValues = m_pAllocator->AllocKV();
+		m_pAttributes = m_pAllocator->AllocKV();
+	}
+	else
+	{
+		if ( !GameEntitySystem() && ( m_eAllocatorType == EKV_ALLOCATOR_ENTSYSTEM_1 || m_eAllocatorType == EKV_ALLOCATOR_ENTSYSTEM_2 ) )
+			m_eAllocatorType = EKV_ALLOCATOR_NORMAL;
+
+		m_pAllocator = NULL;
+	}
+}
+
+CEntityKeyValues::~CEntityKeyValues()
+{
+	ReleaseAllComplexKeys();
+
+	if ( m_pAllocator )
+	{
+		if ( m_eAllocatorType != EKV_ALLOCATOR_NORMAL )
+		{
+			m_pAllocator->FreeKV( m_pValues );
+			m_pAllocator->FreeKV( m_pAttributes );
+
+			if ( GameEntitySystem() && m_pAllocator == GameEntitySystem()->GetEntityKeyValuesAllocator() )
+				GameEntitySystem()->ReleaseEntityKeyValuesAllocatorRef();
+		}
+		else
+		{
+			delete m_pAllocator;
+		}
+	}
+}
+
+void CEntityKeyValues::ValidateAllocator()
+{
+	if ( !m_pAllocator )
+	{
+		if ( m_eAllocatorType == EKV_ALLOCATOR_ENTSYSTEM_1 || m_eAllocatorType == EKV_ALLOCATOR_ENTSYSTEM_2 )
+		{
+			Assert( GameEntitySystem() );
+			m_pAllocator = GameEntitySystem()->GetEntityKeyValuesAllocator();
+			GameEntitySystem()->AddEntityKeyValuesAllocatorRef();
+		}
+		else
+		{
+			Assert( m_eAllocatorType != EKV_ALLOCATOR_EXTERNAL );
+			m_pAllocator = new CKV3Arena( true );
+		}
+
+		m_pValues = m_pAllocator->AllocKV();
+		m_pAttributes = m_pAllocator->AllocKV();
+	}
+}
+
+void CEntityKeyValues::AddRef()
+{
+	++m_nRefCount;
+}
+
+void CEntityKeyValues::Release()
+{
+	if ( --m_nRefCount <= 0 )
+		delete this;
+}
+
+const KeyValues3* CEntityKeyValues::GetKeyValue( const EntityKeyId_t &id, bool* pIsAttribute ) const
+{
+	if ( !m_pAllocator )
+		return NULL;
+
+	const KeyValues3* kv = m_pValues->FindMember( id );
+
+	if ( kv )
+	{
+		if ( pIsAttribute )
+			*pIsAttribute = false;
+	}
+	else
+	{
+		kv = m_pAttributes->FindMember( id );
+
+		if ( kv && pIsAttribute )
+			*pIsAttribute = true;
+	}
+
+	return kv;
+}
+
+KeyValues3* CEntityKeyValues::SetKeyValue( const EntityKeyId_t &id, bool bAsAttribute )
+{
+	if ( m_nQueuedForSpawnCount > 0 )
+		return NULL;
+
+	ValidateAllocator();
+
+	bool bIsAttribute;
+	KeyValues3* kv = const_cast<KeyValues3*>( GetKeyValue( id, &bIsAttribute ) );
+
+	if ( kv )
+	{
+		if ( bIsAttribute != bAsAttribute )
+		{
+			Warning( "Attempted to set existing %s key as %s!\n",
+				bIsAttribute ? "attribute" : "non-attribute", bAsAttribute ? "an attribute" : "a non-attribute" );
+			return NULL;
+		}
+	}
+	else
+	{
+		kv = bAsAttribute ? m_pAttributes->FindOrCreateMember( id ) : m_pValues->FindOrCreateMember( id );
+	}
+
+	return kv;
+}
+
+void CEntityKeyValues::AddConnectionDesc(
+	const char* pszOutputName,
+	EntityIOTargetType_t eTargetType,
+	const char* pszTargetName,
+	const char* pszInputName,
+	const char* pszOverrideParam,
+	float flDelay,
+	int32 nTimesToFire,
+	const KeyValues3 *kv3value )
+{
+	if ( m_nQueuedForSpawnCount > 0 )
+		return;
+
+	ValidateAllocator();
+
+	EntityIOConnectionDescFat_t* desc = m_connectionDescs.AddToTailGetPtr();
+
+	desc->m_pszOutputName		= m_pAllocator->AllocString( pszOutputName ? pszOutputName : "" );
+	desc->m_eTargetType			= eTargetType;
+	desc->m_pszTargetName		= m_pAllocator->AllocString( pszTargetName ? pszTargetName : "" );
+	desc->m_pszInputName		= m_pAllocator->AllocString( pszInputName ? pszInputName : "" );
+	desc->m_pszOverrideParam	= m_pAllocator->AllocString( pszOverrideParam ? pszOverrideParam : "" );
+	desc->m_flDelay				= flDelay;
+	desc->m_nTimesToFire		= nTimesToFire;
+
+	if ( kv3value )
+		desc->m_KV3Value = *kv3value;
+}
+
+void CEntityKeyValues::CopyFrom( const CEntityKeyValues* pSrc, bool bRemoveAllKeys, bool bSkipEHandles )
+{
+	if ( bRemoveAllKeys )
+		RemoveAllKeys();
+
+	for ( EntityComplexKeyListElem_t* pListElem = pSrc->m_pComplexKeys; pListElem != NULL; pListElem = pListElem->m_pNext )
+	{
+		m_pComplexKeys = new EntityComplexKeyListElem_t( pListElem->m_pKey, m_pComplexKeys );
+		pListElem->m_pKey->AddRef();
+	}
+
+	FOR_EACH_ENTITYKEY( pSrc, iter )
+	{
+		const char* pAttributeName = NULL;
+
+		if ( pSrc->IsAttribute( iter ) )
+		{
+			pAttributeName = pSrc->GetAttributeName( iter );
+		}
+		else if ( bSkipEHandles && pSrc->GetKeyValue( iter )->GetSubType() == KV3_SUBTYPE_EHANDLE )
+		{
+			continue;
+		}
+
+		KeyValues3* kv = SetKeyValue( pSrc->GetEntityKeyId( iter ), pAttributeName != NULL );
+
+		if ( kv )
+			*kv = *pSrc->GetKeyValue( iter );
+	}
+
+	m_connectionDescs.RemoveAll();
+	m_connectionDescs.EnsureCapacity( pSrc->m_connectionDescs.Count() );
+
+	for ( int i = 0; i < pSrc->m_connectionDescs.Count(); i++ )
+	{
+		const EntityIOConnectionDescFat_t& desc = pSrc->m_connectionDescs[i];
+		AddConnectionDesc(
+			desc.m_pszOutputName,
+			desc.m_eTargetType,
+			desc.m_pszTargetName,
+			desc.m_pszInputName,
+			desc.m_pszOverrideParam,
+			desc.m_flDelay,
+			desc.m_nTimesToFire,
+			&desc.m_KV3Value
+		);
+	}
+}
+
+void CEntityKeyValues::RemoveAllKeys()
+{
+	if ( m_nQueuedForSpawnCount > 0 )
+		return;
+
+	ReleaseAllComplexKeys();
+
+	if ( m_pAllocator )
+	{
+		if ( m_eAllocatorType != EKV_ALLOCATOR_NORMAL )
+		{
+			m_pValues->SetToEmptyTable();
+			m_pAttributes->SetToEmptyTable();
+		}
+		else
+		{
+			m_pAllocator->Clear();
+			m_pValues = m_pAllocator->AllocKV();
+			m_pAttributes = m_pAllocator->AllocKV();
+		}
+	}
+}
+
+void CEntityKeyValues::ReleaseAllComplexKeys()
+{
+	EntityComplexKeyListElem_t* pListElem = m_pComplexKeys;
+
+	while ( pListElem != NULL )
+	{
+		EntityComplexKeyListElem_t* pListElemForRelease = pListElem;
+		pListElem = pListElem->m_pNext;
+		pListElemForRelease->m_pKey->Release();
+		delete pListElemForRelease;
+	}
+
+	m_pComplexKeys = NULL;
+}
+
+void CEntityKeyValues::SetString( KeyValues3* kv, const char* string )
+{
+	ValidateAllocator();
+
+	kv->SetStringExternal( m_pAllocator->AllocString( string ) );
 }

@@ -21,7 +21,7 @@ inline uint32_t MurmurHash3Item( const T &item )
 }
 
 uint32_t MurmurHash3Int( uint32_t h );
-uint32_t MurmurHash3Int64( uint64_t h );
+uint32_t MurmurHash3Int64( uint64 h );
 uint32_t MurmurHash3Item( const uint32_t &item );
 uint32_t MurmurHash3Item( const int32_t &item );
 

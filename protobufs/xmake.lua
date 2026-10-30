@@ -2,6 +2,7 @@ local pb_dir = path.join(os.scriptdir(), "protobuf-3.21.8")
 
 target("protobuf")
     set_kind("static")
+    set_runtimes("MT")
     set_languages("cxx14")
     set_basename("libprotobuf")
 
@@ -54,6 +55,7 @@ target_end()
 
 target("protos")
     set_kind("static")
+    set_runtimes("MT")
     set_languages("cxx14")
     set_basename("libprotos")
     add_deps("protobuf", {public = true})

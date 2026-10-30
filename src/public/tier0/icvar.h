@@ -58,7 +58,7 @@ public:
 
 	// Reverts cvars to default values which contain a specific flag,
 	// cvars with a flag FCVAR_COMMANDLINE_ENFORCED would be skipped
-	virtual void			ResetConVarsToDefaultValuesByFlag( uint64_t nFlag ) = 0;
+	virtual void			ResetConVarsToDefaultValuesByFlag( uint64 nFlag ) = 0;
 
 	virtual void			SetMaxSplitScreenSlots( int nSlots ) = 0;
 	int						GetMaxSplitScreenSlots() const;
@@ -92,7 +92,7 @@ public:
 	virtual void				GetCompletionResults( const CCommand &command, CUtlVector< CUtlString > &completions, bool *successful = nullptr ) = 0;
 
 	// Register, unregister vars
-	virtual void				RegisterConVar( const ConVarCreation_t& setup, uint64_t nAdditionalFlags, ConVarRef* pCvarRef, ConVarData** pCvarData ) = 0;
+	virtual void				RegisterConVar( const ConVarCreation_t& setup, uint64 nAdditionalFlags, ConVarRef* pCvarRef, ConVarData** pCvarData ) = 0;
 	// Unregisters convar change callback, but leaves the convar in the lists,
 	// so all ConVarRefs would still be valid as well as searching for it.
 	// Expects ref to have registered index to be set (is set on convar creation)
@@ -104,7 +104,7 @@ public:
 	virtual ConVarData*			GetConVarData( ConVarRef cvar ) = 0;
 
 	// Register, unregister commands
-	virtual ConCommandRef		RegisterConCommand( const ConCommandCreation_t& setup, uint64_t nAdditionalFlags = 0 ) = 0;
+	virtual ConCommandRef		RegisterConCommand( const ConCommandCreation_t& setup, uint64 nAdditionalFlags = 0 ) = 0;
 	// Unregisters concommand callbacks, but leaves the command in the lists,
 	// so all ConCommandRefs would still be valid as well as searching for it.
 	// Expects ref to have registered index to be set (is set on command creation)

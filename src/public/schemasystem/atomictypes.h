@@ -42,7 +42,7 @@ struct AtomicTypeInfo_CollectionOfT_t
 
 	int m_nAtomicID;
 	CSchemaType *m_pTemplateType;
-	uint64_t m_nFixedBufferCount;
+	uint64 m_nFixedBufferCount;
 	SchemaCollectionManipulatorFn_t m_pfnManipulator;
 };
 

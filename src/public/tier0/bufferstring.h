@@ -262,4 +262,8 @@ private:
 
 typedef CBufferStringN<200> CPathBufferString;
 
+// AMNOTE: CBufferStringN name is preferred to be used, altho CBufferStringGrowable is left as a small bcompat
+template <size_t SIZE>
+using CBufferStringGrowable = CBufferStringN<SIZE>;
+
 #endif

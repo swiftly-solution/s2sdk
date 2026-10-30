@@ -85,7 +85,7 @@ public:
 	virtual bool SetPriority( AsyncRequestPriority_t priority ) = 0;
 
 	// Profiling isn't available, this zeroes 5 uint64s of pOutEventTimesArrayUS whatever nBufferSizeBytes is, and returns false
-	virtual bool GetProfilingInfo( uint64_t *pOutEventTimesArrayUS, int nBufferSizeBytes ) = 0;
+	virtual bool GetProfilingInfo( uint64 *pOutEventTimesArrayUS, int nBufferSizeBytes ) = 0;
 
 protected:
 	const CPathBufferString m_fileName;
@@ -110,8 +110,8 @@ public:
 	virtual AsyncRequestPriority_t GetPriority() const = 0;
 	virtual bool SetPriority( AsyncRequestPriority_t priority ) = 0;
 
-	// Profiling isn't available, this zeroes the first uint64_t of pOutEventTimesArrayUS and returns false
-	virtual bool GetProfilingInfo( uint64_t *pOutEventTimesArrayUS, int nBufferSizeBytes ) = 0;
+	// Profiling isn't available, this zeroes the first uint64 of pOutEventTimesArrayUS and returns false
+	virtual bool GetProfilingInfo( uint64 *pOutEventTimesArrayUS, int nBufferSizeBytes ) = 0;
 
 protected:
 	const CPathBufferString m_fileName;
@@ -135,8 +135,8 @@ public:
 		This *SetReadBytes( size_t nReadBytes );
 		size_t GetReadBytes() const;
 		// 0 or less reads from the start of the file
-		This *SetReadOffset( int64_t nReadOffset );
-		int64_t GetReadOffset() const;
+		This *SetReadOffset( int64 nReadOffset );
+		int64 GetReadOffset() const;
 
 		// AMNOTE: The filesystem ignores these
 		This *SetAllowMemoryMap( bool bAllowMemoryMap );
@@ -180,7 +180,7 @@ public:
 		bool m_bPreferMemoryMap;
 		bool m_bTextMode;
 		bool m_bFrontOfQueue;
-		int64_t m_nReadOffset;
+		int64 m_nReadOffset;
 		size_t m_nReadBytes;
 		void *m_pResultBuffer;
 		size_t m_nResultBufferSize;

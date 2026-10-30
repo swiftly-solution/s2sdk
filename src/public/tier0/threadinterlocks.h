@@ -39,12 +39,12 @@ inline int32_t ThreadInterlockedExchangeAdd( int32_t volatile *p, int32_t value 
 inline int32_t ThreadInterlockedCompareExchange( int32_t volatile *p, int32_t value, int32_t comperand )	{ Assert( (size_t)p % 4 == 0 ); return __sync_val_compare_and_swap( p, comperand, value ); }
 inline bool ThreadInterlockedAssignIf( int32_t volatile *p, int32_t value, int32_t comperand )			{ Assert( (size_t)p % 4 == 0 ); return __sync_bool_compare_and_swap( p, comperand, value ); }
 
-inline int64_t ThreadInterlockedIncrement64( int64_t volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return __sync_add_and_fetch( p, 1 ); }
-inline int64_t ThreadInterlockedDecrement64( int64_t volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return __sync_sub_and_fetch( p, 1 ); }
-inline int64_t ThreadInterlockedExchange64( int64_t volatile *p, int64_t value )							{ Assert( (size_t)p % 8 == 0 ); return __sync_lock_test_and_set( p, value ); }
-inline int64_t ThreadInterlockedExchangeAdd64( int64_t volatile *p, int64_t value )						{ Assert( (size_t)p % 8 == 0 ); return __sync_fetch_and_add( p, value ); }
-inline int64_t ThreadInterlockedCompareExchange64( int64_t volatile *p, int64_t value, int64_t comperand )	{ Assert( (size_t)p % 8 == 0 ); return __sync_val_compare_and_swap( p, comperand, value ); }
-inline bool ThreadInterlockedAssignIf64( int64_t volatile *p, int64_t value, int64_t comperand )			{ Assert( (size_t)p % 8 == 0 ); return __sync_bool_compare_and_swap( p, comperand, value ); }
+inline int64 ThreadInterlockedIncrement64( int64 volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return __sync_add_and_fetch( p, 1 ); }
+inline int64 ThreadInterlockedDecrement64( int64 volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return __sync_sub_and_fetch( p, 1 ); }
+inline int64 ThreadInterlockedExchange64( int64 volatile *p, int64 value )							{ Assert( (size_t)p % 8 == 0 ); return __sync_lock_test_and_set( p, value ); }
+inline int64 ThreadInterlockedExchangeAdd64( int64 volatile *p, int64 value )						{ Assert( (size_t)p % 8 == 0 ); return __sync_fetch_and_add( p, value ); }
+inline int64 ThreadInterlockedCompareExchange64( int64 volatile *p, int64 value, int64 comperand )	{ Assert( (size_t)p % 8 == 0 ); return __sync_val_compare_and_swap( p, comperand, value ); }
+inline bool ThreadInterlockedAssignIf64( int64 volatile *p, int64 value, int64 comperand )			{ Assert( (size_t)p % 8 == 0 ); return __sync_bool_compare_and_swap( p, comperand, value ); }
 
 inline void *ThreadInterlockedExchangePointer( void * volatile *p, void *value )							{ Assert( (size_t)p % sizeof(void*) == 0 ); return __sync_lock_test_and_set( p, value ); }
 inline void *ThreadInterlockedCompareExchangePointer( void * volatile *p, void *value, void *comperand )	{ Assert( (size_t)p % sizeof(void*) == 0 ); return __sync_val_compare_and_swap( p, comperand, value ); }
@@ -70,12 +70,12 @@ inline bool ThreadInterlockedAssignIf( int32_t volatile *p, int32_t value, int32
 #pragma intrinsic( _InterlockedExchangeAdd64 ) 
 #pragma intrinsic( _InterlockedCompareExchange64 )
 
-inline int64_t ThreadInterlockedIncrement64( int64_t volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return _InterlockedIncrement64( (volatile __int64*)p ); }
-inline int64_t ThreadInterlockedDecrement64( int64_t volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return _InterlockedDecrement64( (volatile __int64*)p ); }
-inline int64_t ThreadInterlockedExchange64( int64_t volatile *p, int64_t value )							{ Assert( (size_t)p % 8 == 0 ); return _InterlockedExchange64( (volatile __int64*)p, value ); }
-inline int64_t ThreadInterlockedExchangeAdd64( int64_t volatile *p, int64_t value )						{ Assert( (size_t)p % 8 == 0 ); return _InterlockedExchangeAdd64( (volatile __int64*)p, value ); }
-inline int64_t ThreadInterlockedCompareExchange64( int64_t volatile *p, int64_t value, int64_t comperand )	{ Assert( (size_t)p % 8 == 0 ); return _InterlockedCompareExchange64( (volatile __int64*)p, value, comperand ); }
-inline bool ThreadInterlockedAssignIf64( int64_t volatile *p, int64_t value, int64_t comperand )			{ Assert( (size_t)p % 8 == 0 ); return ( _InterlockedCompareExchange64( (volatile __int64*)p, value, comperand ) == comperand ); }
+inline int64 ThreadInterlockedIncrement64( int64 volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return _InterlockedIncrement64( (volatile __int64*)p ); }
+inline int64 ThreadInterlockedDecrement64( int64 volatile *p )										{ Assert( (size_t)p % 8 == 0 ); return _InterlockedDecrement64( (volatile __int64*)p ); }
+inline int64 ThreadInterlockedExchange64( int64 volatile *p, int64 value )							{ Assert( (size_t)p % 8 == 0 ); return _InterlockedExchange64( (volatile __int64*)p, value ); }
+inline int64 ThreadInterlockedExchangeAdd64( int64 volatile *p, int64 value )						{ Assert( (size_t)p % 8 == 0 ); return _InterlockedExchangeAdd64( (volatile __int64*)p, value ); }
+inline int64 ThreadInterlockedCompareExchange64( int64 volatile *p, int64 value, int64 comperand )	{ Assert( (size_t)p % 8 == 0 ); return _InterlockedCompareExchange64( (volatile __int64*)p, value, comperand ); }
+inline bool ThreadInterlockedAssignIf64( int64 volatile *p, int64 value, int64 comperand )			{ Assert( (size_t)p % 8 == 0 ); return ( _InterlockedCompareExchange64( (volatile __int64*)p, value, comperand ) == comperand ); }
 
 #pragma intrinsic( _InterlockedExchangePointer )
 #pragma intrinsic( _InterlockedCompareExchangePointer )
@@ -113,11 +113,11 @@ inline bool ThreadInterlockedAssignIf128( volatile int128 *pDest, const int128 &
 {
 	Assert( (size_t)pDest % 16 == 0 );
 
-	volatile int64_t *pDest64 = ( volatile int64_t * )pDest;
-	int64_t *pValue64 = ( int64_t * )&value;
-	int64_t *pComperand64 = ( int64_t * )&comperand;
+	volatile int64 *pDest64 = ( volatile int64 * )pDest;
+	int64 *pValue64 = ( int64 * )&value;
+	int64 *pComperand64 = ( int64 * )&comperand;
 	
-	int64_t local_comperand[2] = { pComperand64[0], pComperand64[1] };
+	int64 local_comperand[2] = { pComperand64[0], pComperand64[1] };
 
 	return _InterlockedCompareExchange128( pDest64, pValue64[1], pValue64[0], local_comperand ) == 1;
 }

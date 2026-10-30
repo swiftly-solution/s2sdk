@@ -6,6 +6,7 @@
 #endif
 
 #include "platform_base.h"
+#include <ctime>
 #include "messages.h"
 
 #include <utility>
@@ -51,8 +52,8 @@ PLATFORM_INTERFACE const char *		Plat_GetGameDirectory( int unknown=0 );
 
 uint32_t LoadLittleDWord( const uint32_t *base, unsigned int dwordIndex );
 void StoreLittleDWord( uint32_t *base, unsigned int dwordIndex, uint32_t dword );
-uint64_t CastPtrToUint64( const void* p );
-int64_t CastPtrToInt64( const void* p );
+uint64 CastPtrToUint64( const void* p );
+int64 CastPtrToInt64( const void* p );
 
 // Pass floats by pointer for swapping to avoid truncation in the fpu
 #define BigFloat( pOut, pIn )		SafeSwapFloat( pOut, pIn )
@@ -63,10 +64,10 @@ PLATFORM_INTERFACE bool				Plat_IsInTestMode();
 
 PLATFORM_INTERFACE double			Plat_FloatTime();		// Returns time in seconds since the module was loaded.
 PLATFORM_INTERFACE uint32_t			Plat_MSTime();			// Time in milliseconds.
-PLATFORM_INTERFACE uint64_t			Plat_MSTime64();		// Time in milliseconds.
-PLATFORM_INTERFACE uint64_t			Plat_USTime();			// Time in microseconds.
+PLATFORM_INTERFACE uint64			Plat_MSTime64();		// Time in milliseconds.
+PLATFORM_INTERFACE uint64			Plat_USTime();			// Time in microseconds.
 PLATFORM_INTERFACE char *			Plat_ctime64( const time_t *timep, char *buf, size_t bufsize );
-PLATFORM_INTERFACE uint64_t			Plat_GetClockStart();	// Snapshot of the clock when app started.
+PLATFORM_INTERFACE uint64			Plat_GetClockStart();	// Snapshot of the clock when app started.
 PLATFORM_INTERFACE time_t			Plat_GetTime();			// Same as time().
 
 template <class T>
@@ -139,7 +140,6 @@ PLATFORM_INTERFACE int			V_tier0_memcmp( const void *m1, const void *m2, size_t 
 PLATFORM_INTERFACE uint64 Plat_CPUTickFrequency();
 PLATFORM_INTERFACE void Plat_Printf( const tchar *pFmt, ... ) FMTFUNCTION( 1, 2 );
 
-#endif
 
 #define Plat_MessageBox( ... ) ((void)0)
 
@@ -246,3 +246,5 @@ enum EOSType
 PLATFORM_INTERFACE EOSType Plat_GetOSType();
 PLATFORM_INTERFACE bool Plat_GetOSDescriptionString(char *buf, size_t size);
 PLATFORM_INTERFACE const char *GetNameFromOSType( EOSType type );
+
+#endif // PLATFORM_H

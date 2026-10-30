@@ -6,6 +6,18 @@ bool KeyValuesDumpAsDevMsg( KeyValues *pKeyValues, int nIndentLevel, int nDevelo
 	return pKeyValues->Dump( &ctx, nIndentLevel );
 }
 
+int KeyValues::GetInt( HKeySymbol keySymbol, int defaultValue )
+{
+	KeyValues *dat = FindKey( keySymbol );
+	return dat ? dat->GetInt( (const char *)NULL, defaultValue ) : defaultValue;
+}
+
+const char *KeyValues::GetString( const char *keyName, const char *defaultValue, char *pszOut, size_t maxlen )
+{
+	KeyValues *dat = FindKey( keyName );
+	return dat ? dat->Internal_GetString( defaultValue, pszOut, maxlen ) : defaultValue;
+}
+
 CTemporaryKeyValues::CTemporaryKeyValues()
 : m_pKeyValues( nullptr ), m_hScope()
 {}

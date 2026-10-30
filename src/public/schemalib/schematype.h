@@ -131,7 +131,7 @@ class CSchemaType_Atomic_CollectionOfT : public CSchemaType_Atomic_T
 public:
 	SchemaCollectionManipulatorFn_t m_pfnManipulator;
 	uint16_t m_nElementSize;
-	uint64_t m_nFixedBufferCount;
+	uint64 m_nFixedBufferCount;
 };
 
 class CSchemaType_Atomic_TT : public CSchemaType_Atomic_T

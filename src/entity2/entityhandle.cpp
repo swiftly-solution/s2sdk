@@ -2,8 +2,6 @@
 #include "public/entity2/entityinstance.h"
 #include "public/entity2/entitysystem.h"
 
-// Set by the game integration once the entity system exists.
-CEntitySystem* g_pEntitySystem = nullptr;
 
 CEntityHandle::CEntityHandle()
 {
@@ -107,21 +105,4 @@ const CEntityHandle &CEntityHandle::Set( const CEntityInstance *pEntity )
 		m_Index = INVALID_EHANDLE_INDEX;
 
 	return *this;
-}
-
-CEntityInstance* CEntityHandle::Get() const
-{
-	if ( !g_pEntitySystem || !IsValid() )
-		return nullptr;
-
-	CEntityIdentity* pIdentity = g_pEntitySystem->GetEntityIdentity( *this );
-	return pIdentity ? pIdentity->m_pInstance : nullptr;
-}
-
-CEntityHandle CEntityHandle::FromPackedInt( uint32_t packed_handle )
-{
-	if ( packed_handle == 0xFFFFFF )
-		return CEntityHandle();
-
-	return CEntityHandle( (int)( packed_handle & 0x3FFF ), (int)( packed_handle >> 14 ) );
 }

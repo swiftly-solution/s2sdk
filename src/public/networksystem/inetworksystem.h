@@ -36,11 +36,11 @@ struct NetPacket_t
 	INetPacketMemoryCustomAlloc *m_pCustomAlloc;
 
 	// The Steam message's m_usecTimeReceived
-	int64_t m_recvUSTime;
+	int64 m_recvUSTime;
 
 	// Where the packet was read in its demo file or broadcast stream, 0 for network packets; copied into each message
 	// parsed from it
-	int64_t m_nStreamPosition;
+	int64 m_nStreamPosition;
 
 	uint32_t m_hConnection;
 	int m_nPacketSize;

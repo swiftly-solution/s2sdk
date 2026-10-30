@@ -88,7 +88,7 @@ PLATFORM_INTERFACE int V_isinfd( double x );
 PLATFORM_INTERFACE int V_isnand( double x );
 
 // String functions
-PLATFORM_INTERFACE int64_t		V_atoi( const char *str );
+PLATFORM_INTERFACE int64		V_atoi( const char *str );
 PLATFORM_INTERFACE int			V_snprintf( OUT_Z_CAP( destLen ) char *pDest, int destLen, PRINTF_FORMAT_STRING const char *pFormat, ... ) FMTFUNCTION( 3, 4 );
 PLATFORM_INTERFACE char *		V_strtok( const char *str, const char *delim );
 PLATFORM_INTERFACE int			V_sscanf( const char *buffer, const char *pFormat, ... );
@@ -120,9 +120,9 @@ PLATFORM_INTERFACE int V_fscanf( FILE *_File, const char *_Format, ... );
 
 // The offsets of V_fseek and V_ftell are 32-bit on Windows, use V_fseeki64 and V_ftelli64 for large files
 PLATFORM_INTERFACE int V_fseek( FILE *_File, long _Offset, int _Origin );
-PLATFORM_INTERFACE int V_fseeki64( FILE *_File, int64_t _Offset, int _Origin );
+PLATFORM_INTERFACE int V_fseeki64( FILE *_File, int64 _Offset, int _Origin );
 PLATFORM_INTERFACE long V_ftell( FILE *_File );
-PLATFORM_INTERFACE int64_t V_ftelli64( FILE *_File );
+PLATFORM_INTERFACE int64 V_ftelli64( FILE *_File );
 PLATFORM_INTERFACE void V_rewind( FILE *stream );
 
 PLATFORM_INTERFACE int V_fflush( FILE *_File );

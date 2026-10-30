@@ -90,7 +90,7 @@ uint32_t MurmurHash3Int( uint32_t h )
 	return h;
 }
 
-uint32_t MurmurHash3Int64( uint64_t h )
+uint32_t MurmurHash3Int64( uint64 h )
 {
 	h ^= h >> 33;
 	h *= 0xff51afd7ed558ccdull;

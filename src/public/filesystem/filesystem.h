@@ -315,17 +315,17 @@ public:
 	// IBaseFileSystem
 	//--------------------------------------------------------
 	virtual int				Read(void* pOutput, int size, FileHandle_t file) = 0;
-	virtual int				Write(void const* pInput, uint64_t size, FileHandle_t file) = 0;
+	virtual int				Write(void const* pInput, uint64 size, FileHandle_t file) = 0;
 
 	// if pathID is NULL, all paths will be searched for the file
 	virtual FileHandle_t	Open(const char *pFileName, const char *pOptions, const char *pathID = 0) = 0;
 	virtual void			Close(FileHandle_t file) = 0;
 
 
-	virtual void			Seek(FileHandle_t file, int64_t pos, FileSystemSeek_t seekType) = 0;
-	virtual int64_t			Tell(FileHandle_t file) = 0;
-	virtual int64_t			Size(FileHandle_t file) = 0;
-	virtual int64_t			Size(const char *pFileName, const char *pPathID = 0) = 0;
+	virtual void			Seek(FileHandle_t file, int64 pos, FileSystemSeek_t seekType) = 0;
+	virtual int64			Tell(FileHandle_t file) = 0;
+	virtual int64			Size(FileHandle_t file) = 0;
+	virtual int64			Size(const char *pFileName, const char *pPathID = 0) = 0;
 
 	virtual void			Flush(FileHandle_t file) = 0;
 	virtual bool			Precache(const char *pFileName, const char *pPathID = 0) = 0;
@@ -334,7 +334,7 @@ public:
 	virtual bool			IsFileWritable(char const *pFileName, const char *pPathID = 0) = 0;
 	virtual bool			SetFileWritable(char const *pFileName, bool writable, const char *pPathID = 0) = 0;
 
-	virtual int64_t			GetFileTime(const char *pFileName, const char *pPathID = 0) = 0;
+	virtual int64			GetFileTime(const char *pFileName, const char *pPathID = 0) = 0;
 
 	//--------------------------------------------------------
 	// Reads/writes files to utlbuffers. Use this for optimal read performance when doing open/read/close
@@ -411,7 +411,7 @@ public:
 	// File I/O and info
 	virtual bool			IsDirectory( const char *pFileName, const char *pathID = 0 ) = 0;
 
-	virtual void			FileTimeToString( int64_t fileTime, CBufferString &out ) = 0;
+	virtual void			FileTimeToString( int64 fileTime, CBufferString &out ) = 0;
 
 	//--------------------------------------------------------
 	// Open file operations

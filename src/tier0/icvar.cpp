@@ -1,5 +1,15 @@
 #include "public/tier0/icvar.h"
 
+// memdbgon must be the last include file in a .cpp file!!!
+#include "public/tier0/memdbgon.h"
+
+ICvar *g_pCVar = nullptr;
+
+void SetGlobalCvarObject(ICvar* cvar)
+{
+    g_pCVar = cvar;
+}
+
 void IConVarListener:: OnConVarCreated( ConVarRefAbstract *pNewCvar )
 {}
 

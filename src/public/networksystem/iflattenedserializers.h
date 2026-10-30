@@ -70,7 +70,7 @@ public:
 
 	// AMNOTE: A unique number given once packing is done, kept while the data stays the same and cleared when data is
 	// inserted; two lists with the same non-zero number are equal
-	uint64_t m_nSerialNumber;
+	uint64 m_nSerialNumber;
 
 	// AMNOTE: Makes the gather give every range no recipients without calling the filters; the game never sets it
 	bool m_bNoRecipients;

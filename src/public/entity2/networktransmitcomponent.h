@@ -12,17 +12,12 @@
 #include "entityindex.h"
 #include "public/const.h"
 #include "entitynetworkable.h"
+#include "public/game/timedeventmgr.h"
 
 class CKV3TransferSaveContext;
 class CKV3TransferLoadContext;
 class CEntityInstancePolymorphicMetadataHelper;
 class CEventRegister;
-
-class IEventRegisterCallback
-{
-public:
-	virtual void FireEvent() = 0;
-};
 
 class CNetworkTransmitComponent : public IEventRegisterCallback
 {

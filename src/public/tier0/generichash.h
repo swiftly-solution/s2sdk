@@ -109,7 +109,7 @@ namespace generichash_detail
 	}
 
 	template <bool Lower, Byte T>
-	constexpr uint64_t Hash64(const T* data, size_t len, uint32_t seed)
+	constexpr uint64 Hash64(const T* data, size_t len, uint32_t seed)
 	{
 		constexpr uint32_t m = 0x5bd1e995;
 		constexpr int r = 24;
@@ -149,7 +149,7 @@ namespace generichash_detail
 		h1 ^= h2 >> 17; h1 *= m;
 		h2 ^= h1 >> 19; h2 *= m;
 
-		return (uint64_t(h1) << 32) | h2;
+		return (uint64(h1) << 32) | h2;
 	}
 
 }
@@ -193,19 +193,19 @@ uint32_t MurmurHash3(const void* data, size_t len, uint32_t seed = 0);
 uint32_t MurmurHash3CaseInsensitive(const void* data, size_t len, uint32_t seed = 0);
 
 template <generichash_detail::Byte T>
-constexpr uint64_t MurmurHash64(const T* data, size_t len, uint32_t seed = 0)
+constexpr uint64 MurmurHash64(const T* data, size_t len, uint32_t seed = 0)
 {
 	return generichash_detail::Hash64<false>(data, len, seed);
 }
 
 template <generichash_detail::Byte T>
-constexpr uint64_t MurmurHash64CaseInsensitive(const T* data, size_t len, uint32_t seed = 0)
+constexpr uint64 MurmurHash64CaseInsensitive(const T* data, size_t len, uint32_t seed = 0)
 {
 	return generichash_detail::Hash64<true>(data, len, seed);
 }
 
-uint64_t MurmurHash64(const void* data, size_t len, uint32_t seed = 0);
-uint64_t MurmurHash64CaseInsensitive(const void* data, size_t len, uint32_t seed = 0);
+uint64 MurmurHash64(const void* data, size_t len, uint32_t seed = 0);
+uint64 MurmurHash64CaseInsensitive(const void* data, size_t len, uint32_t seed = 0);
 
 constexpr uint32_t HashIntAlternate( uint32_t n)
 {

@@ -207,9 +207,9 @@ void CUtlLeanVectorBase<T, I, A>::EnsureCapacity( I num, bool force )
 	I nMinAllocated = (31 + sizeof( T )) / sizeof( T );
 	I nMaxAllocated = (std::numeric_limits<std::make_signed_t<I>>::max)();
 
-	if ( (uint64_t)num > (uint64_t)nMaxAllocated )
+	if ( (uint64)num > (uint64)nMaxAllocated )
 	{
-		Msg( "%s allocation count overflow( %llu > %llu )\n", __FUNCTION__, ( uint64_t )num, ( uint64_t )nMaxAllocated );
+		Msg( "%s allocation count overflow( %llu > %llu )\n", __FUNCTION__, ( uint64 )num, ( uint64 )nMaxAllocated );
 		Plat_FatalError( "%s allocation count overflow", __FUNCTION__ );
 		DebuggerBreak();
 	}
@@ -658,7 +658,7 @@ I CUtlLeanVectorImpl<B, T, I>::AddMultipleToTail( I nSize )
 
 		if ( ( nMaxSize - nOldSize ) < nSize )
 		{
-			Msg( "%s allocation count overflow( add %llu + current %llu > max %llu )\n", __FUNCTION__, ( uint64_t )nSize, ( uint64_t )nOldSize, ( uint64_t )nMaxSize );
+			Msg( "%s allocation count overflow( add %llu + current %llu > max %llu )\n", __FUNCTION__, ( uint64 )nSize, ( uint64 )nOldSize, ( uint64 )nMaxSize );
 			Plat_FatalError( "%s allocation count overflow", __FUNCTION__ );
 			DebuggerBreak();
 		}
@@ -685,13 +685,13 @@ T* CUtlLeanVectorImpl<B, T, I>::InsertBeforeGetPtr( I nBeforeIndex, I nSize )
 	// Unsigned, so a negative index fails too
 	if ( ( std::make_unsigned_t<I> )nBeforeIndex > ( std::make_unsigned_t<I> )nOldSize )
 	{
-		Plat_FatalError( "%s: invalid nBeforeIndex %lld\n", __FUNCTION__, ( int64_t )nBeforeIndex );
+		Plat_FatalError( "%s: invalid nBeforeIndex %lld\n", __FUNCTION__, ( int64 )nBeforeIndex );
 		DebuggerBreak();
 	}
 
 	if ( nSize <= 0 )
 	{
-		Plat_FatalError( "%s: invalid nSize %lld\n", __FUNCTION__, ( int64_t )nSize );
+		Plat_FatalError( "%s: invalid nSize %lld\n", __FUNCTION__, ( int64 )nSize );
 		DebuggerBreak();
 	}
 
@@ -699,7 +699,7 @@ T* CUtlLeanVectorImpl<B, T, I>::InsertBeforeGetPtr( I nBeforeIndex, I nSize )
 
 	if ( ( nMaxSize - nOldSize ) < nSize )
 	{
-		Msg( "%s allocation count overflow( add %llu + current %llu > max %llu )\n", __FUNCTION__, ( uint64_t )nSize, ( uint64_t )nOldSize, ( uint64_t )nMaxSize );
+		Msg( "%s allocation count overflow( add %llu + current %llu > max %llu )\n", __FUNCTION__, ( uint64 )nSize, ( uint64 )nOldSize, ( uint64 )nMaxSize );
 		Plat_FatalError( "%s allocation count overflow", __FUNCTION__ );
 		DebuggerBreak();
 	}

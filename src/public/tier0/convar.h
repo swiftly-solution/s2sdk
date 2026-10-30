@@ -63,8 +63,8 @@ template<> constexpr EConVarType TranslateConVarType<int16_t>( void )		{ return 
 template<> constexpr EConVarType TranslateConVarType<uint16_t>( void )	{ return EConVarType_UInt16; }
 template<> constexpr EConVarType TranslateConVarType<int32_t>( void )		{ return EConVarType_Int32; }
 template<> constexpr EConVarType TranslateConVarType<uint32_t>( void )	{ return EConVarType_UInt32; }
-template<> constexpr EConVarType TranslateConVarType<int64_t>( void )		{ return EConVarType_Int64; }
-template<> constexpr EConVarType TranslateConVarType<uint64_t>( void )	{ return EConVarType_UInt64; }
+template<> constexpr EConVarType TranslateConVarType<int64>( void )		{ return EConVarType_Int64; }
+template<> constexpr EConVarType TranslateConVarType<uint64>( void )	{ return EConVarType_UInt64; }
 template<> constexpr EConVarType TranslateConVarType<float>( void )	{ return EConVarType_Float32; }
 template<> constexpr EConVarType TranslateConVarType<double>( void )	{ return EConVarType_Float64; }
 template<> constexpr EConVarType TranslateConVarType<CUtlString>( void ){ return EConVarType_String; }
@@ -90,8 +90,8 @@ union CVValue_t
 	CVValue_t( const uint16_t value ) : m_u16Value( value ) {}
 	CVValue_t( const int32_t value ) : m_i32Value( value ) {}
 	CVValue_t( const uint32_t value ) : m_u32Value( value ) {}
-	CVValue_t( const int64_t value ) : m_i64Value( value ) {}
-	CVValue_t( const uint64_t value ) : m_u64Value( value ) {}
+	CVValue_t( const int64 value ) : m_i64Value( value ) {}
+	CVValue_t( const uint64 value ) : m_u64Value( value ) {}
 	CVValue_t( const float value ) : m_fl32Value( value ) {}
 	CVValue_t( const double value ) : m_fl64Value( value ) {}
 	CVValue_t( const CUtlString &value ) : m_StringValue( value ) {}
@@ -111,8 +111,8 @@ union CVValue_t
 	operator uint16_t() const				{ return m_u16Value; }
 	operator int32_t() const				{ return m_i32Value; }
 	operator uint32_t() const				{ return m_u32Value; }
-	operator int64_t() const				{ return m_i64Value; }
-	operator uint64_t() const				{ return m_u64Value; }
+	operator int64() const				{ return m_i64Value; }
+	operator uint64() const				{ return m_u64Value; }
 	operator float() const			{ return m_fl32Value; }
 	operator double() const			{ return m_fl64Value; }
 	operator const char*() const		{ return m_StringValue.Get(); }
@@ -129,8 +129,8 @@ union CVValue_t
 	uint16_t		m_u16Value;
 	int32_t		m_i32Value;
 	uint32_t		m_u32Value;
-	int64_t		m_i64Value;
-	uint64_t		m_u64Value;
+	int64		m_i64Value;
+	uint64		m_u64Value;
 	float		m_fl32Value;
 	double		m_fl64Value;
 	CUtlString	m_StringValue;
@@ -148,10 +148,10 @@ struct CVarCreationBase_t
 
 	const char*				m_pszName;
 	const char*				m_pszHelpString;
-	uint64_t				m_nFlags;
+	uint64				m_nFlags;
 };
 
-enum CVarFlags : uint64_t
+enum CVarFlags : uint64
 {
     NONE = 0,
     LINKED_CONCOMMAND = (1ull<<0),	
@@ -275,7 +275,7 @@ private:
     // Time of the input event the command came from, NaN for other commands
     double m_flInputTime;
     // AMNOTE: Also comes from the input event, 0 for other commands
-    uint64_t m_unk201;
+    uint64 m_unk201;
 };
 
 struct ConCommandCallbackInfo_t
@@ -341,10 +341,10 @@ public:
 	const char *GetHelpText() const;
 	bool HasHelpText() const;
 
-	bool IsFlagSet( uint64_t flag ) const;
-	void AddFlags( uint64_t flags );
-	void RemoveFlags( uint64_t flags );
-	uint64_t GetFlags( void ) const;
+	bool IsFlagSet( uint64 flag ) const;
+	void AddFlags( uint64 flags );
+	void RemoveFlags( uint64 flags );
+	uint64 GetFlags( void ) const;
 
 	int GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const;
 
@@ -353,7 +353,7 @@ public:
 
 	const char*				m_pszName;
 	const char*				m_pszHelpString;
-	uint64_t				m_nFlags;
+	uint64				m_nFlags;
 
 	CompletionCallbackInfo_t m_CompletionCB;
 
@@ -381,10 +381,10 @@ public:
 	const char *GetHelpText() const;
 	bool HasHelpText() const;
 
-	bool IsFlagSet( uint64_t flag ) const;
-	void AddFlags( uint64_t flags );
-	void RemoveFlags( uint64_t flags );
-	uint64_t GetFlags() const;
+	bool IsFlagSet( uint64 flag ) const;
+	void AddFlags( uint64 flags );
+	void RemoveFlags( uint64 flags );
+	uint64 GetFlags() const;
 
 	bool HasCompletionCallback() const;
 	bool HasCallback() const;
@@ -412,13 +412,13 @@ public:
 	typedef ConCommandRef BaseClass;
 
 	ConCommand( const char *pName, ConCommandCallbackInfo_t callback,
-		const char *pHelpString, uint64_t flags = 0,
+		const char *pHelpString, uint64 flags = 0,
 		CompletionCallbackInfo_t completionFunc = CompletionCallbackInfo_t() );
 
 	~ConCommand();
 
 protected:
-	void Create( const char *pName, const ConCommandCallbackInfo_t &cb, const char *pHelpString, uint64_t flags, const CompletionCallbackInfo_t &completion_cb );
+	void Create( const char *pName, const ConCommandCallbackInfo_t &cb, const char *pHelpString, uint64 flags, const CompletionCallbackInfo_t &completion_cb );
 	void Destroy( );
 };
 
@@ -447,7 +447,6 @@ using FnGenericFilterCallbackProvider_t = bool(*)(ConVarRefAbstract *ref, CSplit
 
 using FnGetEnumInfoHandle_t = SchemaMetaInfoHandle_t<CSchemaEnumInfo> (*)();
 
-#pragma pack(push,1)
 struct ConVarValueInfo_t
 {
 	ConVarValueInfo_t( EConVarType type = EConVarType_Invalid );
@@ -508,9 +507,9 @@ struct ConVarValueInfo_t
 	bool m_bHasMax;
 
 private:
-	CVValue_t m_defaultValue = {};
-	CVValue_t m_minValue = {};
-	CVValue_t m_maxValue = {};
+	uint8_t m_defaultValue[sizeof( CVValue_t )];
+	uint8_t m_minValue[sizeof( CVValue_t )];
+	uint8_t m_maxValue[sizeof( CVValue_t )];
 
 public:
 	FnGenericChangeCallbackProvider_t m_fnProviderCallBack;
@@ -525,7 +524,6 @@ public:
 
 	CompletionCallbackInfo_t m_CompletionCallBack;
 };
-#pragma pack(pop)
 
 struct ConVarCreation_t : CVarCreationBase_t
 {
@@ -554,8 +552,8 @@ template<> void CvarTypeTrait_ValueToStringFn<int16_t>( const CVValue_t *obj, CB
 template<> void CvarTypeTrait_ValueToStringFn<uint16_t>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%u", obj->m_u16Value ); }
 template<> void CvarTypeTrait_ValueToStringFn<int32_t>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%d", obj->m_i32Value ); }
 template<> void CvarTypeTrait_ValueToStringFn<uint32_t>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%u", obj->m_u32Value ); }
-template<> void CvarTypeTrait_ValueToStringFn<int64_t>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%lld", obj->m_i64Value ); }
-template<> void CvarTypeTrait_ValueToStringFn<uint64_t>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%llu", obj->m_u64Value ); }
+template<> void CvarTypeTrait_ValueToStringFn<int64>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%lld", obj->m_i64Value ); }
+template<> void CvarTypeTrait_ValueToStringFn<uint64>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%llu", obj->m_u64Value ); }
 template<> void CvarTypeTrait_ValueToStringFn<float>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%f", obj->m_fl32Value ); }
 template<> void CvarTypeTrait_ValueToStringFn<double>( const CVValue_t *obj, CBufferString &buf ) { buf.Format( "%lf", obj->m_fl64Value ); }
 template<> void CvarTypeTrait_ValueToStringFn<CUtlString>( const CVValue_t *obj, CBufferString &buf ) { buf.Insert( 0, obj->m_StringValue.Get() ); }
@@ -649,7 +647,6 @@ struct CVarTypeTraits
 
 CVarTypeTraits *GetCvarTypeTraits( EConVarType type );
 
-#pragma pack(push,1)
 class ConVarData
 {
 public:
@@ -684,10 +681,10 @@ public:
 	void SetTimesChanged( int val );
 	void IncrementTimesChanged();
 
-	bool IsFlagSet( uint64_t flag ) const;
-	void AddFlags( uint64_t flags );
-	void RemoveFlags( uint64_t flags );
-	uint64_t GetFlags() const;
+	bool IsFlagSet( uint64 flag ) const;
+	void AddFlags( uint64 flags );
+	void RemoveFlags( uint64 flags );
+	uint64 GetFlags() const;
 
 	int GetGameInfoFlags() const;
 	int GetCallbackIndex() const;
@@ -752,7 +749,7 @@ public:
 	bool IsEqual( CSplitScreenSlot slot, CVValue_t *other ) const;
 	void Clamp( CSplitScreenSlot slot ) const;
 
-private:
+public:
 	bool IsSlotInRange( CSplitScreenSlot slot ) const;
 
 	const char* m_pszName;
@@ -768,7 +765,7 @@ private:
 	short m_Version;
 
 	unsigned int m_iTimesChanged;
-	uint64_t m_nFlags;
+	uint64 m_nFlags;
 
 	unsigned int m_iCallbackIndex;
 	unsigned int m_iFilterCBIndex;
@@ -779,9 +776,8 @@ private:
 
 	FnGetEnumInfoHandle_t m_fnGetEnumInfoHandle;
 
-	CVValue_t m_Value;
+	alignas( CVValue_t ) uint8_t m_Values[sizeof( CVValue_t ) * MAX_SPLITSCREEN_CLIENTS];
 };
-#pragma pack(pop)
 
 class ConVarRef
 {
@@ -828,10 +824,10 @@ public:
 	bool HasMin() const;
 	bool HasMax() const;
 
-	bool IsFlagSet( uint64_t flag ) const;
-	void AddFlags( uint64_t flags );
-	void RemoveFlags( uint64_t flags );
-	uint64_t GetFlags( void ) const;
+	bool IsFlagSet( uint64 flag ) const;
+	void AddFlags( uint64 flags );
+	void RemoveFlags( uint64 flags );
+	uint64 GetFlags( void ) const;
 
 	// Returns true if convar should be treated as hidden
 	bool ShouldBeHidden() const;
@@ -901,7 +897,7 @@ public:
 	// mostly useful for CConVarRef cvars which register themselves partially
 	bool IsConVarDataAvailable() const;
 
-protected:
+public:
 	ConVarRefAbstract();
 
 	void CopyRef( const ConVarRefAbstract &ref );
@@ -927,7 +923,7 @@ protected:
 	ConVarData* m_ConVarData;
 };
 
-uint64_t SanitiseConVarFlags( uint64_t flags );
+uint64 SanitiseConVarFlags( uint64 flags );
 void SetupConVar( ConVarRefAbstract *cvar, ConVarData **cvar_data, ConVarCreation_t &info );
 void UnRegisterConVar( ConVarRef *cvar );
 
@@ -971,7 +967,7 @@ public:
 protected:
 	CConVarRef() : BaseClass() {}
 
-	void Register( const char *name, uint64_t flags, const char *help_string, const ConVarValueInfo_t &value_info )
+	void Register( const char *name, uint64 flags, const char *help_string, const ConVarValueInfo_t &value_info )
 	{
 		Assert( name );
 
@@ -993,7 +989,7 @@ class CConVar : public CConVarRef<T>
 public:
 	typedef CConVarRef<T> BaseClass;
 
-	CConVar( const char *name, uint64_t flags, const char *help_string, const T &default_value, FnTypedChangeCallback_t<T> cb = nullptr, const CompletionCallbackInfo_t &completion_cb = {} )
+	CConVar( const char *name, uint64 flags, const char *help_string, const T &default_value, FnTypedChangeCallback_t<T> cb = nullptr, const CompletionCallbackInfo_t &completion_cb = {} )
 		: BaseClass()
 	{
 		Assert( name );
@@ -1013,7 +1009,7 @@ public:
 		BaseClass::Register( name, flags, help_string, value_info );
 	}
 
-	CConVar( const char *name, uint64_t flags, const char *help_string, const T &default_value, bool min, const T &minValue, bool max, const T &maxValue, FnTypedChangeCallback_t<T> cb = nullptr, FnTypedFilterCallback_t<T> filter_cb = nullptr, const CompletionCallbackInfo_t &completion_cb = {} )
+	CConVar( const char *name, uint64 flags, const char *help_string, const T &default_value, bool min, const T &minValue, bool max, const T &maxValue, FnTypedChangeCallback_t<T> cb = nullptr, FnTypedFilterCallback_t<T> filter_cb = nullptr, const CompletionCallbackInfo_t &completion_cb = {} )
 		: BaseClass()
 	{
 		Assert( name );
@@ -1164,8 +1160,8 @@ inline void ConVarRefAbstract::ConvertToPrimitiveFrom( CSplitScreenSlot slot, co
 			case EConVarType_UInt16:	return CConVarRef<uint16_t>( *this ).Set( value, slot );
 			case EConVarType_Int32:		return CConVarRef<int32_t>( *this ).Set( value, slot );
 			case EConVarType_UInt32:	return CConVarRef<uint32_t>( *this ).Set( value, slot );
-			case EConVarType_Int64:		return CConVarRef<int64_t>( *this ).Set( value, slot );
-			case EConVarType_UInt64:	return CConVarRef<uint64_t>( *this ).Set( value, slot );
+			case EConVarType_Int64:		return CConVarRef<int64>( *this ).Set( value, slot );
+			case EConVarType_UInt64:	return CConVarRef<uint64>( *this ).Set( value, slot );
 			case EConVarType_Float32:	return CConVarRef<float>( *this ).Set( value, slot );
 			case EConVarType_Float64:	return CConVarRef<double>( *this ).Set( value, slot );
 			default:					break;
@@ -1176,7 +1172,7 @@ inline void ConVarRefAbstract::ConvertToPrimitiveFrom( CSplitScreenSlot slot, co
 typedef void (*FnConVarRegisterCallback)(ConVarRefAbstract *ref);
 typedef void (*FnConCommandRegisterCallback)(ConCommandRef *ref);
 
-void ConVar_Register( uint64_t nCVarFlag = 0, FnConVarRegisterCallback cvar_reg_cb = nullptr, FnConCommandRegisterCallback cmd_reg_cb = nullptr );
+void ConVar_Register( uint64 nCVarFlag = 0, FnConVarRegisterCallback cvar_reg_cb = nullptr, FnConCommandRegisterCallback cmd_reg_cb = nullptr );
 void ConVar_Unregister( );
 
 void ConVar_PrintDescription( const ConVarRefAbstract *ref );
@@ -1194,7 +1190,7 @@ class CConCommandMemberAccessor : public ICommandCallback, public ICommandComple
 
 public:
 	CConCommandMemberAccessor( T* pOwner, const char *pName, FnMemberCommandCallback_t callback, const char *pHelpString,
-		uint64_t flags = 0, FnMemberCommandCompletionCallback_t completionFunc = 0 ) :
+		uint64 flags = 0, FnMemberCommandCompletionCallback_t completionFunc = 0 ) :
 		BaseClass( pName, this, pHelpString, flags, ( completionFunc != 0 ) ? this : NULL )
 	{
 		m_pOwner = pOwner;
@@ -1234,7 +1230,7 @@ private:
 class ConCommandRegList
 {
 public:
-	friend void ConVar_Register( uint64_t nCVarFlag, FnConVarRegisterCallback cvar_reg_cb, FnConCommandRegisterCallback cmd_reg_cb );
+	friend void ConVar_Register( uint64 nCVarFlag, FnConVarRegisterCallback cvar_reg_cb, FnConCommandRegisterCallback cmd_reg_cb );
 	friend void ConVar_Unregister();
 	friend void SetupConCommand( ConCommand *cmd, const ConCommandCreation_t &info );
 
@@ -1264,7 +1260,7 @@ private:
 class ConVarRegList
 {
 public:
-	friend void ConVar_Register( uint64_t nCVarFlag, FnConVarRegisterCallback cvar_reg_cb, FnConCommandRegisterCallback cmd_reg_cb );
+	friend void ConVar_Register( uint64 nCVarFlag, FnConVarRegisterCallback cvar_reg_cb, FnConCommandRegisterCallback cmd_reg_cb );
 	friend void ConVar_Unregister();
 	friend void SetupConVar( ConVarRefAbstract *cvar, ConVarData **cvar_data, ConVarCreation_t &info );
 

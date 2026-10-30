@@ -57,7 +57,7 @@ public:
 	int32_t m_nameStringTableIndex;
 	CUtlSymbolLarge m_name;
 	CUtlSymbolLarge m_designerName;
-	uint64_t m_hPublicScope; // CEntityPublicScriptScope
+	uint64 m_hPublicScope; // CEntityPublicScriptScope
 	EntityFlags_t m_flags;
 	SpawnGroupHandle_t m_hSpawnGroup;
 	WorldGroupId_t m_worldGroupId;

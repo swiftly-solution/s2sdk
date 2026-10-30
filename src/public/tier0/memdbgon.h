@@ -83,6 +83,8 @@ inline wchar_t *MemAlloc_WcStrDup(const wchar_t *pString)
 	return NULL;
 }
 
+#define MEMDBGON_H // Defined here so can be used above
+
 #endif
 
 #endif

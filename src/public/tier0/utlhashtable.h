@@ -52,6 +52,8 @@
 #include <type_traits>
 #include <utility>
 
+#include "public/tier0/memdbgon.h"
+
 typedef unsigned int UtlHashHandle_t;
 
 #define FOR_EACH_HASHTABLE( table, iter ) \
@@ -1043,5 +1045,7 @@ inline UtlHashHandle_t CUtlStableHashtable<K,V,H,E,S,A>::DoInsert( KeyArgumentT 
 	m_table.template DoInsertNoCheck<IndirectIndex>( IndirectIndex( idx ), empty_t(), hash );
 	return idx;
 }
+
+#include "public/tier0/memdbgoff.h"
 
 #endif

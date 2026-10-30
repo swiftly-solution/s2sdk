@@ -47,8 +47,8 @@ CVarTypeTraits *GetCvarTypeTraits( EConVarType type )
 		*CVarTypeTraits().InitAs<uint16_t>( "uint16", "0" ),
 		*CVarTypeTraits().InitAs<int32_t>( "int32", "0" ),
 		*CVarTypeTraits().InitAs<uint32_t>( "uint32", "0" ),
-		*CVarTypeTraits().InitAs<int64_t>( "int64", "0" ),
-		*CVarTypeTraits().InitAs<uint64_t>( "uint64", "0" ),
+		*CVarTypeTraits().InitAs<int64>( "int64", "0" ),
+		*CVarTypeTraits().InitAs<uint64>( "uint64", "0" ),
 		*CVarTypeTraits().InitAs<float>( "float32", "0" ),
 		*CVarTypeTraits().InitAs<double>( "float64", "0" ),
 		*CVarTypeTraits().InitAs<CUtlString>( "string", "" ),
@@ -73,8 +73,8 @@ ConVarData *GetInvalidConVarData( EConVarType type )
 		ConVarData( TranslateConVarType<uint16_t>() ),
 		ConVarData( TranslateConVarType<int32_t>() ),
 		ConVarData( TranslateConVarType<uint32_t>() ),
-		ConVarData( TranslateConVarType<int64_t>() ),
-		ConVarData( TranslateConVarType<uint64_t>() ),
+		ConVarData( TranslateConVarType<int64>() ),
+		ConVarData( TranslateConVarType<uint64>() ),
 		ConVarData( TranslateConVarType<float>() ),
 		ConVarData( TranslateConVarType<double>() ),
 		ConVarData( TranslateConVarType<CUtlString>() ),
@@ -96,14 +96,8 @@ ConVarData *GetInvalidConVarData( EConVarType type )
 
 static FnConVarRegisterCallback s_ConVarRegCB = nullptr;
 static FnConCommandRegisterCallback s_ConCommandRegCB = nullptr;
-static uint64_t s_nCVarFlag = 0;
+static uint64 s_nCVarFlag = 0;
 static bool s_bRegistered = false;
-static ICvar* g_pCVar = nullptr;
-
-void SetGlobalCvarObject(ICvar* cvar)
-{
-    g_pCVar = cvar;
-}
 
 bool ConCommandRegList::s_bConCommandsRegistered = false;
 ConCommandRegList *ConCommandRegList::s_pRoot = nullptr;
@@ -303,7 +297,7 @@ void SetupConVar( ConVarRefAbstract *cvar, ConVarData **cvar_data, ConVarCreatio
 	ConVarRegList::AddToList( entry );
 }
 
-uint64_t SanitiseConVarFlags( uint64_t flags )
+uint64 SanitiseConVarFlags( uint64 flags )
 {
     return flags;
 }
@@ -580,7 +574,7 @@ CVValue_t *ConVarData::Value( CSplitScreenSlot slot ) const
 	if(!IsSlotInRange( slot ))
 		return nullptr;
 
-	return (CVValue_t*)&m_Value;
+	return (CVValue_t*)&m_Values[sizeof( CVValue_t ) * slot.Get()];
 }
 
 CVValue_t *ConVarData::ValueOrDefault( CSplitScreenSlot slot ) const
@@ -642,13 +636,16 @@ void ConVarRefAbstract::InvalidateConVarData( EConVarType type )
 		m_ConVarData = GetCvarTypeTraits( type )->m_InvalidCvarData;
 }
 
+bool bypassConvarCallbacks = false;
+
 void ConVarRefAbstract::CallChangeCallbacks( CSplitScreenSlot slot, CVValue_t *new_value, CVValue_t *prev_value, const char *new_str, const char *prev_str )
 {
 	if(slot.Get() == -1)
 		slot = CSplitScreenSlot( 0 );
 
 	g_pCVar->CallChangeCallback( *this, slot, new_value, prev_value );
-	g_pCVar->CallGlobalChangeCallbacks( this, slot, new_str, prev_str );
+	if ( !bypassConvarCallbacks )
+		g_pCVar->CallGlobalChangeCallbacks( this, slot, new_str, prev_str );
 }
 
 void ConVarRefAbstract::SetOrQueueValueInternal( CSplitScreenSlot slot, CVValue_t *value )
@@ -914,16 +911,16 @@ const char * ConCommandData::GetHelpText() const
 bool ConCommandData::HasHelpText() const
 { return m_pszHelpString && m_pszHelpString[0]; }
 
-bool ConCommandData::IsFlagSet( uint64_t flag ) const
+bool ConCommandData::IsFlagSet( uint64 flag ) const
 { return (m_nFlags & flag) != 0; }
 
-void ConCommandData::AddFlags( uint64_t flags )
+void ConCommandData::AddFlags( uint64 flags )
 { m_nFlags |= flags; }
 
-void ConCommandData::RemoveFlags( uint64_t flags )
+void ConCommandData::RemoveFlags( uint64 flags )
 { m_nFlags &= ~flags; }
 
-uint64_t ConCommandData::GetFlags( void ) const
+uint64 ConCommandData::GetFlags( void ) const
 { return m_nFlags; }
 
 int ConCommandData::GetAutoCompleteSuggestions( const CCommand &command, CUtlVector< CUtlString > &completions ) const
@@ -946,16 +943,16 @@ const char * ConCommandRef::GetHelpText() const
 bool ConCommandRef::HasHelpText() const
 { return GetRawData()->HasHelpText(); }
 
-bool ConCommandRef::IsFlagSet( uint64_t flag ) const
+bool ConCommandRef::IsFlagSet( uint64 flag ) const
 { return GetRawData()->IsFlagSet( flag ); }
 
-void ConCommandRef::AddFlags( uint64_t flags )
+void ConCommandRef::AddFlags( uint64 flags )
 { GetRawData()->AddFlags( flags ); }
 
-void ConCommandRef::RemoveFlags( uint64_t flags )
+void ConCommandRef::RemoveFlags( uint64 flags )
 { GetRawData()->RemoveFlags( flags ); }
 
-uint64_t ConCommandRef::GetFlags() const
+uint64 ConCommandRef::GetFlags() const
 { return GetRawData()->GetFlags(); }
 
 bool ConCommandRef::HasCompletionCallback() const
@@ -988,7 +985,7 @@ int ConCommandRef::GetRegisteredIndex() const
 { return m_CommandRegisteredIndex; }
 
 ConCommand::ConCommand( const char *pName, ConCommandCallbackInfo_t callback,
-	const char *pHelpString, uint64_t flags,
+	const char *pHelpString, uint64 flags,
 	CompletionCallbackInfo_t completionFunc )
 : BaseClass()
 {
@@ -1024,7 +1021,7 @@ void ConVarValueInfo_t::SetCompletionCallback( const CompletionCallbackInfo_t &c
 }
 
 ConVarData::ConVarData( EConVarType type )
-: m_Value {}
+: m_Values {}
 {
 	Invalidate( type, true );
 }
@@ -1073,16 +1070,16 @@ void ConVarData::SetTimesChanged( int val )
 void ConVarData::IncrementTimesChanged()
 { m_iTimesChanged++; }
 
-bool ConVarData::IsFlagSet( uint64_t flag ) const
+bool ConVarData::IsFlagSet( uint64 flag ) const
 { return (m_nFlags & flag) != 0; }
 
-void ConVarData::AddFlags( uint64_t flags )
+void ConVarData::AddFlags( uint64 flags )
 { m_nFlags |= flags; }
 
-void ConVarData::RemoveFlags( uint64_t flags )
+void ConVarData::RemoveFlags( uint64 flags )
 { m_nFlags &= ~flags; }
 
-uint64_t ConVarData::GetFlags() const
+uint64 ConVarData::GetFlags() const
 { return m_nFlags; }
 
 int ConVarData::GetGameInfoFlags() const
@@ -1235,16 +1232,16 @@ bool ConVarRefAbstract::HasMin() const
 bool ConVarRefAbstract::HasMax() const
 { return m_ConVarData->HasMaxValue(); }
 
-bool ConVarRefAbstract::IsFlagSet( uint64_t flag ) const
+bool ConVarRefAbstract::IsFlagSet( uint64 flag ) const
 { return m_ConVarData->IsFlagSet( flag ); }
 
-void ConVarRefAbstract::AddFlags( uint64_t flags )
+void ConVarRefAbstract::AddFlags( uint64 flags )
 { m_ConVarData->AddFlags( flags ); }
 
-void ConVarRefAbstract::RemoveFlags( uint64_t flags )
+void ConVarRefAbstract::RemoveFlags( uint64 flags )
 { return m_ConVarData->RemoveFlags( flags ); }
 
-uint64_t ConVarRefAbstract::GetFlags( void ) const
+uint64 ConVarRefAbstract::GetFlags( void ) const
 { return m_ConVarData->GetFlags(); }
 
 bool ConVarRefAbstract::ShouldBeHidden() const

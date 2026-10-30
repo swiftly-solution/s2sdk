@@ -24,7 +24,7 @@ class EventServerProcessNetworking_t;
 class EventServerBeginSimulate_t;
 class EventServerEndSimulate_t;
 class EventServerPostSimulate_t;
-class SpawnGroupDesc_t;
+struct SpawnGroupDesc_t;
 class ISceneViewDebugOverlays;
 
 enum server_state_t : int

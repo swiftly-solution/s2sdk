@@ -13,6 +13,12 @@
 #include <cstdint>
 #include <assert.h>
 #include <limits>
+#include <utility>
+#include <string.h>
+#include <stdlib.h>
+#include <wchar.h>
+#include <climits>
+#include <functional>
 
 #define VALIGNOF_PORTABLE( type ) ( sizeof( AlignOf_t<type> ) - sizeof( type ) )
 #define VALIGNOF( type ) __alignof( type )
@@ -49,6 +55,7 @@
 	#define DLL_GLOBAL_EXPORT		__attribute__((visibility("default")))
 	#define DLL_GLOBAL_IMPORT		extern
 
+    #include <signal.h>
     #define DebuggerBreak()  raise(SIGTRAP)
     #define FMTFUNCTION( fmtargnumber, firstvarargnumber ) __attribute__ (( format( printf, fmtargnumber, firstvarargnumber )))
     #define DECL_ALIGN(x)			__attribute__( ( aligned( x ) ) )
@@ -78,8 +85,8 @@ typedef uint16_t uint16;
 typedef int16_t int16;
 typedef uint32_t uint32;
 typedef int32_t int32;
-typedef uint64_t uint64;
-typedef int64_t int64;
+typedef unsigned long long uint64;
+typedef long long int64;
 typedef float float32;
 typedef double float64;
 
@@ -158,13 +165,19 @@ struct empty_t {};
 	typedef void *HANDLE;
 #else
 	#define STDCALL
+	#ifndef __cdecl
+		#define __cdecl
+	#endif
+	#define stricmp		strcasecmp
+	#define _snprintf	snprintf
+	#define _vsnprintf	vsnprintf
 #endif
 
 #if defined( _WIN64 ) || defined( __LP64__ ) || defined( __x86_64__ ) || defined( __aarch64__ )
 	#define PLATFORM_64BITS 1
 #endif
 
-typedef uintptr_t uintp;
+typedef unsigned long long uintp;
 
 #define FORWARD_DECLARE_HANDLE( name ) typedef struct name##__ *name
 
@@ -179,6 +192,15 @@ typedef uintptr_t uintp;
 		#define FORCEINLINE inline __attribute__((always_inline))
 	#endif
 #endif
+
+/// Same as swap(), but won't cause problems with std::swap
+template <class T>
+FORCEINLINE void V_swap( T& x, T& y )
+{
+	T temp( std::move( x ) );
+	x = std::move( y );
+	y = std::move( temp );
+}
 
 PLATFORM_INTERFACE void				Plat_NonFatalErrorFunc( const char *pMsg, ... ) FMTFUNCTION( 1, 2 );
 PLATFORM_INTERFACE void				Plat_FatalError( const char *pMsg, ... ) FMTFUNCTION( 1, 2 );
@@ -235,7 +257,7 @@ DECLARE_ALIGNED_BYTE_ARRAY(64);
 DECLARE_ALIGNED_BYTE_ARRAY(128);
 
 typedef float vec_t;
-typedef intptr_t intp;
+typedef long long intp;
 typedef char tchar;
 
 #ifdef _WIN32
@@ -258,6 +280,7 @@ typedef char tchar;
 #define abstract_class class
 
 #if defined( __GNUC__ )
+	#include <malloc.h>
 	#define mallocsize( _p ) ( malloc_usable_size( _p ) )
 #elif defined( _MSC_VER )
 	#include <malloc.h>

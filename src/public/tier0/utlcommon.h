@@ -90,7 +90,7 @@ struct CaselessStringLessFunctor { bool operator()( const char *a, const char *b
 struct CaselessStringEqualFunctor { bool operator()( const char *a, const char *b ) const; };
 
 struct MurmurHash3Mix32HashFunctor { unsigned int operator()( uint32_t n ) const; };
-struct MurmurHash3Mix64HashFunctor { unsigned int operator()( uint64_t n ) const; };
+struct MurmurHash3Mix64HashFunctor { unsigned int operator()( uint64 n ) const; };
 struct StringHashFunctor { unsigned int operator()( const char* s ) const; };
 struct CaselessStringHashFunctor { unsigned int operator()( const char* s ) const; };
 
@@ -145,7 +145,7 @@ template <typename T> struct DefaultHashFunctor : EnumHashFunctor<T> { };
 
 template <typename A, typename B> struct DefaultHashFunctor<std::pair<A, B>>
 {
-	unsigned int operator()( const std::pair<A, B> &p ) const { return MurmurHash3Mix64HashFunctor()( ( (uint64_t)DefaultHashFunctor<A>()( p.first ) << 32 ) | DefaultHashFunctor<B>()( p.second ) ); }
+	unsigned int operator()( const std::pair<A, B> &p ) const { return MurmurHash3Mix64HashFunctor()( ( (uint64)DefaultHashFunctor<A>()( p.first ) << 32 ) | DefaultHashFunctor<B>()( p.second ) ); }
 };
 
 // String specializations. If you want to operate on raw values, use

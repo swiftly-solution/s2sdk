@@ -9,6 +9,8 @@
 #include "bufferstring.h"
 #include <string.h>
 
+#include "public/tier0/memdbgon.h"
+
 class CUtlString
 {
 public:
@@ -322,5 +324,7 @@ template < typename T > struct UTLConstStringCaselessStringEqualFunctor { bool o
 bool UtlStringLessFunc( const CUtlString &lhs, const CUtlString &rhs ); 
 bool UtlStringCaseInsensitiveLessFunc( const CUtlString &lhs, const CUtlString &rhs ); 
 
+
+#include "public/tier0/memdbgoff.h"
 
 #endif

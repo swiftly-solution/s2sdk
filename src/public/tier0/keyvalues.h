@@ -74,7 +74,7 @@ protected:
 	Color ResolveColorValue() const;
 	float ResolveFloatValue() const;
 	int ResolveIntValue() const;
-	uint64_t ResolveUint64Value() const;
+	uint64 ResolveUint64Value() const;
 	const char *ResolveStringValue() const;
 	const wchar_t *ResolveWStringValue() const;
 	KeyValues *ResolveSubKeyValue() const;
@@ -102,13 +102,13 @@ protected:
 	Color Internal_GetColor( Color defaultClr ) const;
 	float Internal_GetFloat() const;
 	int Internal_GetInt() const;
-	uint64_t Internal_GetUint64() const;
+	uint64 Internal_GetUint64() const;
 	void *Internal_GetPtr() const;
 	
 	void Internal_SetColor( Color value );
 	void Internal_SetFloat( float value );
 	void Internal_SetInt( int value );
-	void Internal_SetUint64( uint64_t value );
+	void Internal_SetUint64( uint64 value );
 	void Internal_SetString( const char *value );
 	void Internal_SetWString( const wchar_t *value );
 	void Internal_SetPtr( void *value );
@@ -195,7 +195,7 @@ public:
 	KeyValues( const char *setName, const char *firstKey, int firstValue );
 	KeyValues( const char *setName, const char *firstKey, bool firstValue );
 	KeyValues( const char *setName, const char *firstKey, float firstValue );
-	KeyValues( const char *setName, const char *firstKey, uint64_t firstValue );
+	KeyValues( const char *setName, const char *firstKey, uint64 firstValue );
 	KeyValues( const char *setName, const char *firstKey, const char *firstValue, const char *secondKey, const char *secondValue );
 
 	~KeyValues();
@@ -282,7 +282,7 @@ public:
 
 	// Data access
 	int GetInt( const char *keyName = NULL, int defaultValue = 0 ) const;
-	uint64_t GetUint64( const char *keyName = NULL, uint64_t defaultValue = 0 ) const;
+	uint64 GetUint64( const char *keyName = NULL, uint64 defaultValue = 0 ) const;
 	float GetFloat( const char *keyName = NULL, float defaultValue = 0.0f ) const;
 	const char *GetString( const char *keyName, const char *defaultValue = "", char *pszOut = NULL, size_t maxlen = 0 );
 	const wchar_t *GetWString( const char *keyName = NULL, const wchar_t *defaultValue = L"", wchar_t *pszOut = NULL, size_t maxlen = 0 );
@@ -293,7 +293,7 @@ public:
 
 	// Data access
 	int GetInt( HKeySymbol keySymbol, int defaultValue = 0 );
-	uint64_t GetUint64( HKeySymbol keySymbol, uint64_t defaultValue = 0 );
+	uint64 GetUint64( HKeySymbol keySymbol, uint64 defaultValue = 0 );
 	float GetFloat( HKeySymbol keySymbol, float defaultValue = 0.0f );
 	const char *GetString( HKeySymbol keySymbol, const char *defaultValue = "", char *pszOut = NULL, size_t maxlen = 0 );
 	const wchar_t *GetWString( HKeySymbol keySymbol, const wchar_t *defaultValue = L"", wchar_t *pszOut = NULL, size_t maxlen = 0 );
@@ -306,7 +306,7 @@ public:
 	void SetWString( const char *keyName, const wchar_t *value );
 	void SetString( const char *keyName, const char *value );
 	void SetInt( const char *keyName, int value );
-	void SetUint64( const char *keyName, uint64_t value );
+	void SetUint64( const char *keyName, uint64 value );
 	void SetFloat( const char *keyName, float value );
 	void SetPtr( const char *keyName, void *value );
 	void SetColor( const char *keyName, Color value );
@@ -315,7 +315,7 @@ public:
 	// Adds key value pair
 	void AddString( const char *keyName, const char *value );
 	void AddInt( const char *keyName, int value );
-	void AddUint64( const char *keyName, uint64_t value );
+	void AddUint64( const char *keyName, uint64 value );
 	void AddFloat( const char *keyName, float value );
 	void AddPtr( const char *keyName, void *value );
 
@@ -451,7 +451,7 @@ bool KeyValuesDumpAsDevMsg( KeyValues *pKeyValues, int nIndentLevel = 0, int nDe
 PLATFORM_OVERLOAD KeyValues *GetGameInfoKey( const char *keyName );
 PLATFORM_OVERLOAD bool GetGameInfoBool( const char *keyName, bool defaultValue = false );
 PLATFORM_OVERLOAD int GetGameInfoInt( const char *keyName, int defaultValue = 0 );
-PLATFORM_OVERLOAD uint64_t GetGameInfoUint64( const char *keyName, uint64 defaultValue = 0 );
+PLATFORM_OVERLOAD uint64 GetGameInfoUint64( const char *keyName, uint64 defaultValue = 0 );
 PLATFORM_OVERLOAD float GetGameInfoFloat( const char *keyName, float defaultValue = 0.0f );
 PLATFORM_OVERLOAD const char *GetGameInfoString( const char *keyName, const char *defaultValue, char *pScratchSpace, size_t nScratchSpaceCount );
 

@@ -25,7 +25,7 @@ struct SchemaEnumeratorInfoData_t
 {
 	const char* m_pName;
 	
-	int64_t m_nValue;
+	int64 m_nValue;
 	
 	uint16_t m_nNumMetadata;
 	SchemaMetadataEntryData_t* m_pMetadata;
@@ -51,8 +51,8 @@ struct SchemaEnumInfoData_t
 	
 	CSchemaSystemTypeScope* m_pOuterTypeScope;
 	
-	int64_t m_nMinValue;
-	int64_t m_nMaxValue;
+	int64 m_nMinValue;
+	int64 m_nMaxValue;
 };
 
 #endif
