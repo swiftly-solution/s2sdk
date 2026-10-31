@@ -88,7 +88,7 @@ public:
 	KVPair *operator->() { Assert( IsValid() ); return reinterpret_cast< KVPair * >(data.Base()); }
 
 	// Returns the ideal index of the data in this slot, or all bits set if invalid
-	uint32_t IdealIndex( uint32_t slotmask ) const { return IdealIndex( flags_and_hash, slotmask ) | ( (uint32_t)flags_and_hash >> 31 ); }
+	uint32_t IdealIndex( uint32_t slotmask ) const { return IdealIndex( flags_and_hash, slotmask ) | ( (int32_t)flags_and_hash >> 31 ); }
 
 	// Use template tricks to fully define only one function that takes either 16 or 32 bits
 	// and performs different logic without using "if ( INT16_STORAGE )", because GCC and MSVC
