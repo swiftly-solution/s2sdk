@@ -18,38 +18,41 @@
 
 #include <memory>
 
-struct NetMessageInfo_t;
 class CCheckTransmitInfo;
 class CEntityInstance;
 class CNetworkSerializerClassInfo;
 class CNetworkSerializerCodeGenDatabase;
 class CNetMessage;
 
-enum NetworkValidationMode_t
+struct NetMessageInfo_t
 {
+	// "<proto type name> [<message id>]"
+	CUtlString m_szName;
+	NetMessageAllocateFn_t m_pfnAllocateMessage;
+	CUtlString m_szGroup;
+	NetworkMessageId m_MessageId;
 
+	int m_nCategories;
+	// AMNOTE: AssociateNetMessageWithChannelCategoryAbstract ORs the category into it too when bRequireHandler is true.
+	// ConfirmAllMessageHandlersInstalled reports channels in these categories that have no handler registered for the message
+	int m_nRequiredHandlerCategories;
+
+	NetworkGroupId m_GroupId;
+
+	NetChannelBufType_t m_nBufType : 5;
+	// AMNOTE: Set by FindOrCreateNetMessage's bCannotBeNetworked
+	bool m_bCannotBeNetworked : 1;
+	// AMNOTE: Set by FindOrCreateNetMessage's bUnk, checked when processing incoming messages
+	bool m_unk001 : 1;
+	// AMNOTE: Set when FindOrCreateNetMessage got a group of -1, m_szGroup is "Unknown" then
+	bool m_unk002 : 1;
 };
 
-class INetworkMessageInternal
+// A registered net message, INetworkMessages functions take and return it as its handle
+class INetworkMessageInternal : public NetMessageInfo_t
 {
 public:
-	virtual ~INetworkMessageInternal() = 0;
-
-	virtual const char *GetUnscopedName() = 0;
-	virtual NetMessageInfo_t *GetNetMessageInfo() = 0;
-
-	virtual void SetMessageId( NetworkMessageId nMessageId ) = 0;
-
-	virtual void AddCategoryMask( int nMask, bool bRequireHandler ) = 0;
-
-	virtual void SwitchMode( NetworkValidationMode_t nMode ) = 0;
-
-	virtual CNetMessage *AllocateMessage() = 0;
-
-	// Calls to INetworkMessages::SerializeMessageInternal
-	virtual bool Serialize( bf_write &pBuf, const CNetMessage *pData ) = 0;
-	// Calls to INetworkMessages::UnserializeMessageInternal
-	virtual bool Unserialize( bf_read &pBuf, CNetMessage *pData ) = 0;
+	CNetMessage *AllocateMessage() const { return m_pfnAllocateMessage(); }
 };
 
 struct NetworkRecipientsFilter_t

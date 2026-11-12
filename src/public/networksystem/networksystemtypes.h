@@ -107,4 +107,30 @@ typedef int NetworkMessageId;
 typedef uint8_t NetworkGroupId;
 typedef uint32_t NetworkCategoryId;
 
+class CNetMessage;
+
+enum SignonGroup_t
+{
+	SG_GENERIC = 0,
+	SG_LOCALPLAYER,
+	SG_OTHERPLAYERS,
+	SG_ENTITIES,
+	SG_SOUNDS,
+	SG_EVENTS,
+	SG_VOICE,
+	SG_STRINGTABLE,
+	SG_MOVE,
+	SG_STRINGCMD,
+	SG_SIGNON,
+	SG_SYSTEM,
+	SG_DECALS,
+	SG_USERMESSAGES,
+	SG_CLIENTMESSAGES,
+	SG_SPAWNGROUPS,
+	SG_GAMEENGINE,
+	SG_HLTVREPLAY,
+};
+
+typedef CNetMessage *( *NetMessageAllocateFn_t )();
+
 #endif

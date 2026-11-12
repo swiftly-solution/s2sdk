@@ -24,9 +24,12 @@ class NetworkUnserializerInfo_t;
 class NetworkableData_t;
 class FieldMetaInfo_t;
 class NetworkFieldInfo_t;
+class INetworkMessageInternal;
 struct NetworkFieldResult_t;
 struct NetworkableDataType_t;
-class INetworkSerializerBindingBuildFilter;
+
+struct NetMessageInfo_t;
+class CNetMessage;
 
 class CNetMessage
 {
@@ -80,44 +83,6 @@ public:
 	// Prevent manual construction of this object as per the comment above
 	CNetMessagePB() = delete;
 	CNetMessagePB( const CNetMessagePB & ) = delete;
-};
-
-class IProtobufBinding
-{
-public:
-	virtual const char *GetName() = 0;
-	virtual int GetSize() = 0;
-
-	virtual const char *ToString(const void *pData, CUtlString &sResult) = 0;
-
-	virtual const char *GetGroup() = 0;
-	virtual Color GetGroupColor() = 0;
-	virtual NetChannelBufType_t GetBufType() = 0;
-
-	virtual CNetMessage *AllocateMessage() = 0;
-
-	virtual bool OkToRedispatch() = 0;
-	virtual bool unk001() = 0;
-};
-
-struct NetMessageInfo_t
-{
-	int m_nCategories;
-	IProtobufBinding *m_pBinding;
-	CUtlString m_szGroup;
-	NetworkMessageId m_MessageId;
-	NetworkGroupId m_GroupId;
-
-	// AMNOTE: From IProtobufBinding::GetBufType()
-	NetChannelBufType_t m_nBufType : 6;
-	// AMNOTE: Set by FindOrCreateNetMessage's bCannotBeNetworked
-	bool m_bCannotBeNetworked : 1;
-	uint8_t m_unk001 : 1;
-
-	// AMNOTE: AddCategoryMask ORs nMask into it too when bRequireHandler is true. ConfirmAllMessageHandlersInstalled
-	// reports channels in these categories that have no handler registered for the message
-	int m_nRequiredHandlerCategories;
-	bool m_bOkayToRedispatch;
 };
 
 enum NetworkFieldChangedDelegateType_t
@@ -201,23 +166,16 @@ public:
 
 	virtual void AssociateNetMessageWithChannelCategoryAbstract(INetworkMessageInternal *pNetMessage, NetworkCategoryId nCategoryId, bool bRequireHandler) = 0;
 
-	// Passing nMessasgeId as -1 would auto-assign the id based on the message name hash.
-	// AMNOTE: bCannotBeNetworked marks the message as never sent over the network, Serialize rejects it,
-	// and its id is auto-assigned too
-	virtual INetworkMessageInternal *FindOrCreateNetMessage(int nMessageId, IProtobufBinding const *pProtoBinding, uint32_t nMessageSize, INetworkSerializerBindingBuildFilter *pUnused, bool bCreateIfNotFound = true, bool bCannotBeNetworked = false) = 0;
-
 	virtual bool Serialize(bf_write &pBuf, const CNetMessage *pData) = 0;
 
-	virtual bool UnserializeMessageInternal( bf_read &pBuf, CNetMessage *pData ) = 0;
+	// Returns false if failed to unserialize, reason is written to pErrorReason, or logged when it's nullptr
+	// AMNOTE: Messages over the max message size are rejected only when nUnk is 1
+	virtual bool UnserializeMessageInternal( bf_read &pBuf, CNetMessage *pData, int nUnk, CUtlString *pErrorReason ) = 0;
 	virtual bool SerializeMessageInternal( bf_write &pBuf, const CNetMessage *pData ) = 0;
 
 	// Returns nullptr if failed to unserialize, reason is written to err_reason
-	virtual CNetMessage *UnserializeFromStream(bf_read &pBuf, CUtlString &err_reason) = 0;
-	virtual bool SerializeAbstract(bf_write &pBuf, INetworkMessageInternal *pNetMessage, const CNetMessage *pData) = 0;
-
-	virtual CNetMessage *AllocateAndCopyConstructNetMessageAbstract(INetworkMessageInternal *pNetMessage, const CNetMessage *pFrom) = 0;
-
-	virtual void DeallocateNetMessageAbstract(INetworkMessageInternal *pNetMessage, CNetMessage *pData) = 0;
+	// AMNOTE: nUnk is passed on to UnserializeMessageInternal
+	virtual CNetMessage *UnserializeFromStream(bf_read &pBuf, int nUnk, CUtlString &err_reason) = 0;
 
 	// For both, the last two callbacks are used instead of the first serialize and unserialize callbacks while
 	// net_validatemessages is on; null ones fall back to them
@@ -226,6 +184,7 @@ public:
 	virtual void *RegisterNetworkArrayFieldSerializer(char const *szName, NetworkSerializationMode_t mode, NetworkFieldSerializeBufferCB, NetworkFieldUnserializeBufferCB, NetworkFieldInfoCB,
 		NetworkFieldMetaInfoCB, NetworkFieldSerializeBufferCB, NetworkFieldUnserializeBufferCB) = 0;
 
+	// Returns pNetMessage, or an empty info for nullptr
 	virtual NetMessageInfo_t *GetNetMessageInfo(INetworkMessageInternal *pNetMessage) = 0;
 
 	virtual INetworkMessageInternal* FindNetworkMessage(char const *szName) = 0;
@@ -246,6 +205,12 @@ public:
 
 	// AMNOTE: The callback runs for fields with MNetworkChangeTag metadata
 	virtual void RegisterNetworkChangeTagCallback(const NetworkChangeTagDelegate_t &callback) = 0;
+
+	// Passing nMessasgeId as -1 would auto-assign the id based on the message name hash.
+	// Returns nullptr when the message isn't registered yet and AllowAdditionalMessageRegistration is off.
+	// AMNOTE: bCannotBeNetworked marks the message as never sent over the network, Serialize rejects it,
+	// and its id is auto-assigned too
+	virtual INetworkMessageInternal *FindOrCreateNetMessage(int nMessageId, NetMessageAllocateFn_t pfnAllocateMessage, SignonGroup_t nGroup, NetChannelBufType_t nBufType, bool bUnk, bool bCannotBeNetworked) = 0;
 
 	// szCallbackName is the name fields refer to in their MNetworkChangeCallback metadata; registering it twice is a fatal error.
 	// AMNOTE: szClassName is stored with the callback but not used
